@@ -4,26 +4,23 @@ Priority: extra
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 XSBC-Original-Maintainer: Darren Hoyland <darren.hoyland@canonical.com>
 Build-Depends: debhelper (>= 9.0.0),
- python-all (>= 2.6.6-3~),
- python-nose,
- python-testtools,
- python-requests,
- python-setuptools,
- python-six,
- python-yaml,
- python-dateutil
+ python3-all,
+ python3-setuptools,
+ python3-six,
+ python3-testtools,
+ python3-nose,
 Standards-Version: 3.9.5
-XS-Python-Version: >= 2.6
+XS-Python3-Version: >= 3.2
 
-Package: python-weeblclient
+Package: python3-weebl
 Architecture: all
 Section: python
-Depends: python-requests,
+Depends:
  ${misc:Depends},
- ${python:Depends}
-Provides: ${python:Provides}
-XB-Python-Version: ${python:Versions}
-Description: Python 2 SDK for interacting with Canonical's OIL webapp, Weebl.
- Contains python 2 modules for interacting with the Weebl server.
+ ${python3:Depends}
+Provides: ${python3:Provides}
+XB-Python-Version: ${python3:Versions}
+Description: OIL dashboard (weebl) (Python 3).
+ Contains the python 3 django application code for weebl.
  .
- This package provides the Python 2 modules for interacting with the Weebl server via it's REST API.
+ This package installs weebl for python 3.

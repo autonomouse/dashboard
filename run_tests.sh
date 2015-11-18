@@ -1,5 +1,5 @@
 #!/bin/bash -e
-PROJECTS="weeblclient/weebl_python2"
+PROJECTS="weebl"
 
 for project in $PROJECTS; do 
     echo "Testing $project"

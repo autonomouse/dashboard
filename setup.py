@@ -5,7 +5,6 @@ import six
 
 if six.PY3:
     import weebl
-    import tasks
     setup(
         name="weebl",
         version=weebl.__version__,
