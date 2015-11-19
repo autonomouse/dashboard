@@ -1,0 +1,2 @@
+rm -rf /etc/nginx/sites-enabled/weebl-nginx-site.conf
+ln -s /usr/share/weebl/weebl-nginx-site.conf /etc/nginx/sites-enabled/weebl-nginx-site.conf

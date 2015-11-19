@@ -17,7 +17,33 @@ Architecture: all
 Section: python
 Depends:
  ${misc:Depends},
- ${python3:Depends}
+ ${python3:Depends},
+ libjs-angularjs,
+ libjs-yui,
+ libjs-yui3-min,
+ npm,
+ pandoc,
+ psutils,
+ python3-arrow,
+ python3-bs4,
+ python3-dateutil,
+ python3-django,
+ python3-django-tastypie,
+ python3-flake8,
+ python3-freezegun,
+ python3-invoke,
+ python3-mimeparse,
+ python3-pip,
+ python3-postgresql,
+ python3-psutil,
+ python3-psycopg2,
+ python3-pydot,
+ python3-pyparsing,
+ python3-pytest,
+ python3-requests,
+ python3-requests-oauthlib,
+ python3-social-auth,
+ python3-yaml
 Provides: ${python3:Provides}
 XB-Python-Version: ${python3:Versions}
 Description: OIL dashboard (weebl) (Python 3).
