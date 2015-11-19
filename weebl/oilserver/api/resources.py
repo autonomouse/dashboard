@@ -16,8 +16,12 @@ def fixup_set_filters(model_names, applicable_filters):
     instead of 'bugoccurences'. This replaces the former with the latter
     for a set of model names.
 
-    TODO: see if this can be fixed by specifying reverse relation names
+    TODO: See if this can be fixed by specifying reverse relation names
     on models.
+
+    Args:
+        model_names (list): A list of object names (e.g. ['bug', 'knownbugregex']).
+        applicable_filters: filters given to tastypie's apply_filters method.
     """
     for model_name in model_names:
         bad_keys = []
@@ -32,6 +36,19 @@ def fixup_set_filters(model_names, applicable_filters):
 
 
 def raise_error_if_in_bundle(bundle, error_if_fields):
+    """Raise error if any of the given fields are in the bundle.
+
+    Raises a NonUserEditableError if any of the fields given in error_if_fields
+    are present in bundle.data.
+
+    Args:
+        bundle: The tastypie bundle.
+        error_if_fields (list): A list of field names (e.g. ['created_at',
+            'updated_at']).
+
+        Raises:
+            NonUserEditableError: Raises an exception.
+    """
     bad_fields = []
     for field in error_if_fields:
         if field in bundle.data:
@@ -42,6 +59,10 @@ def raise_error_if_in_bundle(bundle, error_if_fields):
 
 
 class CommonResource(ModelResource):
+    """The parent resource of the other resource objects.
+
+    Provides common methods and overrides for tastypie's default methods.
+    """
 
     def hydrate(self, bundle):
         # Timestamp data should be generated interanlly and not editable:
@@ -63,6 +84,11 @@ class CommonResource(ModelResource):
 
 
 class EnvironmentResource(CommonResource):
+    """API Resource for 'Environment' model.
+
+    Provides a REST API resource for the Environment model. Inherits common
+    methods from CommonResource.
+    """
 
     class Meta:
         queryset = models.Environment.objects.all()
@@ -97,6 +123,11 @@ class EnvironmentResource(CommonResource):
 
 
 class ServiceStatusResource(CommonResource):
+    """API Resource for 'ServiceStatus' model.
+
+    Provides a REST API resource for the ServiceStatus model. Inherits common
+    methods from CommonResource.
+    """
 
     class Meta:
         queryset = models.ServiceStatus.objects.all()
@@ -111,6 +142,16 @@ class ServiceStatusResource(CommonResource):
 
 
 class JenkinsResource(CommonResource):
+    """API Resource for 'Jenkins' model.
+
+    Provides a REST API resource for the Jenkins model. Inherits common
+    methods from CommonResource.
+
+    Attributes:
+        environment: Foreign key to the Environment resource.
+        servicestatus: Foreign key to the ServiceStatus resource.
+    """
+
     environment = fields.ForeignKey(EnvironmentResource, 'environment')
     servicestatus = fields.ForeignKey(ServiceStatusResource, 'servicestatus')
 
@@ -138,6 +179,15 @@ class JenkinsResource(CommonResource):
 
 
 class BuildExecutorResource(CommonResource):
+    """API Resource for 'BuildExecutor' model.
+
+    Provides a REST API resource for the BuildExecutor model. Inherits common
+    methods from CommonResource.
+
+    Attributes:
+        jenkins: Foreign key to the Jenkins resource.
+    """
+
     jenkins = fields.ForeignKey(JenkinsResource, 'jenkins')
 
     class Meta:
@@ -155,6 +205,11 @@ class BuildExecutorResource(CommonResource):
 
 
 class UbuntuVersionResource(CommonResource):
+    """API Resource for 'UbuntuVersion' model.
+
+    Provides a REST API resource for the UbuntuVersion model. Inherits common
+    methods from CommonResource.
+    """
 
     class Meta:
         queryset = models.UbuntuVersion.objects.all()
@@ -169,6 +224,11 @@ class UbuntuVersionResource(CommonResource):
 
 
 class OpenstackVersionResource(CommonResource):
+    """API Resource for 'OpenstackVersion' model.
+
+    Provides a REST API resource for the OpenstackVersion model. Inherits
+    common methods from CommonResource.
+    """
 
     class Meta:
         queryset = models.OpenstackVersion.objects.all()
@@ -183,6 +243,11 @@ class OpenstackVersionResource(CommonResource):
 
 
 class SDNResource(CommonResource):
+    """API Resource for 'SDN' model.
+
+    Provides a REST API resource for the SDN model. Inherits common methods
+    from CommonResource.
+    """
 
     class Meta:
         resource_name = 'sdn'
@@ -198,6 +263,11 @@ class SDNResource(CommonResource):
 
 
 class ComputeResource(CommonResource):
+    """API Resource for 'Compute' model.
+
+    Provides a REST API resource for the Compute model. Inherits common methods
+    from CommonResource.
+    """
 
     class Meta:
         queryset = models.Compute.objects.all()
@@ -212,6 +282,11 @@ class ComputeResource(CommonResource):
 
 
 class BlockStorageResource(CommonResource):
+    """API Resource for 'BlockStorage' model.
+
+    Provides a REST API resource for the BlockStorage model. Inherits common
+    methods from CommonResource.
+    """
 
     class Meta:
         queryset = models.BlockStorage.objects.all()
@@ -226,6 +301,11 @@ class BlockStorageResource(CommonResource):
 
 
 class ImageStorageResource(CommonResource):
+    """API Resource for 'ImageStorage' model.
+
+    Provides a REST API resource for the ImageStorage model. Inherits common
+    methods from CommonResource.
+    """
 
     class Meta:
         queryset = models.ImageStorage.objects.all()
@@ -240,6 +320,11 @@ class ImageStorageResource(CommonResource):
 
 
 class DatabaseResource(CommonResource):
+    """API Resource for 'Database' model.
+
+    Provides a REST API resource for the Database model. Inherits common
+    methods from CommonResource.
+    """
 
     class Meta:
         queryset = models.Database.objects.all()
@@ -254,6 +339,22 @@ class DatabaseResource(CommonResource):
 
 
 class PipelineResource(CommonResource):
+    """API Resource for 'Pipeline' model.
+
+    Provides a REST API resource for the Pipeline model. Inherits common
+    methods from CommonResource.
+
+    Attributes:
+        buildexecutor: Foreign key to the BuildExecutor resource.
+        ubuntuversion: Foreign key to the UbuntuVersion resource.
+        openstackversion: Foreign key to the OpenstackVersion resource.
+        sdn: Foreign key to the SDN resource.
+        compute: Foreign key to the Compute resource.
+        blockstorage: Foreign key to the BlockStorage resource.
+        imagestorage: Foreign key to the ImageStorage resource.
+        database: Foreign key to the Database resource.
+    """
+
     buildexecutor = fields.ForeignKey(BuildExecutorResource, 'buildexecutor')
     ubuntuversion = fields.ForeignKey(UbuntuVersionResource, 'ubuntuversion',
                                       full=True, null=True)
@@ -296,6 +397,11 @@ class PipelineResource(CommonResource):
 
 
 class BuildStatusResource(CommonResource):
+    """API Resource for 'BuildStatus' model.
+
+    Provides a REST API resource for the BuildStatus model. Inherits common
+    methods from CommonResource.
+    """
 
     class Meta:
         queryset = models.BuildStatus.objects.all()
@@ -310,6 +416,11 @@ class BuildStatusResource(CommonResource):
 
 
 class JobTypeResource(CommonResource):
+    """API Resource for 'JobType' model.
+
+    Provides a REST API resource for the JobType model. Inherits common
+    methods from CommonResource.
+    """
 
     class Meta:
         queryset = models.JobType.objects.all()
@@ -324,6 +435,16 @@ class JobTypeResource(CommonResource):
 
 
 class BuildResource(CommonResource):
+    """API Resource for 'Pipeline' model.
+
+    Provides a REST API resource for the Pipeline model. Inherits common
+    methods from CommonResource.
+
+    Attributes:
+        pipeline: Foreign key to the Pipeline resource.
+        buildstatus: Foreign key to the BuildStatus resource.
+        jobtype: Foreign key to the JobType resource.
+    """
     pipeline = fields.ForeignKey(PipelineResource, 'pipeline')
     buildstatus = fields.ForeignKey(BuildStatusResource, 'buildstatus')
     jobtype = fields.ForeignKey(JobTypeResource, 'jobtype')
@@ -348,6 +469,14 @@ class BuildResource(CommonResource):
 
 
 class TargetFileGlobResource(CommonResource):
+    """API Resource for 'TargetFileGlob' model.
+
+    Provides a REST API resource for the TargetFileGlob model. Inherits common
+    methods from CommonResource.
+
+    Attributes:
+        jobtypes: To-Many relation to the JobType resource.
+    """
     jobtypes = fields.ToManyField('oilserver.api.resources.JobTypeResource',
                                   'jobtypes', null=True)
 
@@ -365,6 +494,11 @@ class TargetFileGlobResource(CommonResource):
 
 
 class ProjectResource(CommonResource):
+    """API Resource for 'Project' model.
+
+    Provides a REST API resource for the Project model. Inherits common methods
+    from CommonResource.
+    """
 
     class Meta:
         queryset = models.Project.objects.all()
@@ -382,6 +516,18 @@ REPLACE_PREFIX = 'knownbugregex__bugoccurrences__'
 
 
 def get_bugoccurrence_filters(bundle):
+    """Construct and return bug occurrence filters.
+
+    For each item in the request.GET.query_dict dictionary of bundle, find the
+    queries that start with the path given in REPLACE_PREFIX and end with
+    '__in', and return them with the additon of regex > bug > uuid  = uuid.
+
+    Args:
+        bundle: The tastypie bundle.
+
+    Returns:
+        bugoccurrence_filters: A dictionary .
+    """
     query_dict = bundle.request.GET
     bugoccurrence_filters = {}
     for key, value in query_dict.items():
@@ -405,6 +551,9 @@ def get_bugoccurrences(bundle):
     bug occurrences that match those properties. So if we filter for
     bugs with occurrences in pipelines that completed in 2015, only
     the bug occurrences that completed in 2015 will be included.
+
+    Args:
+        bundle: The tastypie bundle.
     """
     bugoccurrence_filters = get_bugoccurrence_filters(bundle)
     return models.BugOccurrence.objects.filter(**bugoccurrence_filters)
@@ -413,15 +562,14 @@ def get_bugoccurrences(bundle):
 class BugResource(CommonResource):
     """API Resource for 'Bug' model.
 
-    The bug list now includes the list of bug occurrences for the bug.
-    TODO: Perhaps the list of occurrences should only be included
-    when explicitly requested with a separate parameter, like
-    get_occurrence=True?
+    Provides a REST API resource for the Bug model. Inherits common methods
+    from CommonResource.
 
-    Bugs can be filtered by bug occurrence properties (via
-    knownbugregex). This allows filtering based on pipeline properties
-    such as completed_at, ubuntuversion, etc, by extension.
+    Attributes:
+        knownbugregex: To-Many relation to the KnownBugRegex resource.
+        bugtrackerbug: To-One relation to the BugTrckerBug resource.
     """
+
     knownbugregex = fields.ToManyField(
         'oilserver.api.resources.KnownBugRegexResource',
         'knownbugregex_set', null=True)
@@ -460,6 +608,15 @@ class BugResource(CommonResource):
 
 
 class BugTrackerBugResource(CommonResource):
+    """API Resource for 'BugTrackerBug' model.
+
+    Provides a REST API resource for the BugTrackerBug model. Inherits common
+    methods from CommonResource.
+
+    Attributes:
+        project: Foreign key to the Project resource.
+    """
+
     project = fields.ForeignKey(
         ProjectResource, 'project', full=True, null=True)
 
@@ -476,6 +633,17 @@ class BugTrackerBugResource(CommonResource):
 
 
 class KnownBugRegexResource(CommonResource):
+    """API Resource for 'BugTrackerBug' model.
+
+    Provides a REST API resource for the BugTrackerBug model. Inherits common
+    methods from CommonResource.
+
+    Attributes:
+        targetfileglobs: To-Many relation to the TargetFileGlobs resource.
+        bug: Foreign key to the Bug resource.
+        bugoccurrences: To-Many relation to the BugOccurrences resource.
+    """
+
     targetfileglobs = fields.ToManyField(
         TargetFileGlobResource, 'targetfileglobs')
     bug = fields.ForeignKey(BugResource, 'bug', null=True)
@@ -500,6 +668,15 @@ class KnownBugRegexResource(CommonResource):
 
 
 class BugOccurrenceResource(CommonResource):
+    """API Resource for 'BugTrackerBug' model.
+
+    Provides a REST API resource for the BugTrackerBug model. Inherits common
+    methods from CommonResource.
+
+    Attributes:
+        build: To-Many relation to the Build resource.
+        regex: Foreign key to the KnownBugRegex resource.
+    """
     build = fields.ForeignKey(BuildResource, 'build')
     regex = fields.ForeignKey(KnownBugRegexResource, 'regex')
 
