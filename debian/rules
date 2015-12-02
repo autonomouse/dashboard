@@ -2,7 +2,7 @@
 
 export DH_VERBOSE=1
 export PYBUILD_NAME = weebl
-VERS=$(shell dpkg-parsechangelog | sed -rne 's,^Version: ([^-]+).*,\1,p')
+VERS=$(shell dpkg-parsechangelog | sed -rne 's,^Version: (.*)-0ubuntu1,\1,p')
 
 %:
 	dh $@ --with python3 --buildsystem=pybuild
