@@ -649,7 +649,7 @@ class KnownBugRegexResource(CommonResource):
     bug = fields.ForeignKey(BugResource, 'bug', null=True)
     bugoccurrences = fields.ToManyField(
         'oilserver.api.resources.BugOccurrenceResource',
-        'bugoccurrence_set', null=True)
+        'bugoccurrence_set', null=True, use_in='detail')
 
     class Meta:
         queryset = models.KnownBugRegex.objects.select_related('bug').all()
