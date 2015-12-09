@@ -218,6 +218,104 @@ class UbuntuVersion(models.Model):
         return self.name
 
 
+class Project(TimeStampedBaseModel):
+    """A system for tracking bugs (e.g. Launchpad). """
+    name = models.CharField(
+        max_length=255,
+        unique=True,
+        help_text="Name of project.")
+    uuid = models.CharField(
+        max_length=36,
+        default=utils.generate_uuid,
+        unique=True,
+        blank=False,
+        null=False,
+        help_text="UUID of this project.")
+
+    def __str__(self):
+        return self.uuid
+
+
+class Vendor(TimeStampedBaseModel):
+    """The partner responsible for the product under test. """
+    name = models.CharField(
+        max_length=255,
+        unique=True,
+        help_text="The name and/or number of the product type.")
+    uuid = models.CharField(
+        max_length=36,
+        default=utils.generate_uuid,
+        unique=True,
+        blank=False,
+        null=False,
+        help_text="UUID of this vendor.")
+
+    def __str__(self):
+        return self.uuid
+
+
+class InternalContact(TimeStampedBaseModel):
+    """The Canonical employee who can be contacted regarding this product. """
+    name = models.CharField(
+        max_length=255,
+        unique=True,
+        help_text="The name and/or number of the product type.")
+    staffdirectoryurl = models.URLField(
+        default=None,
+        blank=True,
+        help_text="URL linking to Canonical staff directory.")
+    uuid = models.CharField(
+        max_length=36,
+        default=utils.generate_uuid,
+        unique=True,
+        blank=False,
+        null=False,
+        help_text="UUID of this contact.")
+
+    def __str__(self):
+        return self.uuid
+
+
+class Machine(TimeStampedBaseModel):
+    """The physical or virtual machine used. """
+    uuid = models.CharField(
+        max_length=36,
+        default=utils.generate_uuid,
+        unique=True,
+        blank=False,
+        null=False,
+        help_text="UUID of this machine.")
+
+    def __str__(self):
+        return self.uuid
+
+
+class ProductUnderTest(TimeStampedBaseModel):
+    """The product that is undergoing testing, such as a piece of hardware
+    sold by a vendor.
+    """
+    name = models.CharField(
+        max_length=255,
+        unique=True,
+        help_text="The name of the product.")
+    uuid = models.CharField(
+        max_length=36,
+        default=utils.generate_uuid,
+        unique=True,
+        blank=False,
+        null=False,
+        help_text="UUID of this product.")
+    project = models.ForeignKey(Project, null=True, blank=True, default=None)
+    vendor = models.ForeignKey(Vendor, null=True, blank=True, default=None)
+    internalcontact = models.ForeignKey(
+        InternalContact, null=True, blank=True, default=None)
+    machine = models.ManyToManyField(
+        Machine, null=True, blank=True, default=None)
+
+    def __str__(self):
+        return self.uuid
+
+
 class OpenstackVersion(models.Model):
     """The version of OpenStack running in a pipeline."""
     name = models.CharField(
@@ -322,6 +420,24 @@ class Pipeline(TimeStampedBaseModel):
         return self.uuid
 
 
+class MachineConfiguration(TimeStampedBaseModel):
+    """The instance of a machine deployment, i.e. the circumstances in which a
+    machine was deployed and the particular configuration used.
+    """
+    uuid = models.CharField(
+        max_length=36,
+        default=utils.generate_uuid,
+        unique=True,
+        blank=False,
+        null=False,
+        help_text="UUID of this machine.")
+    machine = models.ForeignKey(Machine, null=True, blank=True, default=None)
+    pipeline = models.ForeignKey(Pipeline, null=True, blank=True, default=None)
+
+    def __str__(self):
+        return self.uuid
+
+
 class BuildStatus(models.Model):
     """Potential states that the build may be in following being run on the CI
     server (Jenkins; e.g. success, failure, aborted, unknown).
@@ -412,17 +528,6 @@ class TargetFileGlob(TimeStampedBaseModel):
 
     def __str__(self):
         return self.glob_pattern
-
-
-class Project(TimeStampedBaseModel):
-    """A system for tracking bugs (e.g. Launchpad). """
-    name = models.CharField(
-        max_length=255,
-        unique=True,
-        help_text="Name of project.")
-
-    def __str__(self):
-        return self.name
 
 
 class BugTrackerBug(TimeStampedBaseModel):

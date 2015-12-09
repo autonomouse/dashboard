@@ -20,7 +20,8 @@ def fixup_set_filters(model_names, applicable_filters):
     on models.
 
     Args:
-        model_names (list): A list of object names (e.g. ['bug', 'knownbugregex']).
+        model_names (list): A list of object names (e.g.
+            ['bug', 'knownbugregex']).
         applicable_filters: filters given to tastypie's apply_filters method.
     """
     for model_name in model_names:
@@ -223,6 +224,131 @@ class UbuntuVersionResource(CommonResource):
         detail_uri_name = 'name'
 
 
+class ProjectResource(CommonResource):
+    """API Resource for 'Project' model.
+
+    Provides a REST API resource for the Project model. Inherits common methods
+    from CommonResource.
+    """
+
+    class Meta:
+        queryset = models.Project.objects.all()
+        list_allowed_methods = ['get', 'post', 'delete']  # all items
+        detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
+        fields = ['name', 'uuid']
+        authorization = DjangoAuthorization()
+        authentication = ApiKeyAuthentication()
+        always_return_data = True
+        filtering = {
+            'uuid': ('uuid',),
+            'name': ('exact',), }
+        detail_uri_name = 'uuid'
+
+
+class VendorResource(CommonResource):
+    """API Resource for 'Vendor' model.
+
+    Provides a REST API resource for the Vendor model. Inherits common
+    methods from CommonResource.
+    """
+
+    class Meta:
+        queryset = models.Vendor.objects.all()
+        list_allowed_methods = ['get', 'post', 'delete']  # all items
+        detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
+        fields = ['name', 'description', 'uuid']
+        authorization = DjangoAuthorization()
+        authentication = ApiKeyAuthentication()
+        always_return_data = True
+        filtering = {
+            'uuid': ('uuid',),
+            'name': ('exact',), }
+        detail_uri_name = 'uuid'
+
+
+class InternalContactResource(CommonResource):
+    """API Resource for 'InternalContact' model.
+
+    Provides a REST API resource for the InternalContact model. Inherits
+    common methods from CommonResource.
+
+    """
+
+    class Meta:
+        queryset = models.Project.objects.all()
+        list_allowed_methods = ['get', 'post', 'delete']  # all items
+        detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
+        fields = ['name', 'uuid']
+        authorization = DjangoAuthorization()
+        authentication = ApiKeyAuthentication()
+        always_return_data = True
+        filtering = {
+            'uuid': ('uuid',),
+            'name': ALL, }
+        detail_uri_name = 'uuid'
+
+
+class MachineResource(CommonResource):
+    """API Resource for 'Machine' model.
+
+    Provides a REST API resource for the Machine model. Inherits common
+    methods from CommonResource.
+    """
+
+    class Meta:
+        queryset = models.Machine.objects.all()
+        list_allowed_methods = ['get', 'post', 'delete']  # all items
+        detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
+        fields = ['name', 'uuid']
+        authorization = DjangoAuthorization()
+        authentication = ApiKeyAuthentication()
+        always_return_data = True
+        filtering = {
+            'name': ('exact',),
+            'uuid': ('exact',), }
+        detail_uri_name = 'uuid'
+
+
+class ProductUnderTestResource(CommonResource):
+    """API Resource for 'ProductUnderTest' model.
+
+    Provides a REST API resource for the ProductUnderTest model. Inherits
+    common methods from CommonResource.
+
+    Attributes:
+        project: Foreign key to the Project resource.
+        vendor: Foreign key to the Vendor resource.
+        internalcontact: Foreign key to the InternalContact resource.
+        machine: To-Many relation to the Machine resource.
+    """
+
+    project = fields.ForeignKey(
+        ProjectResource, 'project', full=True, null=True)
+    vendor = fields.ForeignKey(VendorResource, 'vendor', full=True, null=True)
+    internalcontact = fields.ForeignKey(
+        InternalContactResource, 'internalcontact', full=True, null=True)
+    machine = fields.ToManyField(
+        MachineResource, 'machine', full=True, null=True)
+
+    class Meta:
+        queryset = models.Project.objects.all()
+        list_allowed_methods = ['get', 'post', 'delete']  # all items
+        detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
+        fields = [
+            'name', 'project', 'vendor', 'uuid', 'internalcontact', 'machine']
+        authorization = DjangoAuthorization()
+        authentication = ApiKeyAuthentication()
+        always_return_data = True
+        filtering = {
+            'project': ('exact',),
+            'internalcontact': ('exact',),
+            'vendor': ('exact',),
+            'uuid': ('uuid',),
+            'name': ('exact',),
+            'machine': ('exact',), }
+        detail_uri_name = 'uuid'
+
+
 class OpenstackVersionResource(CommonResource):
     """API Resource for 'OpenstackVersion' model.
 
@@ -345,8 +471,8 @@ class PipelineResource(CommonResource):
     methods from CommonResource.
 
     Attributes:
-        buildexecutor: Foreign key to the BuildExecutor resource.
         ubuntuversion: Foreign key to the UbuntuVersion resource.
+        buildexecutor: Foreign key to the BuildExecutor resource.
         openstackversion: Foreign key to the OpenstackVersion resource.
         sdn: Foreign key to the SDN resource.
         compute: Foreign key to the Compute resource.
@@ -355,9 +481,9 @@ class PipelineResource(CommonResource):
         database: Foreign key to the Database resource.
     """
 
+    ubuntuversion = fields.ForeignKey(
+        UbuntuVersionResource, 'ubuntuversion', full=True, null=True)
     buildexecutor = fields.ForeignKey(BuildExecutorResource, 'buildexecutor')
-    ubuntuversion = fields.ForeignKey(UbuntuVersionResource, 'ubuntuversion',
-                                      full=True, null=True)
     openstackversion = fields.ForeignKey(
         OpenstackVersionResource, 'openstackversion', full=True, null=True)
     sdn = fields.ForeignKey(SDNResource, 'sdn', full=True, null=True)
@@ -391,8 +517,40 @@ class PipelineResource(CommonResource):
                      'compute': ALL_WITH_RELATIONS,
                      'blockstorage': ALL_WITH_RELATIONS,
                      'imagestorage': ALL_WITH_RELATIONS,
-                     'database': ALL_WITH_RELATIONS
+                     'database': ALL_WITH_RELATIONS,
                      }
+        detail_uri_name = 'uuid'
+
+
+class MachineConfigurationResource(CommonResource):
+    """API Resource for 'Machine' model.
+
+    Provides a REST API resource for the Machine model. Inherits common
+    methods from CommonResource.
+
+    Attributes:
+        machine: Foreign key to the Machine resource.
+        pipeline: Foreign key to the Pipeline resource.
+    """
+
+    machine = fields.ForeignKey(
+        MachineResource, 'machine', full=True, null=True)
+    pipeline = fields.ForeignKey(
+        PipelineResource, 'pipeline', full=True, null=True)
+
+    class Meta:
+        queryset = models.Machine.objects.all()
+        list_allowed_methods = ['get', 'post', 'delete']  # all items
+        detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
+        fields = ['name', 'uuid', 'machine', 'pipeline']
+        authorization = DjangoAuthorization()
+        authentication = ApiKeyAuthentication()
+        always_return_data = True
+        filtering = {
+            'machine': ('exact'),
+            'name': ('exact',),
+            'uuid': ('exact',),
+            'pipeline': ('exact',), }
         detail_uri_name = 'uuid'
 
 
@@ -493,25 +651,6 @@ class TargetFileGlobResource(CommonResource):
         detail_uri_name = 'glob_pattern'
 
 
-class ProjectResource(CommonResource):
-    """API Resource for 'Project' model.
-
-    Provides a REST API resource for the Project model. Inherits common methods
-    from CommonResource.
-    """
-
-    class Meta:
-        queryset = models.Project.objects.all()
-        list_allowed_methods = ['get', 'post', 'delete']  # all items
-        detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
-        fields = ['name', 'bug_tracker']
-        authorization = DjangoAuthorization()
-        authentication = ApiKeyAuthentication()
-        always_return_data = True
-        filtering = {'name': ALL, }
-        detail_uri_name = 'name'
-
-
 REPLACE_PREFIX = 'knownbugregex__bugoccurrences__'
 
 
@@ -557,6 +696,31 @@ def get_bugoccurrences(bundle):
     """
     bugoccurrence_filters = get_bugoccurrence_filters(bundle)
     return models.BugOccurrence.objects.filter(**bugoccurrence_filters)
+
+
+class BugTrackerBugResource(CommonResource):
+    """API Resource for 'BugTrackerBug' model.
+
+    Provides a REST API resource for the BugTrackerBug model. Inherits common
+    methods from CommonResource.
+
+    Attributes:
+        project: Foreign key to the Project resource.
+    """
+
+    project = fields.ForeignKey(
+        ProjectResource, 'project', full=True, null=True)
+
+    class Meta:
+        queryset = models.BugTrackerBug.objects.select_related('project').all()
+        list_allowed_methods = ['get', 'post', 'delete']  # all items
+        detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
+        fields = ['uuid', 'bug_number', 'project', 'created_at', 'updated_at']
+        authorization = DjangoAuthorization()
+        authentication = ApiKeyAuthentication()
+        always_return_data = True
+        filtering = {'bug_number': ALL, }
+        detail_uri_name = 'uuid'
 
 
 class BugResource(CommonResource):
@@ -606,31 +770,6 @@ class BugResource(CommonResource):
             bundle.data['last_seen'] = bugoccurrences.latest(
                 'build__pipeline__completed_at').build.pipeline.completed_at
         return bundle
-
-
-class BugTrackerBugResource(CommonResource):
-    """API Resource for 'BugTrackerBug' model.
-
-    Provides a REST API resource for the BugTrackerBug model. Inherits common
-    methods from CommonResource.
-
-    Attributes:
-        project: Foreign key to the Project resource.
-    """
-
-    project = fields.ForeignKey(
-        ProjectResource, 'project', full=True, null=True)
-
-    class Meta:
-        queryset = models.BugTrackerBug.objects.select_related('project').all()
-        list_allowed_methods = ['get', 'post', 'delete']  # all items
-        detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
-        fields = ['uuid', 'bug_number', 'project', 'created_at', 'updated_at']
-        authorization = DjangoAuthorization()
-        authentication = ApiKeyAuthentication()
-        always_return_data = True
-        filtering = {'bug_number': ALL, }
-        detail_uri_name = 'uuid'
 
 
 class KnownBugRegexResource(CommonResource):

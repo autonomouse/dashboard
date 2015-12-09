@@ -27,6 +27,11 @@ v_api.register(resources.BlockStorageResource())
 v_api.register(resources.ImageStorageResource())
 v_api.register(resources.DatabaseResource())
 v_api.register(resources.ProjectResource())
+v_api.register(resources.MachineResource())
+v_api.register(resources.VendorResource())
+v_api.register(resources.ProductUnderTestResource())
+v_api.register(resources.InternalContactResource())
+v_api.register(resources.MachineConfigurationResource())
 
 urlpatterns = patterns(
     '',
