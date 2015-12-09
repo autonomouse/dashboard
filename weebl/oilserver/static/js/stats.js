@@ -51,10 +51,6 @@ app.controller('successRateController', [
             bugsRetriever.refresh($scope, pipeline_filters);
         };
 
-        function dateToString(date) {
-            return date.getUTCFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getUTCDate();
-        }
-
         var dateSymbolToDays = {
             'Last 24 Hours': 1,
             'Last 7 Days': 7,
@@ -67,8 +63,8 @@ app.controller('successRateController', [
             console.log("Updating to last %d days.", days_offset);
             today = new Date();
             prior_date = new Date(new Date().setDate(today.getDate()-days_offset));
-            $scope.start_date = dateToString(prior_date);
-            $scope.finish_date = dateToString(today);
+            $scope.start_date = prior_date.toISOString();
+            $scope.finish_date = today.toISOString();
         };
 
         function updateFromServer() {
