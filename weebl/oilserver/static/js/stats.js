@@ -1,24 +1,37 @@
 var app = angular.module('weebl');
 app.controller('successRateController', [
-    '$scope', '$rootScope', 'buildsRetriever', 'bugsRetriever', 'SearchService', 'metadataRetriever',
-    function($scope, $rootScope, buildsRetriever, bugsRetriever, SearchService, metadataRetriever) {
+    '$scope', '$rootScope', 'buildsRetriever', 'bugsRetriever', 'SearchService', 'metadataRetriever', 'DataService',
+    function($scope, $rootScope, buildsRetriever, bugsRetriever, SearchService, metadataRetriever, DataService) {
         binding = this;
         binding.user = $scope.this.user;
         binding.apikey = $scope.this.apikey;
         $scope.filters = SearchService.getEmptyFilter();
         $scope.bugs = {};
-
+        $scope.testRuns = {};
         $scope.metadata = {};
+        $scope.regexes = {};
 
         $scope.tabs = {};
+
         $scope.tabs.successRate = {};
-        $scope.tabs.successRate.pagetitle = "successRate";
+        $scope.tabs.successRate.pagetitle = "Success Rate";
         $scope.tabs.successRate.currentpage = "successRate";
+
         $scope.tabs.bugs = {};
         $scope.tabs.bugs.pagetitle = "Bugs";
         $scope.tabs.bugs.currentpage = "bugs";
         $scope.tabs.bugs.predicate = "occurrences";
         $scope.tabs.bugs.reverse = false;
+
+        $scope.tabs.testRuns = {};
+        $scope.tabs.testRuns.pagetitle = "Test Runs";
+        $scope.tabs.testRuns.currentpage = "testRuns";
+        $scope.tabs.testRuns.predicate = "completed_at";
+        $scope.tabs.testRuns.reverse = false;
+
+        $scope.tabs.individual_testRun = {};
+        $scope.tabs.individual_testRun.pagetitle = "Individual Test Run";
+        $scope.tabs.individual_testRun.currentpage = "individual_testRun";
 
         function generatePipelineFilters() {
             var pipeline_filters = {};
@@ -51,6 +64,20 @@ app.controller('successRateController', [
             bugsRetriever.refresh($scope, pipeline_filters);
         };
 
+        function updateRegexes(pipeline_filters) {
+            $scope.regexes = DataService.refresh(
+                'knownbugregex', $scope.user, $scope.apikey).get(pipeline_filters);
+        };
+
+        function updateTestRuns(pipeline_filters) {
+            $scope.testRuns = DataService.refresh(
+                'pipeline', $scope.user, $scope.apikey).get(pipeline_filters);
+        };
+
+        function dateToString(date) {
+            return date.getUTCFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getUTCDate();
+        }
+
         var dateSymbolToDays = {
             'Last 24 Hours': 1,
             'Last 7 Days': 7,
@@ -71,6 +98,7 @@ app.controller('successRateController', [
             pipeline_filters = generatePipelineFilters();
             updateStats(pipeline_filters);
             updateBugs(pipeline_filters);
+            updateTestRuns(pipeline_filters);
         }
 
         // Clear the search bar.
@@ -93,6 +121,11 @@ app.controller('successRateController', [
                 $scope.searchValid = true;
             }
             updateFromServer();
+        };
+
+        $scope.updateIndividualTestRun = function(pipeline) {
+            $scope.individual_testRun = DataService.refresh(
+                'pipeline', $scope.user, $scope.apikey).get({"uuid": pipeline});
         };
 
         $scope.updateFilter = function(type, value, tab) {

@@ -74,6 +74,10 @@
                                     <a href=""
                                         data-ng-class="{ active: currentpage === 'bugs' }"
                                         data-ng-click="toggleTab('bugs')">Bugs</a>
+                                    <span class="divide"></span>
+                                    <a href=""
+                                        data-ng-class="{ active: currentpage === 'testRuns' }"
+                                        data-ng-click="toggleTab('testRuns')">Test Runs</a>
                                     <span class="power-status--power" data-ng-show="loading">
                                     <span class="loader"></span>
                                     Loading...
@@ -86,97 +90,100 @@
                     <div class="inner-wrapper">
 
                         <!-- accordion -->
-                        <div class="accordion three-col maas-accordion">
-                            <h3 class="accordion__title">Filter by</h3>
-                            <div class="ng-hide accordion__tab" data-ng-show="1">
-                                <h4 class="accordion__tab-title maas-accordion-tab active">Date</h4>
-                                <div class="accordion__tab-content">
-                                    <ul class="accordion__tab-list">
-                                        <li class="accordion__tab-item" data-ng-class="{ active: isFilterActive('date', 'Last 24 Hours', 'successRate') }">
-                                            <a class="accordion__tab-link" href="" data-ng-click="updateFilter('date', 'Last 24 Hours', 'successRate')">Last 24 Hours</a>
-                                        </li>
-                                        <li class="accordion__tab-item" data-ng-class="{ active: isFilterActive('date', 'Last 7 Days', 'successRate') }">
-                                            <a class="accordion__tab-link" href="" data-ng-click="updateFilter('date', 'Last 7 Days', 'successRate')">Last 7 Days</a>
-                                        </li>
-                                        <li class="accordion__tab-item" data-ng-class="{ active: isFilterActive('date', 'Last 30 Days', 'successRate') }">
-                                            <a class="accordion__tab-link" href="" data-ng-click="updateFilter('date', 'Last 30 Days', 'successRate')">Last 30 Days</a>
-                                        </li>
-                                        <li class="accordion__tab-item" data-ng-class="{ active: isFilterActive('date', 'Last Year', 'successRate') }">
-                                            <a class="accordion__tab-link" href="" data-ng-click="updateFilter('date', 'Last Year', 'successRate')">Last Year</a>
-                                        </li>
-                                    </ul>
+                        <div data-ng-hide="currentpage === 'individual_testRun' || currentpage === 'individualBug'">
+                            <div class="accordion three-col maas-accordion">
+                                <h3 class="accordion__title">Filter by</h3>
+                                <div class="ng-hide accordion__tab" data-ng-show="1">
+                                    <h4 class="accordion__tab-title maas-accordion-tab active">Date</h4>
+                                    <div class="accordion__tab-content">
+                                        <ul class="accordion__tab-list">
+                                            <li class="accordion__tab-item" data-ng-class="{ active: isFilterActive('date', 'Last 24 Hours', 'successRate') }">
+                                                <a class="accordion__tab-link" href="" data-ng-click="updateFilter('date', 'Last 24 Hours', 'successRate')">Last 24 Hours</a>
+                                            </li>
+                                            <li class="accordion__tab-item" data-ng-class="{ active: isFilterActive('date', 'Last 7 Days', 'successRate') }">
+                                                <a class="accordion__tab-link" href="" data-ng-click="updateFilter('date', 'Last 7 Days', 'successRate')">Last 7 Days</a>
+                                            </li>
+                                            <li class="accordion__tab-item" data-ng-class="{ active: isFilterActive('date', 'Last 30 Days', 'successRate') }">
+                                                <a class="accordion__tab-link" href="" data-ng-click="updateFilter('date', 'Last 30 Days', 'successRate')">Last 30 Days</a>
+                                            </li>
+                                            <li class="accordion__tab-item" data-ng-class="{ active: isFilterActive('date', 'Last Year', 'successRate') }">
+                                                <a class="accordion__tab-link" href="" data-ng-click="updateFilter('date', 'Last Year', 'successRate')">Last Year</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="ng-hide accordion__tab" data-ng-show="metadata.openstack_release.length">
+                                    <h4 class="accordion__tab-title maas-accordion-tab">OpenStack Release</h4>
+                                    <div class="accordion__tab-content">
+                                        <ul class="accordion__tab-list">
+                                            <li class="accordion__tab-item" data-ng-repeat="release in metadata.openstack_release | orderBy:['name']"  data-ng-class="{ active: isFilterActive('openstack_release', release.name, 'successRate') }">
+                                                <a class="accordion__tab-link" href="" data-ng-click="updateFilter('openstack_release', release.name, 'successRate')">{$ release.name $}</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="ng-hide accordion__tab" data-ng-show="metadata.ubuntu_release.length">
+                                    <h4 class="accordion__tab-title maas-accordion-tab">Ubuntu Release</h4>
+                                    <div class="accordion__tab-content">
+                                        <ul class="accordion__tab-list">
+                                            <li class="accordion__tab-item" data-ng-repeat="release in metadata.ubuntu_release | orderBy:['name']"  data-ng-class="{ active: isFilterActive('ubuntu_release', release.name, 'successRate') }">
+                                                <a class="accordion__tab-link" href="" data-ng-click="updateFilter('ubuntu_release', release.name, 'successRate')">{$ release.name $} ({$ release.number $})</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="ng-hide accordion__tab" data-ng-show="metadata.compute.length">
+                                    <h4 class="accordion__tab-title maas-accordion-tab">Compute</h4>
+                                    <div class="accordion__tab-content">
+                                        <ul class="accordion__tab-list">
+                                            <li class="accordion__tab-item" data-ng-repeat="compute in metadata.compute | orderBy:['name']"  data-ng-class="{ active: isFilterActive('compute', compute.name, 'successRate') }">
+                                                <a class="accordion__tab-link" href="" data-ng-click="updateFilter('compute', compute.name, 'successRate')">{$ compute.name $}</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="ng-hide accordion__tab" data-ng-show="metadata.networking.length">
+                                    <h4 class="accordion__tab-title maas-accordion-tab">Networking</h4>
+                                    <div class="accordion__tab-content">
+                                        <ul class="accordion__tab-list">
+                                            <li class="accordion__tab-item" data-ng-repeat="sdn in metadata.networking | orderBy:['name']"  data-ng-class="{ active: isFilterActive('networking', sdn.name, 'successRate') }">
+                                                <a class="accordion__tab-link" href="" data-ng-click="updateFilter('networking', sdn.name, 'successRate')">{$ sdn.name $}</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="ng-hide accordion__tab" data-ng-show="metadata.blockstorage.length">
+                                    <h4 class="accordion__tab-title maas-accordion-tab" ng-class="active">Block Storage</h4>
+                                    <div class="accordion__tab-content">
+                                        <ul class="accordion__tab-list">
+                                            <li class="accordion__tab-item" data-ng-repeat="blockstorage in metadata.blockstorage | orderBy:['name']"  data-ng-class="{ active: isFilterActive('blockstorage', blockstorage.name, 'successRate') }">
+                                                <a class="accordion__tab-link" href="" data-ng-click="updateFilter('blockstorage', blockstorage.name, 'successRate')">{$ blockstorage.name $}</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="ng-hide accordion__tab" data-ng-show="metadata.imagestorage.length">
+                                    <h4 class="accordion__tab-title maas-accordion-tab">Image Storage</h4>
+                                    <div class="accordion__tab-content">
+                                        <ul class="accordion__tab-list">
+                                            <li class="accordion__tab-item" data-ng-repeat="imagestorage in metadata.imagestorage | orderBy:['name']"  data-ng-class="{ active: isFilterActive('imagestorage', imagestorage.name, 'successRate') }">
+                                                <a class="accordion__tab-link" href="" data-ng-click="updateFilter('imagestorage', imagestorage.name, 'successRate')">{$ imagestorage.name $}</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="ng-hide accordion__tab" data-ng-show="metadata.database.length">
+                                    <h4 class="accordion__tab-title maas-accordion-tab">Database</h4>
+                                    <div class="accordion__tab-content">
+                                        <ul class="accordion__tab-list">
+                                            <li class="accordion__tab-item" data-ng-repeat="database in metadata.database | orderBy:['name']"  data-ng-class="{ active: isFilterActive('database', database.name, 'successRate') }">
+                                                <a class="accordion__tab-link" href="" data-ng-click="updateFilter('database', database.name, 'successRate')">{$ database.name $}</a>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="ng-hide accordion__tab" data-ng-show="metadata.openstack_release.length">
-                                <h4 class="accordion__tab-title maas-accordion-tab">OpenStack Release</h4>
-                                <div class="accordion__tab-content">
-                                    <ul class="accordion__tab-list">
-                                        <li class="accordion__tab-item" data-ng-repeat="release in metadata.openstack_release | orderBy:['name']"  data-ng-class="{ active: isFilterActive('openstack_release', release.name, 'successRate') }">
-                                            <a class="accordion__tab-link" href="" data-ng-click="updateFilter('openstack_release', release.name, 'successRate')">{$ release.name $}</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="ng-hide accordion__tab" data-ng-show="metadata.ubuntu_release.length">
-                                <h4 class="accordion__tab-title maas-accordion-tab">Ubuntu Release</h4>
-                                <div class="accordion__tab-content">
-                                    <ul class="accordion__tab-list">
-                                        <li class="accordion__tab-item" data-ng-repeat="release in metadata.ubuntu_release | orderBy:['name']"  data-ng-class="{ active: isFilterActive('ubuntu_release', release.name, 'successRate') }">
-                                            <a class="accordion__tab-link" href="" data-ng-click="updateFilter('ubuntu_release', release.name, 'successRate')">{$ release.name $} ({$ release.number $})</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="ng-hide accordion__tab" data-ng-show="metadata.compute.length">
-                                <h4 class="accordion__tab-title maas-accordion-tab">Compute</h4>
-                                <div class="accordion__tab-content">
-                                    <ul class="accordion__tab-list">
-                                        <li class="accordion__tab-item" data-ng-repeat="compute in metadata.compute | orderBy:['name']"  data-ng-class="{ active: isFilterActive('compute', compute.name, 'successRate') }">
-                                            <a class="accordion__tab-link" href="" data-ng-click="updateFilter('compute', compute.name, 'successRate')">{$ compute.name $}</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="ng-hide accordion__tab" data-ng-show="metadata.networking.length">
-                                <h4 class="accordion__tab-title maas-accordion-tab">Networking</h4>
-                                <div class="accordion__tab-content">
-                                    <ul class="accordion__tab-list">
-                                        <li class="accordion__tab-item" data-ng-repeat="sdn in metadata.networking | orderBy:['name']"  data-ng-class="{ active: isFilterActive('networking', sdn.name, 'successRate') }">
-                                            <a class="accordion__tab-link" href="" data-ng-click="updateFilter('networking', sdn.name, 'successRate')">{$ sdn.name $}</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="ng-hide accordion__tab" data-ng-show="metadata.blockstorage.length">
-                                <h4 class="accordion__tab-title maas-accordion-tab" ng-class="active">Block Storage</h4>
-                                <div class="accordion__tab-content">
-                                    <ul class="accordion__tab-list">
-                                        <li class="accordion__tab-item" data-ng-repeat="blockstorage in metadata.blockstorage | orderBy:['name']"  data-ng-class="{ active: isFilterActive('blockstorage', blockstorage.name, 'successRate') }">
-                                            <a class="accordion__tab-link" href="" data-ng-click="updateFilter('blockstorage', blockstorage.name, 'successRate')">{$ blockstorage.name $}</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="ng-hide accordion__tab" data-ng-show="metadata.imagestorage.length">
-                                <h4 class="accordion__tab-title maas-accordion-tab">Image Storage</h4>
-                                <div class="accordion__tab-content">
-                                    <ul class="accordion__tab-list">
-                                        <li class="accordion__tab-item" data-ng-repeat="imagestorage in metadata.imagestorage | orderBy:['name']"  data-ng-class="{ active: isFilterActive('imagestorage', imagestorage.name, 'successRate') }">
-                                            <a class="accordion__tab-link" href="" data-ng-click="updateFilter('imagestorage', imagestorage.name, 'successRate')">{$ imagestorage.name $}</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="ng-hide accordion__tab" data-ng-show="metadata.database.length">
-                                <h4 class="accordion__tab-title maas-accordion-tab">Database</h4>
-                                <div class="accordion__tab-content">
-                                    <ul class="accordion__tab-list">
-                                        <li class="accordion__tab-item" data-ng-repeat="database in metadata.database | orderBy:['name']"  data-ng-class="{ active: isFilterActive('database', database.name, 'successRate') }">
-                                            <a class="accordion__tab-link" href="" data-ng-click="updateFilter('database', database.name, 'successRate')">{$ database.name $}</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
+
                         </div>
 
                         <!-- main content -->
@@ -194,6 +201,129 @@
                                         <input type="submit" class="search__submit"
                                             data-ng-class="{ close: search.length > 0 }"
                                             data-ng-click="clearSearch()" />
+                                    </div>
+                                </div>
+
+                                <!------------------------------------------------>
+
+                                <div data-ng-show="currentpage === 'individual_testRun'">
+                                    <div id="content" class="nine-col last-col">
+                                        <p>Test Run ID: {$ individual_testRun.objects[0].resource_uri.slice(17, 53) $}</p>
+                                        <p>Completed at: {$ individual_testRun.objects[0].completed_at $}</p>
+                                        <table class="table-listing">
+                                            <thead>
+                                                <tr class="table-listing__row">
+                                                    <th class="table-listing__header">
+                                                        Component Type
+                                                    </th>
+                                                    <th class="table-listing__header">
+                                                        Name
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr class="table-listing__row">
+                                                    <td class="table-listing__cell">
+                                                        Block Storage
+                                                    </td>
+                                                    <td class="table-listing__cell">
+                                                        {$ individual_testRun.objects[0].blockstorage.name $}
+                                                    </td>
+                                                </tr>
+                                                <tr class="table-listing__row">
+                                                    <td class="table-listing__cell">
+                                                        Compute
+                                                    </td>
+                                                    <td class="table-listing__cell">
+                                                        {$ individual_testRun.objects[0].compute.name $}
+                                                    </td>
+                                                </tr>
+                                                <tr class="table-listing__row">
+                                                    <td class="table-listing__cell">
+                                                        Database
+                                                    </td>
+                                                    <td class="table-listing__cell">
+                                                        {$ individual_testRun.objects[0].database.name $}
+                                                    </td>
+                                                </tr>
+                                                <tr class="table-listing__row">
+                                                    <td class="table-listing__cell">
+                                                        Image Storage
+                                                    </td>
+                                                    <td class="table-listing__cell">
+                                                        {$ individual_testRun.objects[0].imagestorage.name $}
+                                                    </td>
+                                                </tr>
+                                                <tr class="table-listing__row">
+                                                    <td class="table-listing__cell">
+                                                        Openstack Version
+                                                    </td>
+                                                    <td class="table-listing__cell">
+                                                        {$ individual_testRun.objects[0].openstackversion.name $}
+                                                    </td>
+                                                </tr>
+                                                <tr class="table-listing__row">
+                                                    <td class="table-listing__cell">
+                                                        SDN
+                                                    </td>
+                                                    <td class="table-listing__cell">
+                                                        {$ individual_testRun.objects[0].sdn.name $}
+                                                    </td>
+                                                </tr>
+                                                <tr class="table-listing__row">
+                                                    <td class="table-listing__cell">
+                                                        Ubuntu Version
+                                                    </td>
+                                                    <td class="table-listing__cell">
+                                                        {$ individual_testRun.objects[0].ubuntuversion.name $}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+
+                                        <!-- TODO: Place list of bugs that affect this pipeline/testRun here, once filter by pipeline is enabled. -->
+
+                                    </div>
+                                </div>
+
+                                <!------------------------------------------------>
+
+                                <div data-ng-show="currentpage === 'testRuns'">
+                                    <div id="content" class="nine-col last-col">
+                                        <p>{$ testRuns.meta.total_count $} matching test runs (capped at {$ testRuns.meta.limit $} test runs).</p>
+
+                                        <table class="table-listing">
+                                            <thead>
+                                                <tr class="table-listing__row">
+                                                    <th class="table-listing__header">
+                                                        <a href=""
+                                                            class="table-listing__header-link sort-asc"
+                                                            data-ng-click="sortTable('testRun.uuid', 'testRuns')"
+                                                            data-ng-class="{sort: tabs.testRuns.predicate === 'testRun.uuid',
+                                                                            'sort-asc': tabs.testRuns.reverse === false,
+                                                                            'sort-desc': tabs.nodes.reverse === true}">Test Run ID</a>
+                                                    </th>
+                                                    <th class="table-listing__header">
+                                                        <a href=""
+                                                            class="table-listing__header-link sort-asc"
+                                                            data-ng-click="sortTable('completed_at', 'testRuns')"
+                                                            data-ng-class="{sort: tabs.testRuns.predicate === 'completed_at',
+                                                                            'sort-asc': tabs.testRuns.reverse === false,
+                                                                            'sort-desc': tabs.nodes.reverse === true}">Completed At</a>
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr class="table-listing__row" ng-repeat="testRun in testRuns.objects | orderBy:tabs.testRuns.predicate:tabs.testRuns.reverse">
+                                                    <td class="table-listing__cell">
+                                                        <a href=""
+                                                            data-ng-class="{ active: currentpage === 'individual_testRun' }"
+                                                            data-ng-click="toggleTab('individual_testRun'); updateIndividualTestRun(testRun.uuid)">{$ testRun.uuid $}</a>
+                                                    </td>
+                                                    <td class="table-listing__cell">{$ testRun.completed_at $}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
 
@@ -238,16 +368,17 @@
                                                 <tr class="table-listing__row" ng-repeat="bug in bugs.objects | orderBy:tabs.bugs.predicate:tabs.bugs.reverse">
                                                     <td class="table-listing__cell"><a href="https://bugs.launchpad.net/bugs/{$ bug.bugtrackerbug.bug_number $}/" class="external">{$ bug.bugtrackerbug.bug_number $}</a></td>
                                                     <td class="table-listing__cell">{$ bug.bugtrackerbug.project.name $}</td>
-                                                    <td class="table-listing__cell">{$ bug.summary $}</td>
+                                                    <td class="table-listing__cell">
+                                                        {$ bug.summary $}
+                                                    </td>
                                                     <td class="table-listing__cell">{$ bug.occurrence_count $}</td>
                                                     <td class="table-listing__cell">{$ bug.last_seen $}</td>
                                                 </tr>
                                             </tbody>
                                         </table>
                                     </div>
-
-                                <!------------------------------------------------>
                                 </div>
+                                <!------------------------------------------------>
                             </div>
                         </div>
                     </div>

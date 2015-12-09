@@ -587,6 +587,7 @@ class BugResource(CommonResource):
         authentication = ApiKeyAuthentication()
         always_return_data = True
         filtering = {'summary': ('contains', 'exact'),
+                     'uuid': ('exact'),
                      'knownbugregex': ALL_WITH_RELATIONS,
                      'bugtrackerbug': ALL_WITH_RELATIONS, }
         detail_uri_name = 'uuid'
@@ -656,13 +657,14 @@ class KnownBugRegexResource(CommonResource):
         list_allowed_methods = ['get', 'post', 'delete']  # all items
         detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
         fields = ['bug', 'uuid', 'regex', 'targetfileglobs',
-                  'created_at', 'updated_at']
+                  'created_at', 'updated_at', 'bug']
         authorization = DjangoAuthorization()
         authentication = ApiKeyAuthentication()
         always_return_data = True
         filtering = {'uuid': ALL,
                      'regex': ALL,
                      'targetfileglobs': ALL_WITH_RELATIONS,
+                     'bug': ALL_WITH_RELATIONS,
                      'bugoccurrences': ALL_WITH_RELATIONS}
         detail_uri_name = 'uuid'
 
