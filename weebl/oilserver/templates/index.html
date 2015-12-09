@@ -45,11 +45,11 @@
                                         </li>
                                     {% endif %}
                                     <li>
-                                        <a href='{{ site }}/logout'>Logout</a>
+                                        <a href='{{ site }}/logout'>Log out</a>
                                     </li>
                                 </ul>
                             {% else %}
-                                <a href="{{ site }}{% url 'social:begin' 'ubuntu' %}">Login</a>
+                                <a href="{{ site }}{% url 'social:begin' 'ubuntu' %}">Log in</a>
                             {% endif %}
 
                         </li>
@@ -90,6 +90,7 @@
                     <div class="inner-wrapper">
 
                         <!-- accordion -->
+                        {% if user.is_authenticated %}
                         <div data-ng-hide="currentpage === 'individual_testRun' || currentpage === 'individualBug'">
                             <div class="accordion three-col maas-accordion">
                                 <h3 class="accordion__title">Filter by</h3>
@@ -185,6 +186,7 @@
                             </div>
 
                         </div>
+                        {% endif %}
 
                         <!-- main content -->
                         <div id="main-content" data-maas-error-overlay>
@@ -192,6 +194,11 @@
 
                                 <!------------------------------------------------>
 
+                                {% if not user.is_authenticated %}
+                                    <div id="content" class="nine-col last-col">
+                                        <p>Please <a href="{{ site }}{% url 'social:begin' 'ubuntu' %}">log in</a> to see data.</p>
+                                    </div>
+                                {% else %}
                                 <div id="content" class="nine-col last-col">
                                     <div id="search-bar" class="search">
                                         <input
@@ -379,6 +386,7 @@
                                     </div>
                                 </div>
                                 <!------------------------------------------------>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
