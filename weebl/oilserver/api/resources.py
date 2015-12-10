@@ -99,7 +99,9 @@ class EnvironmentResource(CommonResource):
         authorization = DjangoAuthorization()
         authentication = ApiKeyAuthentication()
         always_return_data = True
-        filtering = {'uuid': ('exact',)}
+        filtering = {
+            'uuid': ('exact',),
+            'name': ('in',)}
         detail_uri_name = 'uuid'
 
     def prepend_urls(self):
@@ -518,6 +520,7 @@ class PipelineResource(CommonResource):
                      'blockstorage': ALL_WITH_RELATIONS,
                      'imagestorage': ALL_WITH_RELATIONS,
                      'database': ALL_WITH_RELATIONS,
+                     'buildexecutor': ALL_WITH_RELATIONS,
                      }
         detail_uri_name = 'uuid'
 

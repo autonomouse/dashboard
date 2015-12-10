@@ -6,7 +6,8 @@ app.factory('metadataRetriever', ['$http', function($http) {
         'compute': 'compute',
         'blockstorage': 'blockstorage',
         'imagestorage': 'imagestorage',
-        'database': 'database'
+        'database': 'database',
+        'environment': 'environment'
     }
 
     var refresh = function(scope) {

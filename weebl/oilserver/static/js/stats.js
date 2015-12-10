@@ -49,7 +49,17 @@ app.controller('successRateController', [
                 $scope.filters[enum_field].forEach(function(enum_value) {
                     enum_values.push(enum_value.substr(1));
                 });
-                api_enum_name = metadataRetriever.enum_fields[enum_field];
+
+                /* 
+                 * Unlike other filter fields, environment is a few relations
+                 * away and so we need to explicitly build its filter.
+                 */
+                if (enum_field == 'environment') {
+                    api_enum_name = 'buildexecutor__jenkins__environment';
+                } else {
+                    api_enum_name = metadataRetriever.enum_fields[enum_field];
+                }
+
                 pipeline_filters[api_enum_name + '__name__in'] = enum_values;
             }
 
