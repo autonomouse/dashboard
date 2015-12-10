@@ -1,12 +1,11 @@
-import utils
 from tastypie import fields
 from tastypie.resources import ModelResource, ALL, ALL_WITH_RELATIONS
 from tastypie.authorization import DjangoAuthorization
 from tastypie.authentication import ApiKeyAuthentication
 from tastypie.utils import trailing_slash
 from django.conf.urls import url
-from oilserver import models
-from exceptions import NonUserEditableError
+from oilserver import models, utils
+from oilserver.exceptions import NonUserEditableError
 
 
 def fixup_set_filters(model_names, applicable_filters):

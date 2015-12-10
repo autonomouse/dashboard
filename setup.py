@@ -1,4 +1,6 @@
 #!/usr/bin/python
+import sys
+sys.path.append('weebl/')
 import weebl
 from setuptools import setup, find_packages
 
@@ -10,7 +12,8 @@ setup(
     author="Darren Hoyland",
     author_email="<darren.hoyland@canonical.com>",
     url="http://launchpad.net/weebl",
-    packages=find_packages(exclude=['weeblclient*']),
+    package_dir={'': 'weebl'},
+    packages=find_packages('weebl'),
     include_package_data=True,
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",

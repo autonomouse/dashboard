@@ -1,4 +1,4 @@
-import utils
+from oilserver import utils
 
 
 class StatusChecker():

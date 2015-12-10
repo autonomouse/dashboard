@@ -1,4 +1,4 @@
-import utils
+from oilserver import utils
 from django.db import models
 from django.contrib.sites.models import Site
 from oilserver.status_checker import StatusChecker

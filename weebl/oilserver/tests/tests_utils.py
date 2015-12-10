@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-import utils
+from oilserver import utils
 import random
 from oilserver.tests.common_test_methods import WeeblTestCase
 from datetime import datetime, timedelta

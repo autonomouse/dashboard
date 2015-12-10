@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-import utils
+from oilserver import utils
 from oilserver.tests.common_test_methods import WeeblTestCase
 from oilserver.status_checker import StatusChecker
 from oilserver import models

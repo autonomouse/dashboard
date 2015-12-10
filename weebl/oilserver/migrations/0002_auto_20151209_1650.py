@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-import utils
+from oilserver import utils
 
 
 class Migration(migrations.Migration):

@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from dateutil import parser
 from django.utils import timezone
 from uuid import uuid4
-from __init__ import __version__
+from weebl import __version__
 
 
 def time_now():

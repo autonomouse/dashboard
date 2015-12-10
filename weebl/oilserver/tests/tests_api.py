@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-import utils
+from oilserver import utils
 from freezegun import freeze_time
 from oilserver.tests.common_test_methods import (
     make_bug,

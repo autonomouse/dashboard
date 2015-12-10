@@ -1,9 +1,8 @@
 import random
-import utils
 from weebl import urls
 from django.test import TestCase
 from tastypie.test import ResourceTestCase
-from oilserver import models
+from oilserver import models, utils
 from django.contrib.auth.models import User
 
 
