@@ -226,7 +226,7 @@
                                 <div data-ng-show="currentpage === 'individual_testRun'">
                                     <div id="content" class="nine-col last-col">
                                         <p>Test Run ID: {$ individual_testRun.objects[0].resource_uri.slice(17, 53) $}</p>
-                                        <p>Completed at: {$ individual_testRun.objects[0].completed_at $}</p>
+                                        <p>Completed at: {$ humaniseDate(individual_testRun.objects[0].completed_at) $}</p>
                                         <table class="table-listing">
                                             <thead>
                                                 <tr class="table-listing__row">
@@ -333,11 +333,11 @@
                                             <tbody>
                                                 <tr class="table-listing__row" ng-repeat="testRun in testRuns.objects | orderBy:tabs.testRuns.predicate:tabs.testRuns.reverse">
                                                     <td class="table-listing__cell">
-                                                        <a href=""
+                                                        <a href="" title="{$ testRun.uuid $}"
                                                             data-ng-class="{ active: currentpage === 'individual_testRun' }"
-                                                            data-ng-click="toggleTab('individual_testRun'); updateIndividualTestRun(testRun.uuid)">{$ testRun.uuid $}</a>
+                                                            data-ng-click="toggleTab('individual_testRun'); updateIndividualTestRun(testRun.uuid)">{$ abbreviateUUID(testRun.uuid) $}</a>
                                                     </td>
-                                                    <td class="table-listing__cell">{$ testRun.completed_at $}</td>
+                                                    <td class="table-listing__cell">{$ humaniseDate(testRun.completed_at) $}</td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -377,7 +377,7 @@
                                                         <a href="" class="table-listing__header-link sort sort-asc" data-ng-click="sortTable('occurrence_count', 'bugs')" data-ng-class="{sort: tabs.bugs.predicate === 'occurrence_count', 'sort-asc': tabs.bugs.reverse === false, 'sort-desc': tabs.nodes.reverse === true}">Occurrences</a>
                                                     </th>
                                                     <th class="table-listing__header">
-                                                        <a href="" class="table-listing__header-link sort-asc" data-ng-click="sortTable('last_seen', 'bugs')" data-ng-class="{sort: tabs.bugs.predicate === 'last_seen', 'sort-asc': tabs.bugs.reverse === false, 'sort-desc': tabs.nodes.reverse === true}">Last Seen</a>
+                                                        <a href="" class="table-listing__header-link sort-asc" data-ng-click="sortTable('last_seen', 'bugs')" data-ng-class="{sort: tabs.bugs.predicate === 'last_seen', 'sort-asc': tabs.bugs.reverse === false, 'sort-desc': tabs.nodes.reverse === true}">Last Seen (UTC)</a>
                                                     </th>
                                                 </tr>
                                             </thead>
@@ -389,7 +389,7 @@
                                                         {$ bug.summary $}
                                                     </td>
                                                     <td class="table-listing__cell">{$ bug.occurrence_count $}</td>
-                                                    <td class="table-listing__cell">{$ bug.last_seen $}</td>
+                                                    <td class="table-listing__cell">{$ humaniseDate(bug.last_seen) $}</td>
                                                 </tr>
                                             </tbody>
                                         </table>

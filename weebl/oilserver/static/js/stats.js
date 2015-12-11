@@ -50,7 +50,7 @@ app.controller('successRateController', [
                     enum_values.push(enum_value.substr(1));
                 });
 
-                /* 
+                /*
                  * Unlike other filter fields, environment is a few relations
                  * away and so we need to explicitly build its filter.
                  */
@@ -87,6 +87,19 @@ app.controller('successRateController', [
         function dateToString(date) {
             return date.getUTCFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getUTCDate();
         }
+
+        $scope.humaniseDate = function(datestr) {
+            var date_obj = new Date(datestr);
+            var monthNames = ["Jan", "Feb", "Mar","Apr", "May", "Jun",
+                              "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            var day = ('0' + date_obj.getUTCDate()).slice(-2);
+            var month_name = monthNames[date_obj.getUTCMonth()];
+            var year = date_obj.getUTCFullYear();
+            var hours = date_obj.getUTCHours();
+            var minutes = date_obj.getUTCMinutes();
+            var seconds = date_obj.getUTCSeconds();
+            return (day + "-" + month_name + "-" + year + " at " + hours + ":" + minutes + ":" + seconds);
+        };
 
         var dateSymbolToDays = {
             'Last 24 Hours': 1,
@@ -137,6 +150,11 @@ app.controller('successRateController', [
             $scope.individual_testRun = DataService.refresh(
                 'pipeline', $scope.user, $scope.apikey).get({"uuid": pipeline});
         };
+
+        $scope.abbreviateUUID = function(UUID) {
+            return UUID.slice(0, 4) + "..." + UUID.slice(-5);
+        };
+
 
         $scope.updateFilter = function(type, value, tab) {
             console.log("Updating filter! %s %s %s", type, value, tab);
