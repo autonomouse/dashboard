@@ -94,10 +94,10 @@ app.controller('successRateController', [
                               "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
             var day = ('0' + date_obj.getUTCDate()).slice(-2);
             var month_name = monthNames[date_obj.getUTCMonth()];
-            var year = date_obj.getUTCFullYear();
-            var hours = date_obj.getUTCHours();
-            var minutes = date_obj.getUTCMinutes();
-            var seconds = date_obj.getUTCSeconds();
+            var year = ('0' + date_obj.getUTCFullYear()).slice(-2);
+            var hours = ('0' + date_obj.getUTCHours()).slice(-2);
+            var minutes = ('0' + date_obj.getUTCMinutes()).slice(-2);
+            var seconds = ('0' + date_obj.getUTCSeconds()).slice(-2);
             return (day + "-" + month_name + "-" + year + " at " + hours + ":" + minutes + ":" + seconds);
         };
 
