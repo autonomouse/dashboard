@@ -1,4 +1,4 @@
-app.factory('buildsRetriever', ['$http', '$q', function($http, $q) {
+app.factory('graphFactory', ['$http', '$q', function($http, $q) {
 
   var refresh = function(scope, pipeline_filters) {
     var url = "/api/v1/build/?username=" + scope.user + "&api_key=" + scope.apikey;
@@ -12,7 +12,7 @@ app.factory('buildsRetriever', ['$http', '$q', function($http, $q) {
             parameters['jobtype__name'] = jobtype_name;
 
         for (var filter in pipeline_filters) {
-            parameters["pipeline__" + filter] = pipeline_filters[filter];
+            parameters[filter] = pipeline_filters[filter];
         }
 
         if (buildstatus_name)

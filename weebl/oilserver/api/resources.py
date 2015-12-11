@@ -101,7 +101,7 @@ class EnvironmentResource(CommonResource):
         always_return_data = True
         filtering = {
             'uuid': ('exact',),
-            'name': ('in',)}
+            'name': ('exact', 'in',)}
         detail_uri_name = 'uuid'
 
     def prepend_urls(self):
@@ -512,6 +512,7 @@ class PipelineResource(CommonResource):
         authentication = ApiKeyAuthentication()
         always_return_data = True
         filtering = {'uuid': ALL,
+                     'buildexecutor': ALL_WITH_RELATIONS,
                      'completed_at': ALL,
                      'ubuntuversion': ALL_WITH_RELATIONS,
                      'openstackversion': ALL_WITH_RELATIONS,

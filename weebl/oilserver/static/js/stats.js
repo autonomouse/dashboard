@@ -1,7 +1,7 @@
 var app = angular.module('weebl');
 app.controller('successRateController', [
-    '$scope', '$rootScope', 'buildsRetriever', 'bugsRetriever', 'SearchService', 'metadataRetriever', 'DataService',
-    function($scope, $rootScope, buildsRetriever, bugsRetriever, SearchService, metadataRetriever, DataService) {
+    '$scope', '$rootScope', 'SearchService', 'DataService', 'graphFactory',
+    function($scope, $rootScope, SearchService, DataService, graphFactory) {
         binding = this;
         binding.user = $scope.this.user;
         binding.apikey = $scope.this.apikey;
@@ -33,13 +33,9 @@ app.controller('successRateController', [
         $scope.tabs.individual_testRun.pagetitle = "Individual Test Run";
         $scope.tabs.individual_testRun.currentpage = "individual_testRun";
 
-        function generatePipelineFilters() {
-            var pipeline_filters = {};
-
-            if ($scope.start_date)
-                pipeline_filters['completed_at__gte'] = $scope.start_date;
-            if ($scope.finish_date)
-                pipeline_filters['completed_at__lte'] = $scope.finish_date;
+        function generateActiveFilters(origin) {
+            var active_filters = {};
+            var field_to_filter = generateFilterPaths(origin);
 
             for (var enum_field in $scope.filters) {
                 if (!(enum_field in $scope.metadata))
@@ -50,38 +46,82 @@ app.controller('successRateController', [
                     enum_values.push(enum_value.substr(1));
                 });
 
-                /*
-                 * Unlike other filter fields, environment is a few relations
-                 * away and so we need to explicitly build its filter.
-                 */
-                if (enum_field == 'environment') {
-                    api_enum_name = 'buildexecutor__jenkins__environment';
-                } else {
-                    api_enum_name = metadataRetriever.enum_fields[enum_field];
-                }
-
-                pipeline_filters[api_enum_name + '__name__in'] = enum_values;
+                // generate active filters from the perspective of origin:
+                active_filters[field_to_filter[enum_field]] = enum_values;
             }
+            // generate date active filters from the perspective of origin:
+            if ($scope.start_date)
+                active_filters[field_to_filter['completed_at__gte']] = $scope.start_date;
+            if ($scope.finish_date)
+                active_filters[field_to_filter['completed_at__lte']] = $scope.finish_date;
 
-            return pipeline_filters;
+            return active_filters;
         }
 
-        function updateStats(pipeline_filters) {
-            buildsRetriever.refresh(binding, pipeline_filters);
+        function prefixPathToFields(fields, path) {
+            for (var field in fields) {
+                fields[field] = path + fields[field];
+            }
+            return fields;
         };
 
-        function updateBugs(pipeline_filters) {
-            bugsRetriever.refresh($scope, pipeline_filters);
+        function generateFilterPaths(origin) {
+            if (typeof(origin)==='undefined') origin = '';
+
+            var model_fields = {
+                'completed_at__gte': 'completed_at__gte',
+                'completed_at__lte': 'completed_at__lte',
+                'openstackversion': 'openstackversion__name__in',
+                'ubuntuversion': 'ubuntuversion__name__in',
+                'sdn': 'sdn__name__in',
+                'compute': 'compute__name__in',
+                'blockstorage': 'blockstorage__name__in',
+                'imagestorage': 'imagestorage__name__in',
+                'database': 'database__name__in',
+                'environment': 'buildexecutor__jenkins__environment__name__in',
+            };
+
+            // add the path from the origin model to the fields needed:
+            var prefixtures = {
+                'bug': 'knownbugregex__bugoccurrences__build__pipeline__',
+                'build': 'pipeline__',
+                'knownbugregex': 'bugoccurrences__build__pipeline__',
+                'pipeline': '',
+            };
+
+            return prefixPathToFields(model_fields, prefixtures[origin]);
         };
 
-        function updateRegexes(pipeline_filters) {
-            $scope.regexes = DataService.refresh(
-                'knownbugregex', $scope.user, $scope.apikey).get(pipeline_filters);
+
+        function getFilterModels($scope) {
+            var enum_fields = Object.keys(generateFilterPaths())
+            index = enum_fields.indexOf("completed_at__gte");
+            enum_fields.splice(index, 1);
+            index = enum_fields.indexOf("completed_at__lte");
+            enum_fields.splice(index, 1);
+            return enum_fields;
         };
 
-        function updateTestRuns(pipeline_filters) {
-            $scope.testRuns = DataService.refresh(
-                'pipeline', $scope.user, $scope.apikey).get(pipeline_filters);
+        function getMetadata($scope) {
+            var enum_fields = getFilterModels();
+
+            for (i = 0; i < enum_fields.length; i++) {
+                $scope.metadata[enum_fields[i]] = DataService.refresh(
+                    enum_fields[i], $scope.user, $scope.apikey).query({});
+                }
+            return $scope;
+        };
+
+        function updateGraphs() {
+            active_filters = generateActiveFilters('build');
+            graphFactory.refresh(binding, active_filters);
+            $scope.builds = update('build')
+        };
+
+
+        function update(model) {
+            active_filters = generateActiveFilters(model);
+            return DataService.refresh(model, $scope.user, $scope.apikey).get(active_filters);
         };
 
         function dateToString(date) {
@@ -118,10 +158,9 @@ app.controller('successRateController', [
         };
 
         function updateFromServer() {
-            pipeline_filters = generatePipelineFilters();
-            updateStats(pipeline_filters);
-            updateBugs(pipeline_filters);
-            updateTestRuns(pipeline_filters);
+            updateGraphs();
+            $scope.bugs = update('bug');
+            $scope.testRuns = update('pipeline');
         }
 
         // Clear the search bar.
@@ -154,7 +193,6 @@ app.controller('successRateController', [
         $scope.abbreviateUUID = function(UUID) {
             return UUID.slice(0, 4) + "..." + UUID.slice(-5);
         };
-
 
         $scope.updateFilter = function(type, value, tab) {
             console.log("Updating filter! %s %s %s", type, value, tab);
@@ -196,7 +234,7 @@ app.controller('successRateController', [
             $scope.tabs[tab].reverse = !$scope.tabs[tab].reverse;
         };
 
-        metadataRetriever.refresh($scope);
+        $scope = getMetadata($scope);
         $scope.updateFilter('date', 'Last 24 Hours', 'successRate');
         $scope.toggleTab('successRate');
         $scope.sortTable('occurrence_count', 'bugs');
