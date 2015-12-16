@@ -11,14 +11,6 @@ app.factory('DataService', function ($resource, $http) {
                     }
                 ])
             },
-            query_metadata: {
-                method: 'GET',
-                transformResponse: $http.defaults.transformResponse.concat([
-                    function (data, headersGetter) {
-                        return data.meta;
-                    }
-                ])
-            },
         });
     }
     return {

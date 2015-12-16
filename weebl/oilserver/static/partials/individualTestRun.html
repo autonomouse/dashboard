@@ -1,0 +1,75 @@
+<div id="content" class="nine-col last-col">
+    <p>Test run ID: {$ data.testRunId $}</p>
+    <p>Test run completed at: {$ data.humaniseDate(data.individual_testRun.objects[0].completed_at) $}</p>
+    <table class="table-listing">
+        <thead>
+            <tr class="table-listing__row">
+                <th class="table-listing__header">
+                    Component Type
+                </th>
+                <th class="table-listing__header">
+                    Name
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="table-listing__row">
+                <td class="table-listing__cell">
+                    Block Storage
+                </td>
+                <td class="table-listing__cell">
+                    {$ data.individual_testRun.objects[0].blockstorage.name $}
+                </td>
+            </tr>
+            <tr class="table-listing__row">
+                <td class="table-listing__cell">
+                    Compute
+                </td>
+                <td class="table-listing__cell">
+                    {$ data.individual_testRun.objects[0].compute.name $}
+                </td>
+            </tr>
+            <tr class="table-listing__row">
+                <td class="table-listing__cell">
+                    Database
+                </td>
+                <td class="table-listing__cell">
+                    {$ data.individual_testRun.objects[0].database.name $}
+                </td>
+            </tr>
+            <tr class="table-listing__row">
+                <td class="table-listing__cell">
+                    Image Storage
+                </td>
+                <td class="table-listing__cell">
+                    {$ data.individual_testRun.objects[0].imagestorage.name $}
+                </td>
+            </tr>
+            <tr class="table-listing__row">
+                <td class="table-listing__cell">
+                    Openstack Version
+                </td>
+                <td class="table-listing__cell">
+                    {$ data.individual_testRun.objects[0].openstackversion.name $}
+                </td>
+            </tr>
+            <tr class="table-listing__row">
+                <td class="table-listing__cell">
+                    SDN
+                </td>
+                <td class="table-listing__cell">
+                    {$ data.individual_testRun.objects[0].sdn.name $}
+                </td>
+            </tr>
+            <tr class="table-listing__row">
+                <td class="table-listing__cell">
+                    Ubuntu Version
+                </td>
+                <td class="table-listing__cell">
+                    {$ data.individual_testRun.objects[0].ubuntuversion.name $}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <!-- TODO: Place list of bugs that affect this pipeline/testRun here, once filter by pipeline is enabled. -->
+</div>

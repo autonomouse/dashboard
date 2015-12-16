@@ -1,48 +1,53 @@
 var app = angular.module('weebl');
 app.controller('successRateController', [
-    '$scope', '$rootScope', 'SearchService', 'DataService', 'graphFactory',
-    function($scope, $rootScope, SearchService, DataService, graphFactory) {
+    '$scope', 'data', 'SearchService', 'DataService', 'graphFactory', 'Common',
+    function($scope, data, SearchService, DataService, graphFactory, Common) {
+        for (var datum in $scope.data) {
+            data[datum] = $scope.data[datum]
+        };
+        $scope.data = data;
+
         binding = this;
-        binding.user = $scope.this.user;
-        binding.apikey = $scope.this.apikey;
-        $scope.filters = SearchService.getEmptyFilter();
-        $scope.bugs = {};
-        $scope.testRuns = {};
-        $scope.metadata = {};
-        $scope.regexes = {};
+        binding.user = $scope.data.user;
+        binding.apikey = $scope.data.apikey;
+        $scope.data.show_filters = true;
+        $scope.data.show_search = true;
 
-        $scope.tabs = {};
+        $scope.data.default_tab = 'successRate';
+        $scope.data.time_range = 'Last 24 Hours';
 
-        $scope.tabs.successRate = {};
-        $scope.tabs.successRate.pagetitle = "Success Rate";
-        $scope.tabs.successRate.currentpage = "successRate";
+        if (typeof($scope.data.filters)==='undefined') $scope.data.filters = SearchService.getEmptyFilter();
 
-        $scope.tabs.bugs = {};
-        $scope.tabs.bugs.pagetitle = "Bugs";
-        $scope.tabs.bugs.currentpage = "bugs";
-        $scope.tabs.bugs.predicate = "occurrences";
-        $scope.tabs.bugs.reverse = false;
+        if (typeof($scope.data.metadata)==='undefined') $scope.data.metadata = {};
+        if (typeof($scope.data.successRate)==='undefined') $scope.data.successRate = {};
+        if (typeof($scope.data.bugs)==='undefined') $scope.data.bugs = {};
+        if (typeof($scope.data.testRuns)==='undefined') $scope.data.testRuns = {};
+        if (typeof($scope.data.regexes)==='undefined') $scope.data.regexes = {};
 
-        $scope.tabs.testRuns = {};
-        $scope.tabs.testRuns.pagetitle = "Test Runs";
-        $scope.tabs.testRuns.currentpage = "testRuns";
-        $scope.tabs.testRuns.predicate = "completed_at";
-        $scope.tabs.testRuns.reverse = false;
-
-        $scope.tabs.individual_testRun = {};
-        $scope.tabs.individual_testRun.pagetitle = "Individual Test Run";
-        $scope.tabs.individual_testRun.currentpage = "individual_testRun";
+        if (typeof($scope.data.tabs)==='undefined') {
+            $scope.data.tabs = {};
+            $scope.data.tabs.successRate = {};
+            $scope.data.tabs.successRate.pagetitle = "Success Rate";
+            $scope.data.tabs.testRuns = {};
+            $scope.data.tabs.testRuns.pagetitle = "Test Runs";
+            $scope.data.tabs.testRuns.predicate = "completed_at";
+            $scope.data.tabs.testRuns.reverse = false;
+            $scope.data.tabs.bugs = {};
+            $scope.data.tabs.bugs.pagetitle = "Bugs";
+            $scope.data.tabs.bugs.predicate = "occurrences";
+            $scope.data.tabs.bugs.reverse = false;
+        };
 
         function generateActiveFilters(origin) {
             var active_filters = {};
             var field_to_filter = generateFilterPaths(origin);
 
-            for (var enum_field in $scope.filters) {
-                if (!(enum_field in $scope.metadata))
+            for (var enum_field in $scope.data.filters) {
+                if (!(enum_field in $scope.data.metadata))
                     continue;
 
                 enum_values = [];
-                $scope.filters[enum_field].forEach(function(enum_value) {
+                $scope.data.filters[enum_field].forEach(function(enum_value) {
                     enum_values.push(enum_value.substr(1));
                 });
 
@@ -50,10 +55,10 @@ app.controller('successRateController', [
                 active_filters[field_to_filter[enum_field]] = enum_values;
             }
             // generate date active filters from the perspective of origin:
-            if ($scope.start_date)
-                active_filters[field_to_filter['completed_at__gte']] = $scope.start_date;
-            if ($scope.finish_date)
-                active_filters[field_to_filter['completed_at__lte']] = $scope.finish_date;
+            if ($scope.data.start_date)
+                active_filters[field_to_filter['completed_at__gte']] = $scope.data.start_date;
+            if ($scope.data.finish_date)
+                active_filters[field_to_filter['completed_at__lte']] = $scope.data.finish_date;
 
             return active_filters;
         }
@@ -93,7 +98,7 @@ app.controller('successRateController', [
         };
 
 
-        function getFilterModels($scope) {
+        function getFilterModels() {
             var enum_fields = Object.keys(generateFilterPaths())
             index = enum_fields.indexOf("completed_at__gte");
             enum_fields.splice(index, 1);
@@ -106,40 +111,29 @@ app.controller('successRateController', [
             var enum_fields = getFilterModels();
 
             for (i = 0; i < enum_fields.length; i++) {
-                $scope.metadata[enum_fields[i]] = DataService.refresh(
-                    enum_fields[i], $scope.user, $scope.apikey).query({});
+                $scope.data.metadata[enum_fields[i]] = DataService.refresh(
+                    enum_fields[i], $scope.data.user, $scope.data.apikey).query({});
                 }
-            return $scope;
+            return $scope.data;
         };
 
         function updateGraphs() {
             active_filters = generateActiveFilters('build');
             graphFactory.refresh(binding, active_filters);
-            $scope.builds = update('build')
+            $scope.data.builds = update('build')
         };
 
 
         function update(model) {
             active_filters = generateActiveFilters(model);
-            return DataService.refresh(model, $scope.user, $scope.apikey).get(active_filters);
+            return DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(active_filters);
         };
 
         function dateToString(date) {
             return date.getUTCFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getUTCDate();
         }
 
-        $scope.humaniseDate = function(datestr) {
-            var date_obj = new Date(datestr);
-            var monthNames = ["Jan", "Feb", "Mar","Apr", "May", "Jun",
-                              "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            var day = ('0' + date_obj.getUTCDate()).slice(-2);
-            var month_name = monthNames[date_obj.getUTCMonth()];
-            var year = ('0' + date_obj.getUTCFullYear()).slice(-2);
-            var hours = ('0' + date_obj.getUTCHours()).slice(-2);
-            var minutes = ('0' + date_obj.getUTCMinutes()).slice(-2);
-            var seconds = ('0' + date_obj.getUTCSeconds()).slice(-2);
-            return (day + "-" + month_name + "-" + year + " at " + hours + ":" + minutes + ":" + seconds);
-        };
+        $scope.data.humaniseDate = Common.humaniseDate;
 
         var dateSymbolToDays = {
             'Last 24 Hours': 1,
@@ -153,89 +147,84 @@ app.controller('successRateController', [
             console.log("Updating to last %d days.", days_offset);
             today = new Date();
             prior_date = new Date(new Date().setDate(today.getDate()-days_offset));
-            $scope.start_date = prior_date.toISOString();
-            $scope.finish_date = today.toISOString();
+            $scope.data.start_date = prior_date.toISOString();
+            $scope.data.finish_date = today.toISOString();
         };
 
         function updateFromServer() {
             updateGraphs();
-            $scope.bugs = update('bug');
-            $scope.testRuns = update('pipeline');
+            $scope.data.bugs = update('bug');
+            $scope.data.testRuns = update('pipeline');
         }
 
         // Clear the search bar.
-        $scope.clearSearch = function() {
-            $scope.search = "";
-            $scope.start_date = null;
-            $scope.finish_date = null;
-            $scope.updateSearch();
+        $scope.data.clearSearch = function() {
+            $scope.data.search = "";
+            $scope.data.start_date = null;
+            $scope.data.finish_date = null;
+            $scope.data.updateSearch();
         };
 
         // Update the filters object when the search bar is updated.
-        $scope.updateSearch = function() {
+        $scope.data.updateSearch = function() {
             var filters = SearchService.getCurrentFilters(
-                $scope.search);
+                $scope.data.search);
             if(filters === null) {
-                $scope.filters = SearchService.getEmptyFilter();
-                $scope.searchValid = false;
+                $scope.data.filters = SearchService.getEmptyFilter();
+                $scope.data.searchValid = false;
             } else {
-                $scope.filters = filters;
-                $scope.searchValid = true;
+                $scope.data.filters = filters;
+                $scope.data.searchValid = true;
             }
             updateFromServer();
         };
 
-        $scope.updateIndividualTestRun = function(pipeline) {
-            $scope.individual_testRun = DataService.refresh(
-                'pipeline', $scope.user, $scope.apikey).get({"uuid": pipeline});
-        };
-
-        $scope.abbreviateUUID = function(UUID) {
+        $scope.data.abbreviateUUID = function(UUID) {
             return UUID.slice(0, 4) + "..." + UUID.slice(-5);
         };
 
-        $scope.updateFilter = function(type, value, tab) {
+        $scope.data.highlightTab = function(datestr) {
+            Common.highlightTab($scope, datestr);
+        };
+
+        $scope.data.updateFilter = function(type, value, tab) {
             console.log("Updating filter! %s %s %s", type, value, tab);
 
             if (type == "date") {
                 // Only one date can be set at a time.
                 new_value = "=" + value;
-                if ($scope.filters["date"] && $scope.filters["date"][0] == new_value) {
-                    $scope.filters["date"] = [];
-                    $scope.start_date = null;
-                    $scope.finish_date = null;
+                if ($scope.data.filters["date"] && $scope.data.filters["date"][0] == new_value) {
+                    $scope.data.filters["date"] = [];
+                    $scope.data.start_date = null;
+                    $scope.data.finish_date = null;
                 } else {
                     updateDates(value);
-                    $scope.filters["date"] = [new_value];
+                    $scope.data.filters["date"] = [new_value];
                 }
             } else {
-                $scope.filters = SearchService.toggleFilter(
-                    $scope.filters, type, value, true);
+                $scope.data.filters = SearchService.toggleFilter(
+                    $scope.data.filters, type, value, true);
             }
-            $scope.search = SearchService.filtersToString($scope.filters);
+            $scope.data.search = SearchService.filtersToString($scope.data.filters);
             updateFromServer();
         };
 
-        $scope.isFilterActive = function(type, value, tab) {
+        $scope.data.isFilterActive = function(type, value, tab) {
             return SearchService.isFilterActive(
-                $scope.filters, type, value, true);
-        };
-
-        // Toggles between the current tab.
-        $scope.toggleTab = function(tab) {
-            updateFromServer(); // FIXME: Temporary hack. Need to refresh plot rather than redownloading data.
-            $rootScope.title = $scope.tabs[tab].pagetitle;
-            $scope.currentpage = tab;
+                $scope.data.filters, type, value, true);
         };
 
         // Sorts the table by predicate.
-        $scope.sortTable = function(predicate, tab) {
-            $scope.tabs[tab].predicate = predicate;
-            $scope.tabs[tab].reverse = !$scope.tabs[tab].reverse;
+        $scope.data.sortTable = function(predicate, tab) {
+            $scope.data.tabs[tab].predicate = predicate;
+            $scope.data.tabs[tab].reverse = !$scope.data.tabs[tab].reverse;
         };
 
-        $scope = getMetadata($scope);
-        $scope.updateFilter('date', 'Last 24 Hours', 'successRate');
-        $scope.toggleTab('successRate');
-        $scope.sortTable('occurrence_count', 'bugs');
+        if (Object.keys($scope.data.filters).length < 2) {
+            $scope.data.updateFilter('date', $scope.data.time_range, $scope.data.default_tab);
+            $scope.data.highlightTab($scope.data.default_tab)
+            $scope.data = getMetadata($scope);
+        };
+        $scope.data.sortTable('occurrence_count', 'bugs');
+        updateFromServer();
     }]);

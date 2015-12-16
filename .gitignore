@@ -36,6 +36,7 @@ weebl/oilserver/static/*
 !weebl/oilserver/static/img/
 !weebl/oilserver/static/js/
 !weebl/oilserver/static/oilserver/
+!weebl/oilserver/static/partials/
 
 # Remote access files:
 
