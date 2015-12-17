@@ -1,7 +1,7 @@
 var app = angular.module('weebl');
 app.controller('successRateController', [
-    '$scope', 'data', 'SearchService', 'DataService', 'graphFactory', 'Common',
-    function($scope, data, SearchService, DataService, graphFactory, Common) {
+    '$scope', '$q', 'data', 'SearchService', 'DataService', 'graphFactory', 'Common',
+    function($scope, $q, data, SearchService, DataService, graphFactory, Common) {
         for (var datum in $scope.data) {
             data[datum] = $scope.data[datum]
         };
@@ -99,7 +99,7 @@ app.controller('successRateController', [
 
 
         function getFilterModels() {
-            var enum_fields = Object.keys(generateFilterPaths())
+            var enum_fields = Object.keys(generateFilterPaths());
             index = enum_fields.indexOf("completed_at__gte");
             enum_fields.splice(index, 1);
             index = enum_fields.indexOf("completed_at__lte");
@@ -117,16 +117,68 @@ app.controller('successRateController', [
             return $scope.data;
         };
 
-        function updateGraphs() {
-            active_filters = generateActiveFilters('build');
-            graphFactory.refresh(binding, active_filters);
-            $scope.data.builds = update('build')
+        function fetchDataForEachStatus(model, filter_set, jobname, graphValues) {
+            filter_set['meta_only'] = true;
+            filter_set['limit'] = 1;
+            filter_set['max_limit'] = 1;
+            if(jobname === null) {
+                delete filter_set['build__jobtype__name'];
+                graphValues.total = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(filter_set);
+            } else {
+                filter_set['jobtype__name'] = jobname;
+                filter_set['buildstatus__name'] = 'success';
+                graphValues.pass = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(filter_set);
+            };
+        };
+
+        function updateGraphValues(total, pass_deploy_count, pass_prepare_count, pass_test_cloud_image_count) {
+            $scope.fetching_data = true;
+            $scope.graphValues = {};
+            $scope.graphValues.total = {}
+            $scope.graphValues.deploy = {}
+            $scope.graphValues.prepare = {}
+            $scope.graphValues.test_cloud_image = {}
+
+            var pipeline_filters = generateActiveFilters('pipeline');
+            fetchDataForEachStatus('pipeline', pipeline_filters, null, $scope.graphValues);
+            var build_filters = generateActiveFilters('build');
+            fetchDataForEachStatus('build', build_filters, 'pipeline_deploy', $scope.graphValues.deploy);
+            fetchDataForEachStatus('build', build_filters, 'pipeline_prepare', $scope.graphValues.prepare);
+            fetchDataForEachStatus('build', build_filters, 'test_cloud_image', $scope.graphValues.test_cloud_image);
+
+            $scope.fetching_data = false;
+
+            plotStatsGraph();
+         };
+
+        function plotStatsGraph() {
+            $scope.plot_data_loading = true;
+            $q.all([
+                $scope.graphValues.total.$promise,
+                $scope.graphValues.deploy.pass.$promise,
+                $scope.graphValues.prepare.pass.$promise,
+                $scope.graphValues.test_cloud_image.pass.$promise
+            ]).then(function() {
+                console.log('total builds = ' + $scope.graphValues.total.meta.total_count);
+                console.log('total deploy passes = ' + $scope.graphValues.deploy.pass.meta.total_count);
+                console.log('total prepare passes = ' + $scope.graphValues.prepare.pass.meta.total_count);
+                console.log('total cloud_image passes = ' + $scope.graphValues.test_cloud_image.pass.meta.total_count);
+
+                graphFactory.plot_stats_graph(
+                    binding,
+                    $scope.graphValues
+                );
+                $scope.plot_data_loading = false;
+            });
         };
 
 
         function update(model) {
+            $scope.fetching_data = true;
             active_filters = generateActiveFilters(model);
-            return DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(active_filters);
+            var data = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(active_filters);
+            $scope.fetching_data = false;
+            return data
         };
 
         function dateToString(date) {
@@ -152,9 +204,9 @@ app.controller('successRateController', [
         };
 
         function updateFromServer() {
-            updateGraphs();
             $scope.data.bugs = update('bug');
             $scope.data.testRuns = update('pipeline');
+            updateGraphValues();
         }
 
         // Clear the search bar.

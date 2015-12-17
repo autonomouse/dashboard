@@ -76,6 +76,14 @@
                                         <span class="loader"></span>
                                         Loading...
                                     </span>
+                                    <span class="power-status--power" data-ng-show="plot_data_loading">
+                                        <span class="loader"></span>
+                                        Updating chart...
+                                    </span>
+                                    <span class="power-status--power" data-ng-show="plot_data_loading">
+                                        <span class="loader"></span>
+                                        Fetching data...
+                                    </span>
                                 </span>
                             </h1>
                         </div>
@@ -197,8 +205,6 @@
                                 </div>
                             {% else %}
                                 <!------------------------------------------------>
-
-
                                 <div id="content" class="nine-col last-col" data-ng-show="data.show_search">
                                     <div id="search-bar" class="search">
                                         <input
@@ -210,9 +216,9 @@
                                             data-ng-click="data.clearSearch()" />
                                     </div>
                                 </div>
-
                                 <!------------------------------------------------>
                                 <div data-ng-view></div>
+                                <!------------------------------------------------>
                             {% endif %}
                         </div>
                     </div>

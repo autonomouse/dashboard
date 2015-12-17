@@ -1,41 +1,39 @@
-
-
-
-        <!------------------------------------------------>
-
-        <div id="content" class="nine-col last-col">
-            <p>{$ data.testRuns.meta.total_count $} matching test runs (capped at {$ data.testRuns.meta.limit $} test runs).</p>
-
-            <table class="table-listing">
-                <thead>
-                    <tr class="table-listing__row">
-                        <th class="table-listing__header">
-                            <a href=""
-                                class="table-listing__header-link sort-asc"
-                                data-ng-click="data.sortTable('testRun.uuid', 'testRuns')"
-                                data-ng-class="{sort: data.tabs.testRuns.predicate === 'testRun.uuid',
-                                                'sort-asc': data.tabs.testRuns.reverse === false,
-                                                'sort-desc': data.tabs.nodes.reverse === true}">Test Run ID</a>
-                        </th>
-                        <th class="table-listing__header">
-                            <a href=""
-                                class="table-listing__header-link sort-asc"
-                                data-ng-click="data.sortTable('completed_at', 'testRuns')"
-                                data-ng-class="{sort: data.tabs.testRuns.predicate === 'completed_at',
-                                                'sort-asc': data.tabs.testRuns.reverse === false,
-                                                'sort-desc': data.tabs.nodes.reverse === true}">Completed At</a>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="table-listing__row" ng-repeat="testRun in data.testRuns.objects | orderBy:data.tabs.testRuns.predicate:data.tabs.testRuns.reverse">
-                        <td class="table-listing__cell">
-                            <a href="#/testRun/{$ testRun.uuid $}" title="{$ testRun.uuid $}">
-                                {$ data.abbreviateUUID(testRun.uuid) $}
-                            </a>
-                        </td>
-                        <td class="table-listing__cell">{$ data.humaniseDate(testRun.completed_at) $}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+<div id="content" class="nine-col last-col">
+    <p>{$ data.testRuns.meta.total_count $} matching test runs
+        <span ng-if="testRuns.meta.total_count > testRuns.meta.limit ">
+            (only displaying the first {$ data.testRuns.meta.limit $} test runs).
+        </span>
+    </p>
+    <table class="table-listing">
+        <thead>
+            <tr class="table-listing__row">
+                <th class="table-listing__header">
+                    <a href=""
+                        class="table-listing__header-link sort-asc"
+                        data-ng-click="data.sortTable('testRun.uuid', 'testRuns')"
+                        data-ng-class="{sort: data.tabs.testRuns.predicate === 'testRun.uuid',
+                                        'sort-asc': data.tabs.testRuns.reverse === false,
+                                        'sort-desc': data.tabs.nodes.reverse === true}">Test Run ID</a>
+                </th>
+                <th class="table-listing__header">
+                    <a href=""
+                        class="table-listing__header-link sort-asc"
+                        data-ng-click="data.sortTable('completed_at', 'testRuns')"
+                        data-ng-class="{sort: data.tabs.testRuns.predicate === 'completed_at',
+                                        'sort-asc': data.tabs.testRuns.reverse === false,
+                                        'sort-desc': data.tabs.nodes.reverse === true}">Completed At</a>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="table-listing__row" ng-repeat="testRun in data.testRuns.objects | orderBy:data.tabs.testRuns.predicate:data.tabs.testRuns.reverse">
+                <td class="table-listing__cell">
+                    <a href="#/testRun/{$ testRun.uuid $}" title="{$ testRun.uuid $}">
+                        {$ data.abbreviateUUID(testRun.uuid) $}
+                    </a>
+                </td>
+                <td class="table-listing__cell">{$ data.humaniseDate(testRun.completed_at) $}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

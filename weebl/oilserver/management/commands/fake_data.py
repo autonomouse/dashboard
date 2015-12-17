@@ -356,7 +356,7 @@ def make_builds(pipeline):
 
 
 def make_pipelines():
-    target_count = 1000
+    target_count = 1050
     current_count = models.Pipeline.objects.count()
     for i in range(current_count, target_count):
         pipeline = make_pipeline()
