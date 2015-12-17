@@ -276,7 +276,8 @@ app.controller('successRateController', [
             $scope.data.updateFilter('date', $scope.data.time_range, $scope.data.default_tab);
             $scope.data.highlightTab($scope.data.default_tab)
             $scope.data = getMetadata($scope);
+            updateFromServer();
         };
         $scope.data.sortTable('occurrence_count', 'bugs');
-        updateFromServer();
+        plotStatsGraph();
     }]);

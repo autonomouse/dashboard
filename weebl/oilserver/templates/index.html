@@ -72,18 +72,20 @@
                                     <a href="#/bugs" data-ng-class="{ active: data.currentpage === 'bugs' }" data-ng-click="data.highlightTab('bugs')">Bugs</a>
                                     <span class="divide"></span>
                                     <a href="#/testRuns" data-ng-class="{ active: data.currentpage === 'testRuns' }" data-ng-click="data.highlightTab('testRuns')">Test Runs</a>
-                                    <span class="power-status--power" data-ng-show="loading">
-                                        <span class="loader"></span>
-                                        Loading...
-                                    </span>
-                                    <span class="power-status--power" data-ng-show="plot_data_loading">
-                                        <span class="loader"></span>
-                                        Updating chart...
-                                    </span>
-                                    <span class="power-status--power" data-ng-show="plot_data_loading">
-                                        <span class="loader"></span>
-                                        Fetching data...
-                                    </span>
+                                    {% if user.is_authenticated %}
+                                        <span class="power-status--power" data-ng-show="loading">
+                                            <span class="loader"></span>
+                                            Loading...
+                                        </span>
+                                        <span class="power-status--power" data-ng-show="plot_data_loading">
+                                            <span class="loader"></span>
+                                            Updating chart...
+                                        </span>
+                                        <span class="power-status--power" data-ng-show="plot_data_loading">
+                                            <span class="loader"></span>
+                                            Fetching data...
+                                        </span>
+                                    {% endif %}
                                 </span>
                             </h1>
                         </div>
