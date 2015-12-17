@@ -1,6 +1,6 @@
 <div id="content" class="nine-col last-col">
     <p>{$ data.testRuns.meta.total_count $} matching test runs
-        <span ng-if="testRuns.meta.total_count > testRuns.meta.limit ">
+        <span ng-if="data.testRuns.meta.total_count > data.testRuns.meta.limit ">
             (only displaying the first {$ data.testRuns.meta.limit $} test runs).
         </span>
     </p>
