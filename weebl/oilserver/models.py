@@ -520,7 +520,8 @@ class Build(TimeStampedBaseModel):
     @property
     def jenkins_build_url(self):
         url = self.pipeline.buildexecutor.jenkins.external_access_url
-        return "{}/job/{}/{}/".format(url, self.jobtype.name, self.build_id)
+        return "{}/job/{}/{}/".format(
+            url.rstrip('/'), self.jobtype.name, self.build_id)
 
 
 class TargetFileGlob(TimeStampedBaseModel):

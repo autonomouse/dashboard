@@ -70,31 +70,31 @@
   pk: 1
   fields:
     name: pipeline_deploy
-    description: The deployment job.
+    description: Deploy Openstack
 
 - model: oilserver.jobtype
   pk: 2
   fields:
     name: pipeline_prepare
-    description: The prepare job.
+    description: Configure Openstack for test
 
 - model: oilserver.jobtype
   pk: 3
   fields:
     name: test_tempest_smoke
-    description: Tempest tests.
+    description: Run Openstack's tempest tests
 
 - model: oilserver.jobtype
   pk: 4
   fields:
     name: test_bundletests
-    description: Bundle tests.
+    description: Test Bundles
 
 - model: oilserver.jobtype
   pk: 5
   fields:
     name: test_cloud_image
-    description: Cloud image tests.
+    description: SSH to guest instance
 - model: oilserver.ubuntuversion
   pk: 1
   fields:

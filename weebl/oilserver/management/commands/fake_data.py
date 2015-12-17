@@ -180,6 +180,7 @@ def make_jenkins():
 
     models.Jenkins(environment=models.Environment.objects.first(),
                    servicestatus=models.ServiceStatus.objects.get(name='up'),
+                   external_access_url='https://oil-jenkins.canonical.com/'
                    ).save()
 
 
@@ -318,7 +319,8 @@ def make_build(pipeline, jobtype, success_rate):
     build = models.Build(
         pipeline=pipeline,
         buildstatus=build_status,
-        jobtype=jobtype)
+        jobtype=jobtype,
+        build_id=random.randint(100000, 3000000))
     build.save()
 
     if build_status.name == 'failure':

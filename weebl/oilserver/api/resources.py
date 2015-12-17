@@ -480,6 +480,7 @@ class PipelineResource(CommonResource):
         blockstorage: Foreign key to the BlockStorage resource.
         imagestorage: Foreign key to the ImageStorage resource.
         database: Foreign key to the Database resource.
+        build: To-Many relation to the Build resource.
     """
 
     ubuntuversion = fields.ForeignKey(
@@ -496,22 +497,25 @@ class PipelineResource(CommonResource):
                                      full=True, null=True)
     database = fields.ForeignKey(DatabaseResource, 'database',
                                  full=True, null=True)
+    build = fields.ToManyField(
+        'oilserver.api.resources.BuildResource', 'build', null=True)
 
     class Meta:
         queryset = models.Pipeline.objects.select_related(
             'ubuntuversion', 'openstackversion', 'sdn', 'compute',
             'blockstorage', 'imagestorage', 'database',
             'buildexecutor').all()
-        fields = ['uuid', 'buildexecutor', 'completed_at', 'ubuntuversion',
-                  'openstackversion', 'sdn', 'compute', 'blockstorage',
-                  'imagestorage', 'database']
+        fields = [
+            'uuid', 'build', 'buildexecutor', 'completed_at', 'ubuntuversion',
+            'openstackversion', 'sdn', 'compute', 'blockstorage',
+            'imagestorage', 'database']
         list_allowed_methods = ['get', 'post', 'delete']  # all items
         detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
         authorization = DjangoAuthorization()
         authentication = ApiKeyAuthentication()
         always_return_data = True
         filtering = {'uuid': ALL,
-                     'buildexecutor': ALL_WITH_RELATIONS,
+                     'build': ALL_WITH_RELATIONS,
                      'completed_at': ALL,
                      'ubuntuversion': ALL_WITH_RELATIONS,
                      'openstackversion': ALL_WITH_RELATIONS,
@@ -523,6 +527,11 @@ class PipelineResource(CommonResource):
                      'buildexecutor': ALL_WITH_RELATIONS,
                      }
         detail_uri_name = 'uuid'
+
+    def apply_filters(self, request, applicable_filters):
+        fixup_set_filters(['build'], applicable_filters)
+        return super(PipelineResource, self).apply_filters(
+            request, applicable_filters).distinct()
 
 
 class MachineConfigurationResource(CommonResource):
@@ -627,6 +636,11 @@ class BuildResource(CommonResource):
                      'pipeline': ALL_WITH_RELATIONS,
                      'buildstatus': ALL_WITH_RELATIONS}
         detail_uri_name = 'uuid'
+
+    def dehydrate(self, bundle):
+        bundle = super(BuildResource, self).dehydrate(bundle)
+        bundle.data['jenkins_build_url'] = bundle.obj.jenkins_build_url
+        return bundle
 
 
 class TargetFileGlobResource(CommonResource):
@@ -740,6 +754,8 @@ class BugResource(CommonResource):
     knownbugregex = fields.ToManyField(
         'oilserver.api.resources.KnownBugRegexResource',
         'knownbugregex_set', null=True)
+    # FIXME: based on my experiences with Build, I think can get rid of '_set'
+    # here, although I'm not sure what's using it, so cannot check...
     bugtrackerbug = fields.ToOneField(
         'oilserver.api.resources.BugTrackerBugResource',
         'bugtrackerbug', full=True, null=True)

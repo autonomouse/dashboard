@@ -1,5 +1,5 @@
 <div id="content" class="nine-col last-col">
-    <p>{$ data.bugs.meta.total_count $} matching bugs.</p>
+    <p>{$ data.bugs.meta.total_count $} matching <ng-pluralize count="data.bugs.meta.total_count" when="{'0': 'bugs', '1': 'bug', 'other': 'bugs'}">.</p>
 
     <table class="table-listing">
         <thead>
@@ -14,7 +14,7 @@
                     <a href="" class="table-listing__header-link sort-asc" data-ng-click="data.sortTable('summary', 'bugs')" data-ng-class="{sort: data.tabs.bugs.predicate === 'summary', 'sort-asc': data.tabs.bugs.reverse === false, 'sort-desc': data.tabs.nodes.reverse === true}">Summary</a>
                 </th>
                 <th class="table-listing__header">
-                    <a href="" class="table-listing__header-link sort sort-asc" data-ng-click="data.sortTable('occurrence_count', 'bugs')" data-ng-class="{sort: data.tabs.bugs.predicate === 'occurrence_count', 'sort-asc': data.tabs.bugs.reverse === false, 'sort-desc': data.tabs.nodes.reverse === true}">Occurrences</a>
+                    <a href="" class="table-listing__header-link sort-asc" data-ng-click="data.sortTable('occurrence_count', 'bugs')" data-ng-class="{sort: data.tabs.bugs.predicate === 'occurrence_count', 'sort-asc': data.tabs.bugs.reverse === false, 'sort-desc': data.tabs.nodes.reverse === true}">Occurrences</a>
                 </th>
                 <th class="table-listing__header">
                     <a href="" class="table-listing__header-link sort-asc" data-ng-click="data.sortTable('last_seen', 'bugs')" data-ng-class="{sort: data.tabs.bugs.predicate === 'last_seen', 'sort-asc': data.tabs.bugs.reverse === false, 'sort-desc': data.tabs.nodes.reverse === true}">Last Seen (UTC)</a>
@@ -25,9 +25,7 @@
             <tr class="table-listing__row" ng-repeat="bug in data.bugs.objects | orderBy:data.tabs.bugs.predicate:data.tabs.bugs.reverse">
                 <td class="table-listing__cell"><a href="https://bugs.launchpad.net/bugs/{$ bug.bugtrackerbug.bug_number $}/" class="external">{$ bug.bugtrackerbug.bug_number $}</a></td>
                 <td class="table-listing__cell">{$ bug.bugtrackerbug.project.name $}</td>
-                <td class="table-listing__cell">
-                    {$ bug.summary $}
-                </td>
+                <td class="table-listing__cell">{$ bug.summary $}</td>
                 <td class="table-listing__cell">{$ bug.occurrence_count $}</td>
                 <td class="table-listing__cell">{$ data.humaniseDate(bug.last_seen) $}</td>
             </tr>

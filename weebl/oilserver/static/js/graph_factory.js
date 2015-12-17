@@ -1,6 +1,6 @@
 app.factory('graphFactory', ['DataService', function(DataService) {
 
-var plot_stats_graph = function(scope, graphValues) {
+var calcPercentage = function calcPercentage(value, number_of_test_runs) {
 
     function calcPercentage(value, number_of_test_runs) {
         var percentage = d3.format(',.2f')(((value / number_of_test_runs) * 100))
@@ -10,6 +10,9 @@ var plot_stats_graph = function(scope, graphValues) {
             return percentage + "%";
         }
     }
+  };
+
+var plot_stats_graph = function(scope, graphValues) {
 
     function updateChartData(number_of_test_runs, pass_deploy_count, pass_prepare_count, pass_test_cloud_image_count) {
         var stack_bar_config = {
@@ -46,7 +49,7 @@ var plot_stats_graph = function(scope, graphValues) {
             },
             title: {
                 enable: true,
-                text: "Showing successes per job of " + number_of_test_runs + " matching test runs.",
+                text: "Showing cumulative success rates of " + number_of_test_runs + " matching test runs.",
                 css: {
                     width: "nullpx",
                     textAlign: "center"
@@ -90,6 +93,7 @@ var plot_stats_graph = function(scope, graphValues) {
   };
 
   return {
-    plot_stats_graph: plot_stats_graph
+    plot_stats_graph: plot_stats_graph,
+    calcPercentage: calcPercentage,
   };
 }]);

@@ -1,6 +1,7 @@
 <div id="content" class="nine-col last-col">
     <p>Test run ID: {$ data.testRunId $}</p>
     <p>Test run completed at: {$ data.humaniseDate(data.individual_testRun.objects[0].completed_at) $}</p>
+    <p>Environment: {$ data.this_environment.objects[0].name $}</p>
     <table class="table-listing">
         <thead>
             <tr class="table-listing__row">
@@ -71,5 +72,66 @@
             </tr>
         </tbody>
     </table>
-    <!-- TODO: Place list of bugs that affect this pipeline/testRun here, once filter by pipeline is enabled. -->
+
+    {$ data.pipeline_builds.meta.total_count $} <ng-pluralize count="data.bugs_affecting_pipeline.meta.total_count" when="{'0': 'jobs', '1': 'job', 'other': 'jobs'}"></ng-pluralize> run during this test.
+    <span ng-if="data.pipeline_builds.meta.total_count > 0 ">
+        <table class="table-listing">
+            <thead>
+                <tr class="table-listing__row">
+                    <th class="table-listing__header">
+                        Job Type
+                    </th>
+                    <th class="table-listing__header">
+                        Build Number
+                    </th>
+                    <th class="table-listing__header">
+                        Outcome
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="table-listing__row" ng-repeat="pl_build in data.pipeline_builds.objects">
+                    <td class="table-listing__cell">{$ pl_build.jobtype.slice(16,-1) $}</td>
+                    <td class="table-listing__cell"><a href="{$ pl_build.jenkins_build_url $}" class="external">{$ pl_build.build_id $}</a></td>
+                    <td class="table-listing__cell">{$ pl_build.buildstatus.slice(20, -1) $}</td>
+                </tr>
+            </tbody>
+        </table>
+    </span>
+
+    {$ data.bugs_affecting_pipeline.meta.total_count $} <ng-pluralize count="data.bugs_affecting_pipeline.meta.total_count" when="{'0': 'bugs', '1': 'bug', 'other': 'bugs'}"></ng-pluralize> found to be affecting this test run.
+    <span ng-if="data.bugs_affecting_pipeline.meta.total_count > 0 ">
+        <table class="table-listing">
+            <thead>
+                <tr class="table-listing__row">
+                    <th class="table-listing__header">
+                        <a href="" class="table-listing__header-link sort-asc" data-ng-click="data.sortTable('bugtrackerbug.bug_number', 'bugs')" data-ng-class="{sort: data.tabs.bugs.predicate === 'bugtrackerbug.bug_number', 'sort-asc': data.tabs.bugs.reverse === false, 'sort-desc': data.tabs.nodes.reverse === true}">Number</a>
+                    </th>
+                    <th class="table-listing__header">
+                        <a href="" class="table-listing__header-link sort-asc" data-ng-click="data.sortTable('bugtrackerbug.project.name', 'bugs')" data-ng-class="{sort: data.tabs.bugs.predicate === 'bugtrackerbug.project.name', 'sort-asc': data.tabs.bugs.reverse === false, 'sort-desc': data.tabs.nodes.reverse === true}">Project</a>
+                    </th>
+                    <th class="table-listing__header">
+                        <a href="" class="table-listing__header-link sort-asc" data-ng-click="data.sortTable('summary', 'bugs')" data-ng-class="{sort: data.tabs.bugs.predicate === 'summary', 'sort-asc': data.tabs.bugs.reverse === false, 'sort-desc': data.tabs.nodes.reverse === true}">Summary</a>
+                    </th>
+                    <th class="table-listing__header">
+                        <a href="" class="table-listing__header-link sort sort-asc" data-ng-click="data.sortTable('occurrence_count', 'bugs')" data-ng-class="{sort: data.tabs.bugs.predicate === 'occurrence_count', 'sort-asc': data.tabs.bugs.reverse === false, 'sort-desc': data.tabs.nodes.reverse === true}">Occurrences</a>
+                    </th>
+                    <th class="table-listing__header">
+                        <a href="" class="table-listing__header-link sort-asc" data-ng-click="data.sortTable('last_seen', 'bugs')" data-ng-class="{sort: data.tabs.bugs.predicate === 'last_seen', 'sort-asc': data.tabs.bugs.reverse === false, 'sort-desc': data.tabs.nodes.reverse === true}">Last Seen (UTC)</a>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="table-listing__row" ng-repeat="bug_fx_pl in data.bugs_affecting_pipeline.objects | orderBy:data.tabs.bugs.predicate:data.tabs.bugs.reverse">
+                    <td class="table-listing__cell"><a href="https://bugs.launchpad.net/bugs/{$ bug_fx_pl.bugtrackerbug.bug_number $}/" class="external">{$ bug_fx_pl.bugtrackerbug.bug_number $}</a></td>
+                    <td class="table-listing__cell">{$ bug_fx_pl.bugtrackerbug.project.name $}</td>
+                    <td class="table-listing__cell">
+                        {$ bug_fx_pl.summary $}
+                    </td>
+                    <td class="table-listing__cell">{$ bug_fx_pl.occurrence_count $}</td>
+                    <td class="table-listing__cell">{$ data.humaniseDate(bug_fx_pl.last_seen) $}</td>
+                </tr>
+            </tbody>
+        </table>
+    </span>
 </div>
