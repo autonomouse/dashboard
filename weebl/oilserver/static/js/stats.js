@@ -279,5 +279,6 @@ app.controller('successRateController', [
             updateFromServer();
         };
         $scope.data.sortTable('occurrence_count', 'bugs');
+        updateGraphValues();
         plotStatsGraph();
     }]);
