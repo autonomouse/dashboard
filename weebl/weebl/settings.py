@@ -10,6 +10,7 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import yaml
 
 SITE_ID = 1
 
@@ -67,16 +68,45 @@ ROOT_URLCONF = 'weebl.urls'
 
 WSGI_APPLICATION = 'weebl.wsgi.application'
 
+CONFIG_PATH = '/etc/weebl/weebl.yaml'
+
+STATICFILES_DIRS = [
+    "/usr/share/javascript/jquery/",
+    "/usr/share/javascript/angular.js/",
+    "/usr/share/javascript/yui3/",
+]
+
+BUILTIN_STATIC = os.path.join(BASE_DIR, 'oilserver', 'static')
+
+if os.path.exists(CONFIG_PATH):
+    with open(CONFIG_PATH) as config_file:
+        custom_config = yaml.load(config_file.read())
+        db_config = custom_config['database']
+        if 'static_root' in custom_config:
+            STATIC_ROOT = custom_config['static_root']
+            STATICFILES_DIRS.append(BUILTIN_STATIC)
+        else:
+            STATIC_ROOT = BUILTIN_STATIC
+else:
+    db_config = {
+        'database': 'bugs_database',
+        'host': 'localhost',
+        'port': None,
+        'user': 'weebl',
+        'password': 'GBp6FFhLZczH9qHS7WPP4VjhtjMhLpwCWJx4T',
+    }
+    STATIC_ROOT = BUILTIN_STATIC
+
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'bugs_database',
-        'USER': 'weebl',
-        'PASSWORD': 'passweebl',
-        'HOST': 'localhost',
-        'PORT': None
+        'NAME': db_config['database'],
+        'USER': db_config['user'],
+        'PASSWORD': db_config['password'],
+        'HOST': db_config['host'],
+        'PORT': db_config['port'],
     }
 }
 
@@ -93,23 +123,11 @@ USE_L10N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.7/howto/static-files/
-
 STATIC_URL = '/static/'
-
-STATIC_ROOT = os.path.join(BASE_DIR, 'oilserver', 'static')
 
 TASTYPIE_DEFAULT_FORMATS = ['json']
 
 API_LIMIT_PER_PAGE = 0
-
-STATICFILES_DIRS = (
-    "/usr/share/javascript/jquery/",
-    "/usr/share/javascript/angular.js/",
-    "/usr/share/javascript/yui3/",
-)
 
 GRAPH_MODELS = {
     'all_applications': True,
