@@ -1,14 +1,11 @@
 app.factory('graphFactory', ['DataService', function(DataService) {
 
 var calcPercentage = function calcPercentage(value, number_of_test_runs) {
-
-    function calcPercentage(value, number_of_test_runs) {
-        var percentage = d3.format(',.2f')(((value / number_of_test_runs) * 100))
-        if (percentage == "NaN"){
-            return "0%";
-        } else {
-            return percentage + "%";
-        }
+      var percentage = d3.format(',.2f')(((value / number_of_test_runs) * 100))
+      if (percentage == "NaN"){
+          return "0%";
+      } else {
+          return percentage + "%";
     }
   };
 
