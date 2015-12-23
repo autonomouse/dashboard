@@ -285,6 +285,12 @@ class Machine(TimeStampedBaseModel):
         blank=False,
         null=False,
         help_text="UUID of this machine.")
+    hostname = models.CharField(
+        max_length=255,
+        default=None,
+        blank=True,
+        null=True,
+        help_text="Host name or IP address ofthis machine.")
 
     def __str__(self):
         return self.uuid
@@ -309,8 +315,6 @@ class ProductUnderTest(TimeStampedBaseModel):
     vendor = models.ForeignKey(Vendor, null=True, blank=True, default=None)
     internalcontact = models.ForeignKey(
         InternalContact, null=True, blank=True, default=None)
-    machine = models.ManyToManyField(
-        Machine, null=True, blank=True, default=None)
 
     def __str__(self):
         return self.uuid
@@ -433,6 +437,8 @@ class MachineConfiguration(TimeStampedBaseModel):
         help_text="UUID of this machine.")
     machine = models.ForeignKey(Machine, null=True, blank=True, default=None)
     pipeline = models.ForeignKey(Pipeline, null=True, blank=True, default=None)
+    productundertest = models.ManyToManyField(
+        ProductUnderTest, null=True, blank=True, default=None)
 
     def __str__(self):
         return self.uuid

@@ -276,7 +276,7 @@ class InternalContactResource(CommonResource):
     """
 
     class Meta:
-        queryset = models.Project.objects.all()
+        queryset = models.InternalContact.objects.all()
         list_allowed_methods = ['get', 'post', 'delete']  # all items
         detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
         fields = ['name', 'uuid']
@@ -300,12 +300,12 @@ class MachineResource(CommonResource):
         queryset = models.Machine.objects.all()
         list_allowed_methods = ['get', 'post', 'delete']  # all items
         detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
-        fields = ['name', 'uuid']
+        fields = ['hostname', 'uuid']
         authorization = DjangoAuthorization()
         authentication = ApiKeyAuthentication()
         always_return_data = True
         filtering = {
-            'name': ('exact',),
+            'hostname': ('exact',),
             'uuid': ('exact',), }
         detail_uri_name = 'uuid'
 
@@ -320,7 +320,6 @@ class ProductUnderTestResource(CommonResource):
         project: Foreign key to the Project resource.
         vendor: Foreign key to the Vendor resource.
         internalcontact: Foreign key to the InternalContact resource.
-        machine: To-Many relation to the Machine resource.
     """
 
     project = fields.ForeignKey(
@@ -328,15 +327,13 @@ class ProductUnderTestResource(CommonResource):
     vendor = fields.ForeignKey(VendorResource, 'vendor', full=True, null=True)
     internalcontact = fields.ForeignKey(
         InternalContactResource, 'internalcontact', full=True, null=True)
-    machine = fields.ToManyField(
-        MachineResource, 'machine', full=True, null=True)
 
     class Meta:
-        queryset = models.Project.objects.all()
+        queryset = models.ProductUnderTest.objects.all()
         list_allowed_methods = ['get', 'post', 'delete']  # all items
         detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
         fields = [
-            'name', 'project', 'vendor', 'uuid', 'internalcontact', 'machine']
+            'name', 'project', 'vendor', 'uuid', 'internalcontact']
         authorization = DjangoAuthorization()
         authentication = ApiKeyAuthentication()
         always_return_data = True
@@ -345,8 +342,7 @@ class ProductUnderTestResource(CommonResource):
             'internalcontact': ('exact',),
             'vendor': ('exact',),
             'uuid': ('uuid',),
-            'name': ('exact',),
-            'machine': ('exact',), }
+            'name': ('exact',), }
         detail_uri_name = 'uuid'
 
 
@@ -541,7 +537,7 @@ class MachineConfigurationResource(CommonResource):
     methods from CommonResource.
 
     Attributes:
-        machine: Foreign key to the Machine resource.
+        machine: To-Many relation to the Machine resource.
         pipeline: Foreign key to the Pipeline resource.
     """
 
@@ -549,12 +545,14 @@ class MachineConfigurationResource(CommonResource):
         MachineResource, 'machine', full=True, null=True)
     pipeline = fields.ForeignKey(
         PipelineResource, 'pipeline', full=True, null=True)
+    productundertest = fields.ToManyField(
+        ProductUnderTestResource, 'productundertest', full=True, null=True)
 
     class Meta:
-        queryset = models.Machine.objects.all()
+        queryset = models.MachineConfiguration.objects.all()
         list_allowed_methods = ['get', 'post', 'delete']  # all items
         detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
-        fields = ['name', 'uuid', 'machine', 'pipeline']
+        fields = ['name', 'uuid', 'machine', 'pipeline', 'productundertest']
         authorization = DjangoAuthorization()
         authentication = ApiKeyAuthentication()
         always_return_data = True
