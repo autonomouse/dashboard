@@ -91,13 +91,15 @@ app.controller('successRateController', [
                 $scope.data.graphValues.prepare.pass.$promise,
                 $scope.data.graphValues.test_cloud_image.pass.$promise
             ]).then(function() {
-                console.log('total builds = ' + $scope.data.graphValues.total.meta.total_count);
-                console.log('total deploy passes = ' + $scope.data.graphValues.deploy.pass.meta.total_count);
-                console.log('total prepare passes = ' + $scope.data.graphValues.prepare.pass.meta.total_count);
-                console.log('total cloud_image passes = ' + $scope.data.graphValues.test_cloud_image.pass.meta.total_count);
+                if ($scope.data.graphValues.total.$resolved) {
+                    console.log('total builds = ' + $scope.data.graphValues.total.meta.total_count);
+                    console.log('total deploy passes = ' + $scope.data.graphValues.deploy.pass.meta.total_count);
+                    console.log('total prepare passes = ' + $scope.data.graphValues.prepare.pass.meta.total_count);
+                    console.log('total cloud_image passes = ' + $scope.data.graphValues.test_cloud_image.pass.meta.total_count);
 
-                graphFactory.plot_stats_graph(binding, $scope.data.graphValues);
-                $scope.data.plot_data_loading = false;
+                    graphFactory.plot_stats_graph(binding, $scope.data.graphValues);
+                    $scope.data.plot_data_loading = false;
+                };
             });
         };
 

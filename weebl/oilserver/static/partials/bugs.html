@@ -1,6 +1,5 @@
 <div id="content" class="nine-col last-col">
-    <p>{$ data.bugs.meta.total_count $} matching <ng-pluralize count="data.bugs.meta.total_count" when="{'0': 'bugs', '1': 'bug', 'other': 'bugs'}">.</p>
-
+    <p>{$ data.bugs.meta.total_count $} <ng-pluralize count="data.bugs.meta.total_count" when="{'0': 'matching bugs', '1': 'matching bug', 'other': 'matching bugs'}">.</p>
     <table class="table-listing">
         <thead>
             <tr class="table-listing__row">
