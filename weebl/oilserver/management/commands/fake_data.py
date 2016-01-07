@@ -111,18 +111,42 @@ COMPONENT_NAME = [
     'keystone',
 ]
 
+TARGET_FILES = [
+    'console.txt',
+    'juju_debug_log.txt'
+]
+
+HARDWARE_COMPONENTS = [
+    'hp-proliant-DL360E-G8',
+    'dell-poweredge-R720XD',
+    'cisco-c240-m3',
+    'sm15k',
+    'cisco-b260-m4'
+]
+
+MACHINE_NAMES = [
+    'codliver.oil',
+    'engine.oil',
+    'whale.oil',
+    'olive.oil',
+    'crude.oil'
+]
+
 
 ENUM_MAPPINGS = [
-    (models.JobType, JOB_TYPES),
-    (models.BuildStatus, BUILD_STATUSES),
-    (models.ServiceStatus, SERVICE_STATUSES),
-    (models.OpenstackVersion, OPENSTACK_VERSIONS),
-    (models.SDN, SDNS),
-    (models.Compute, COMPUTES),
-    (models.BlockStorage, BLOCK_STORAGES),
-    (models.ImageStorage, IMAGE_STORAGES),
-    (models.Database, DATABASES),
-    (models.Project, COMPONENT_NAME),
+    (models.JobType, JOB_TYPES, 'name'),
+    (models.BuildStatus, BUILD_STATUSES, 'name'),
+    (models.ServiceStatus, SERVICE_STATUSES, 'name'),
+    (models.OpenstackVersion, OPENSTACK_VERSIONS, 'name'),
+    (models.SDN, SDNS, 'name'),
+    (models.Compute, COMPUTES, 'name'),
+    (models.BlockStorage, BLOCK_STORAGES, 'name'),
+    (models.ImageStorage, IMAGE_STORAGES, 'name'),
+    (models.Database, DATABASES, 'name'),
+    (models.Project, COMPONENT_NAME, 'name'),
+    (models.TargetFileGlob, TARGET_FILES, 'glob_pattern'),
+    (models.ProductUnderTest, HARDWARE_COMPONENTS, 'name'),
+    (models.Machine, MACHINE_NAMES, 'hostname'),
 ]
 
 
@@ -156,16 +180,16 @@ def populate_ubuntu_versions():
         ubuntu_version.save()
 
 
-def populate_enum_object(enum_class, enum_list):
+def populate_enum_object(enum_class, enum_list, key='name'):
     for enum in enum_list:
-        if enum_class.objects.filter(name=enum).exists():
+        if enum_class.objects.filter(**{key: enum}).exists():
             continue
-        enum_class(name=enum).save()
+        enum_class(**{key: enum}).save()
 
 
 def populate_enum_objects():
-    for enum_class, enum_list in ENUM_MAPPINGS:
-        populate_enum_object(enum_class, enum_list)
+    for enum_class, enum_list, key in ENUM_MAPPINGS:
+        populate_enum_object(enum_class, enum_list, key)
 
 
 def make_environment():
@@ -213,6 +237,26 @@ def make_bugtrackerbug(component):
             pass
 
 
+def get_random_target_file_glob():
+    glob_pattern = random.choice(TARGET_FILES)
+    return models.TargetFileGlob.objects.get(glob_pattern=glob_pattern)
+
+
+def get_random_job_type():
+    job_type = random.choice(JOB_TYPES)
+    return models.JobType.objects.get(name=job_type)
+
+
+def get_random_machine():
+    machine = random.choice(MACHINE_NAMES)
+    return models.Machine.objects.get(hostname=machine)
+
+
+def get_random_productundertest():
+    product = random.choice(HARDWARE_COMPONENTS)
+    return models.ProductUnderTest.objects.get(name=product)
+
+
 def make_bug():
     component = random.choice(COMPONENT_NAME)
     while True:
@@ -250,6 +294,8 @@ def make_known_bug_regex(bug):
                 bug=bug,
                 regex=regex)
             known_bug_regex.save()
+            known_bug_regex.targetfileglobs.add(get_random_target_file_glob())
+            known_bug_regex.save()
         except IntegrityError:
             pass
         else:
@@ -263,7 +309,7 @@ def make_bugs():
     current_count = models.Bug.objects.count()
     for i in range(current_count, target_count):
         bug = make_bug()
-        make_known_bug_regex(bug)
+        known_bug_regex = make_known_bug_regex(bug)
 
 
 def random_date(start, end):
@@ -329,6 +375,14 @@ def make_build(pipeline, jobtype, success_rate):
     return build
 
 
+def make_target_file_globs(glob_pattern):
+    target_file_glob = models.TargetFileGlob(
+        glob_pattern=glob_pattern)
+    target_file_glob.save()
+    target_file_glob.jobtypes.add(get_random_job_type())
+    target_file_glob.save()
+
+
 def make_dependent_builds(pipeline):
     for jobtype_name in DEPENDENT_JOBS:
         build = make_build(
@@ -357,13 +411,26 @@ def make_builds(pipeline):
     make_independent_builds(pipeline)
 
 
+def make_hardware(pipeline):
+    for _ in range(random.randint(1,5)):
+        pl = models.Pipeline.objects.get(uuid=pipeline)
+        machine_configuration = models.MachineConfiguration(
+            pipeline=pl,
+            machine=get_random_machine())
+        machine_configuration.save()
+        for _ in range(random.randint(1,2)):
+            machine_configuration.productundertest.add(
+                get_random_productundertest())
+            machine_configuration.save()
+
+
 def make_pipelines():
     target_count = 1050
     current_count = models.Pipeline.objects.count()
     for i in range(current_count, target_count):
         pipeline = make_pipeline()
         make_builds(pipeline)
-
+        make_hardware(pipeline)
 
 def populate_data():
     populate_enum_objects()

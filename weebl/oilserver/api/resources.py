@@ -651,7 +651,7 @@ class TargetFileGlobResource(CommonResource):
         jobtypes: To-Many relation to the JobType resource.
     """
     jobtypes = fields.ToManyField('oilserver.api.resources.JobTypeResource',
-                                  'jobtypes', null=True)
+                                  'jobtypes', full=True, null=True)
 
     class Meta:
         queryset = models.TargetFileGlob.objects.all()
@@ -802,8 +802,8 @@ class KnownBugRegexResource(CommonResource):
     """
 
     targetfileglobs = fields.ToManyField(
-        TargetFileGlobResource, 'targetfileglobs')
-    bug = fields.ForeignKey(BugResource, 'bug', null=True)
+        TargetFileGlobResource, 'targetfileglobs', full=True)
+    bug = fields.ForeignKey(BugResource, 'bug', full=True, null=True)
     bugoccurrences = fields.ToManyField(
         'oilserver.api.resources.BugOccurrenceResource',
         'bugoccurrence_set', null=True, use_in='detail')
@@ -813,7 +813,7 @@ class KnownBugRegexResource(CommonResource):
         list_allowed_methods = ['get', 'post', 'delete']  # all items
         detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
         fields = ['bug', 'uuid', 'regex', 'targetfileglobs',
-                  'created_at', 'updated_at', 'bug']
+                  'created_at', 'updated_at']
         authorization = DjangoAuthorization()
         authentication = ApiKeyAuthentication()
         always_return_data = True
