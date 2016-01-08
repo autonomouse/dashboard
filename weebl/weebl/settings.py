@@ -93,7 +93,7 @@ else:
         'host': 'localhost',
         'port': None,
         'user': 'weebl',
-        'password': 'GBp6FFhLZczH9qHS7WPP4VjhtjMhLpwCWJx4T',
+        'password': 'passweebl',
     }
     STATIC_ROOT = BUILTIN_STATIC
 
