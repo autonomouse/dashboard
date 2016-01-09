@@ -37,6 +37,7 @@ app.controller('successRateController', [
             $scope.data.tabs.bugs.pagetitle = "Bugs";
             $scope.data.tabs.bugs.predicate = "occurrences";
             $scope.data.tabs.bugs.reverse = false;
+            $scope.data.subfilter_plot_form = {}
         };
 
         function getMetadata($scope) {
@@ -58,6 +59,8 @@ app.controller('successRateController', [
                 graphValues.total = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(filter_set);
             } else {
                 filter_set['jobtype__name'] = jobname;
+                delete filter_set['buildstatus__name']
+                graphValues.jobtotal = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(filter_set);
                 filter_set['buildstatus__name'] = 'success';
                 graphValues.pass = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(filter_set);
             };
@@ -92,10 +95,13 @@ app.controller('successRateController', [
                 $scope.data.graphValues.test_cloud_image.pass.$promise
             ]).then(function() {
                 if ($scope.data.graphValues.total.$resolved) {
-                    console.log('total builds = ' + $scope.data.graphValues.total.meta.total_count);
-                    console.log('total deploy passes = ' + $scope.data.graphValues.deploy.pass.meta.total_count);
-                    console.log('total prepare passes = ' + $scope.data.graphValues.prepare.pass.meta.total_count);
-                    console.log('total cloud_image passes = ' + $scope.data.graphValues.test_cloud_image.pass.meta.total_count);
+                    console.log('total test runs = ' + $scope.data.graphValues.total.meta.total_count);
+                    console.log('deploy passes = ' + $scope.data.graphValues.deploy.pass.meta.total_count);
+                    console.log('total deploy builds = ' + $scope.data.graphValues.deploy.jobtotal.meta.total_count);
+                    console.log('prepare passes = ' + $scope.data.graphValues.prepare.pass.meta.total_count);
+                    console.log('total prepare builds = ' + $scope.data.graphValues.prepare.jobtotal.meta.total_count);
+                    console.log('cloud_image passes = ' + $scope.data.graphValues.test_cloud_image.pass.meta.total_count);
+                    console.log('total cloud_image builds = ' + $scope.data.graphValues.test_cloud_image.jobtotal.meta.total_count);
 
                     graphFactory.plot_stats_graph(binding, $scope.data.graphValues);
                     $scope.data.plot_data_loading = false;
@@ -235,6 +241,7 @@ app.controller('successRateController', [
             updateFromServer();
         };
         $scope.data.sortTable('occurrence_count', 'bugs');
+        $scope.data.subfilter_plot_form.type = 'cumulative';
         updateGraphValues();
         plotStatsGraph();
     }]);
