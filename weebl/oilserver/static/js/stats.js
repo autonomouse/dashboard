@@ -167,6 +167,12 @@ app.controller('successRateController', [
 
         // Update the filters object when the search bar is updated.
         $scope.data.updateSearch = function() {
+            if($scope.data.search.search('date') == -1) {
+                var gap = ""
+                if($scope.data.search.length > 0){ var gap = " " }
+                $scope.data.search = $scope.data.search + gap + "date:(=All Time)"
+            }
+
             var filters = SearchService.getCurrentFilters(
                 $scope.data.search);
             if(filters === null) {
@@ -193,10 +199,12 @@ app.controller('successRateController', [
             if (type == "date") {
                 // Only one date can be set at a time.
                 new_value = "=" + value;
-                if ($scope.data.filters["date"] && $scope.data.filters["date"][0] == new_value) {
+                if (($scope.data.filters["date"] && $scope.data.filters["date"][0] == new_value) || (new_value == "=All Time")){
                     $scope.data.filters["date"] = [];
                     $scope.data.start_date = null;
                     $scope.data.finish_date = null;
+                    $scope.data.filters = SearchService.toggleFilter(
+                        $scope.data.filters, type, "All Time", true);
                 } else {
                     updateDates(value);
                     $scope.data.filters["date"] = [new_value];
