@@ -305,7 +305,7 @@ class MachineResource(CommonResource):
         authentication = ApiKeyAuthentication()
         always_return_data = True
         filtering = {
-            'hostname': ('exact',),
+            'hostname': ('exact', 'in',),
             'uuid': ('exact',), }
         detail_uri_name = 'uuid'
 
@@ -342,7 +342,7 @@ class ProductUnderTestResource(CommonResource):
             'internalcontact': ('exact',),
             'vendor': ('exact',),
             'uuid': ('uuid',),
-            'name': ('exact',), }
+            'name': ('exact', 'in',), }
         detail_uri_name = 'uuid'
 
 
@@ -495,6 +495,9 @@ class PipelineResource(CommonResource):
                                  full=True, null=True)
     build = fields.ToManyField(
         'oilserver.api.resources.BuildResource', 'build', null=True)
+    machineconfiguration = fields.ToManyField(
+        'oilserver.api.resources.MachineConfigurationResource',
+        'machineconfiguration', null=True)
 
     class Meta:
         queryset = models.Pipeline.objects.select_related(
@@ -504,7 +507,7 @@ class PipelineResource(CommonResource):
         fields = [
             'uuid', 'build', 'buildexecutor', 'completed_at', 'ubuntuversion',
             'openstackversion', 'sdn', 'compute', 'blockstorage',
-            'imagestorage', 'database']
+            'imagestorage', 'database', 'machineconfiguration']
         list_allowed_methods = ['get', 'post', 'delete']  # all items
         detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
         authorization = DjangoAuthorization()
@@ -521,6 +524,7 @@ class PipelineResource(CommonResource):
                      'imagestorage': ALL_WITH_RELATIONS,
                      'database': ALL_WITH_RELATIONS,
                      'buildexecutor': ALL_WITH_RELATIONS,
+                     'machineconfiguration': ALL_WITH_RELATIONS,
                      }
         detail_uri_name = 'uuid'
 
@@ -557,10 +561,11 @@ class MachineConfigurationResource(CommonResource):
         authentication = ApiKeyAuthentication()
         always_return_data = True
         filtering = {
-            'machine': ('exact'),
+            'machine': ALL_WITH_RELATIONS,
             'name': ('exact',),
             'uuid': ('exact',),
-            'pipeline': ('exact',), }
+            'pipeline': ('exact',),
+            'productundertest': ALL_WITH_RELATIONS, }
         detail_uri_name = 'uuid'
 
 

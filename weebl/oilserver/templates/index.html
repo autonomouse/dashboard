@@ -199,6 +199,26 @@
                                         </ul>
                                     </div>
                                 </div>
+                                <div class="ng-hide accordion__tab" data-ng-show="data.metadata.machine.length">
+                                    <h4 class="accordion__tab-title maas-accordion-tab">Machine</h4>
+                                    <div class="accordion__tab-content">
+                                        <ul class="accordion__tab-list">
+                                            <li class="accordion__tab-item" data-ng-repeat="machine in data.metadata.machine | orderBy:['name']"  data-ng-class="{ active: data.isFilterActive('machine', machine.hostname, 'successRate') }">
+                                                <a class="accordion__tab-link" href="" data-ng-click="data.updateFilter('machine', machine.hostname, 'successRate')">{$ machine.hostname $}</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="ng-hide accordion__tab" data-ng-show="data.metadata.productundertest.length">
+                                    <h4 class="accordion__tab-title maas-accordion-tab">Product</h4>
+                                    <div class="accordion__tab-content">
+                                        <ul class="accordion__tab-list">
+                                            <li class="accordion__tab-item" data-ng-repeat="productundertest in data.metadata.productundertest | orderBy:['name']"  data-ng-class="{ active: data.isFilterActive('productundertest', productundertest.name, 'successRate') }">
+                                                <a class="accordion__tab-link" href="" data-ng-click="data.updateFilter('productundertest', productundertest.name, 'successRate')">{$ productundertest.name $}</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                         {% endif %}
 

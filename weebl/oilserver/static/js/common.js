@@ -65,6 +65,8 @@ app.factory('Common', ['$rootScope', function($rootScope) {
             'database': 'database__name__in',
             'environment': 'buildexecutor__jenkins__environment__name__in',
             'buildstatus': 'build__buildstatus__name__in',
+            'machine': 'machineconfiguration__machine__hostname__in',
+            'productundertest': 'machineconfiguration__productundertest__name__in',
         };
 
         // add the path from the origin model to the fields needed:
