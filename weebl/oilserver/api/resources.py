@@ -494,10 +494,11 @@ class PipelineResource(CommonResource):
     database = fields.ForeignKey(DatabaseResource, 'database',
                                  full=True, null=True)
     build = fields.ToManyField(
-        'oilserver.api.resources.BuildResource', 'build', null=True)
+        'oilserver.api.resources.BuildResource',
+        'build', null=True, readonly=True)
     machineconfiguration = fields.ToManyField(
         'oilserver.api.resources.MachineConfigurationResource',
-        'machineconfiguration', null=True)
+        'machineconfiguration', null=True, readonly=True)
 
     class Meta:
         queryset = models.Pipeline.objects.select_related(
