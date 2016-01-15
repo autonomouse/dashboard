@@ -288,9 +288,10 @@ class Machine(TimeStampedBaseModel):
     hostname = models.CharField(
         max_length=255,
         default=None,
+        unique=True,
         blank=True,
         null=True,
-        help_text="Host name or IP address ofthis machine.")
+        help_text="Host name or IP address of this machine.")
 
     def __str__(self):
         return self.uuid
