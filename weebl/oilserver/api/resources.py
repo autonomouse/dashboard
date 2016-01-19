@@ -90,6 +90,13 @@ class EnvironmentResource(CommonResource):
     methods from CommonResource.
     """
 
+    job_history = fields.ListField(
+        readonly=True,
+        attribute='job_history',
+        use_in="detail",
+        blank=True,
+        null=True)
+
     class Meta:
         queryset = models.Environment.objects.all()
         list_allowed_methods = ['get', 'post', 'delete']  # all items
