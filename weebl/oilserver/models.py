@@ -143,8 +143,7 @@ class Environment(TimeStampedBaseModel):
     def state_colour(self):
         return getattr(self.get_set_go(), '{}_colour'.format(self.state))
 
-    @property
-    def job_history(self):
+    def get_job_history(self, start_date=None):
         """Return the number of time each run config has been run in this
         environment.
 
@@ -160,25 +159,37 @@ class Environment(TimeStampedBaseModel):
         id_joins = format_partial(
             "AND {db_name}_pipeline.{field}_id = {db_name}_{field}.id")
         group_bys = format_partial("{db_name}_{field}.name", join=", ")
+
+        if start_date is None:
+            start_date_clause = ""
+        else:
+            start_date_clause = \
+                "AND {db_name}_pipeline.created_at >= '{start_date}'".format(
+                    db_name="oilserver",
+                    start_date=start_date.isoformat())
+
         query = textwrap.dedent("""
              SELECT
              {selections},
-             COUNT(oilserver_pipeline.id)
-             FROM oilserver_pipeline, oilserver_buildexecutor,
-             oilserver_jenkins,
+             COUNT({db_name}_pipeline.id)
+             FROM {db_name}_pipeline, {db_name}_buildexecutor,
+             {db_name}_jenkins,
              {table_fields}
              WHERE
-             oilserver_pipeline.buildexecutor_id = oilserver_buildexecutor.id
-             AND oilserver_buildexecutor.jenkins_id = oilserver_jenkins.id
-             AND oilserver_jenkins.environment_id = {environment_id}
+             {db_name}_pipeline.buildexecutor_id = {db_name}_buildexecutor.id
+             {start_date_clause}
+             AND {db_name}_buildexecutor.jenkins_id = {db_name}_jenkins.id
+             AND {db_name}_jenkins.environment_id = {environment_id}
              {id_joins}
              GROUP BY {group_bys}
              ORDER BY COUNT ASC;""").format(
+                db_name="oilserver",
                 selections=selections,
                 table_fields=table_fields,
                 environment_id=self.id,
                 id_joins=id_joins,
-                group_bys=group_bys)
+                group_bys=group_bys,
+                start_date_clause=start_date_clause)
         cursor = connection.cursor()
         cursor.execute(query)
         description = cursor.description

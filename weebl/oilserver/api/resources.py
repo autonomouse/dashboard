@@ -1,3 +1,4 @@
+import dateutil
 from tastypie import fields
 from tastypie.resources import ModelResource, ALL, ALL_WITH_RELATIONS
 from tastypie.authorization import DjangoAuthorization
@@ -89,14 +90,6 @@ class EnvironmentResource(CommonResource):
     Provides a REST API resource for the Environment model. Inherits common
     methods from CommonResource.
     """
-
-    job_history = fields.ListField(
-        readonly=True,
-        attribute='job_history',
-        use_in="detail",
-        blank=True,
-        null=True)
-
     class Meta:
         queryset = models.Environment.objects.all()
         list_allowed_methods = ['get', 'post', 'delete']  # all items
@@ -129,6 +122,19 @@ class EnvironmentResource(CommonResource):
             environment = models.Environment.objects.get(name=name)
             bundle = self.build_bundle(obj=environment, request=request)
             return self.create_response(request, self.full_dehydrate(bundle))
+
+    def dehydrate(self, bundle):
+        """Include the job history of an environment, if requested."""
+        bundle = super(EnvironmentResource, self).dehydrate(bundle)
+        if 'include_job_history' in bundle.request.GET:
+            if 'history_start_date' in bundle.request.GET:
+               parsed_date = dateutil.parser.parse(
+                    bundle.request.GET['history_start_date'])
+               job_history = bundle.obj.get_job_history(start_date=parsed_date)
+            else:
+               job_history = bundle.obj.get_job_history()
+            bundle.data['job_history'] = job_history
+        return bundle
 
 
 class ServiceStatusResource(CommonResource):
