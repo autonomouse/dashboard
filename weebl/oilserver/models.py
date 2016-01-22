@@ -1,5 +1,9 @@
+import textwrap
 from oilserver import utils
-from django.db import models
+from django.db import (
+    connection,
+    models,
+    )
 from django.contrib.sites.models import Site
 from oilserver.status_checker import StatusChecker
 from weebl.__init__ import __api_version__
@@ -85,6 +89,22 @@ class WeeblSetting(models.Model):
         return __api_version__
 
 
+def format_partial(format_string, join=" "):
+    db_name = "oilserver"
+    parameters = [
+        'compute',
+        'sdn',
+        'ubuntuversion',
+        'openstackversion',
+        'blockstorage',
+        'imagestorage',
+        'database'
+    ]
+    return join.join([
+        format_string.format(db_name=db_name, field=field)
+        for field in parameters])
+
+
 class Environment(TimeStampedBaseModel):
     """The environment (e.g. Prodstack, Staging)."""
     uuid = models.CharField(
@@ -122,6 +142,54 @@ class Environment(TimeStampedBaseModel):
     @property
     def state_colour(self):
         return getattr(self.get_set_go(), '{}_colour'.format(self.state))
+
+    @property
+    def job_history(self):
+        """Return the number of time each run config has been run in this
+        environment.
+
+        A list of tuples in the form of (run_config, count) is returned,
+        where run_config is a dictionary of component->choice names and
+        count is the number of times that combination of components has
+        been run.
+        """
+        selections = format_partial(
+            "{db_name}_{field}.name as {field}", join=", ")
+        table_fields = format_partial(
+            "{db_name}_{field}", join=", ")
+        id_joins = format_partial(
+            "AND {db_name}_pipeline.{field}_id = {db_name}_{field}.id")
+        group_bys = format_partial("{db_name}_{field}.name", join=", ")
+        query = textwrap.dedent("""
+             SELECT
+             {selections},
+             COUNT(oilserver_pipeline.id)
+             FROM oilserver_pipeline, oilserver_buildexecutor,
+             oilserver_jenkins,
+             {table_fields}
+             WHERE
+             oilserver_pipeline.buildexecutor_id = oilserver_buildexecutor.id
+             AND oilserver_buildexecutor.jenkins_id = oilserver_jenkins.id
+             AND oilserver_jenkins.environment_id = {environment_id}
+             {id_joins}
+             GROUP BY {group_bys}
+             ORDER BY COUNT ASC;""").format(
+                selections=selections,
+                table_fields=table_fields,
+                environment_id=self.id,
+                id_joins=id_joins,
+                group_bys=group_bys)
+        cursor = connection.cursor()
+        cursor.execute(query)
+        description = cursor.description
+        results = []
+        for row in cursor.fetchall():
+            row_results = {
+                description[i].name: value for i, value in enumerate(row[:-1])
+            }
+            results.append((row_results, row[-1],))
+
+        return results
 
 
 class ServiceStatus(models.Model):
