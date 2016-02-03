@@ -18,7 +18,8 @@ app.factory('Common', ['$rootScope', function($rootScope) {
         scope.data.currentpage = tab;
     };
 
-    function generateActiveFilters(scope, origin) {
+    function generateActiveFilters(scope, origin, exclude_dates) {
+        exclude_dates === undefined ? exclude_dates=false : exclude_dates=exclude_dates
         var active_filters = {};
         var field_to_filter = generateFilterPaths(origin);
 
@@ -35,10 +36,12 @@ app.factory('Common', ['$rootScope', function($rootScope) {
             active_filters[field_to_filter[enum_field]] = enum_values;
         }
         // generate date active filters from the perspective of origin:
-        if (scope.data.start_date)
-            active_filters[field_to_filter['completed_at__gte']] = scope.data.start_date;
-        if (scope.data.finish_date)
-            active_filters[field_to_filter['completed_at__lte']] = scope.data.finish_date;
+        if (exclude_dates != true) {
+            if (scope.data.start_date)
+                active_filters[field_to_filter['completed_at__gte']] = scope.data.start_date;
+            if (scope.data.finish_date)
+                active_filters[field_to_filter['completed_at__lte']] = scope.data.finish_date;
+        };
 
         return active_filters;
     };
