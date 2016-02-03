@@ -44,8 +44,10 @@ app.controller('successRateController', [
             var enum_fields = Common.getFilterModels();
 
             for (i = 0; i < enum_fields.length; i++) {
-                $scope.data.metadata[enum_fields[i]] = DataService.refresh(
-                    enum_fields[i], $scope.data.user, $scope.data.apikey).query({});
+                field = enum_fields[i];
+                query_field = Common.getQueryFieldName(field);
+                $scope.data.metadata[field] = DataService.refresh(
+                    query_field, $scope.data.user, $scope.data.apikey).query({});
                 }
             return $scope.data;
         };
@@ -92,7 +94,8 @@ app.controller('successRateController', [
                 $scope.data.graphValues.total.$promise,
                 $scope.data.graphValues.deploy.pass.$promise,
                 $scope.data.graphValues.prepare.pass.$promise,
-                $scope.data.graphValues.test_cloud_image.pass.$promise
+                $scope.data.graphValues.test_cloud_image.pass.$promise,
+                $scope.data.graphValues.test_cloud_image.jobtotal.$promise
             ]).then(function() {
                 if ($scope.data.graphValues.total.$resolved) {
                     console.log('total test runs = ' + $scope.data.graphValues.total.meta.total_count);
@@ -234,6 +237,10 @@ app.controller('successRateController', [
             $scope.data.tabs[tab].reverse = !$scope.data.tabs[tab].reverse;
         };
 
+        $scope.data.jobtypeLookup = function(jobname) {
+            return Common.jobtypeLookup(jobname);
+        };
+
         if (Object.keys($scope.data.filters).length < 2) {
             $scope.data.updateFilter('date', $scope.data.time_range, $scope.data.default_tab);
             $scope.data.highlightTab($scope.data.default_tab)
@@ -242,6 +249,7 @@ app.controller('successRateController', [
         };
         $scope.data.sortTable('occurrence_count', 'bugs');
         $scope.data.subfilter_plot_form.type = 'cumulative';
+        $scope.data.testRuns = update('pipeline');
         updateGraphValues();
         plotStatsGraph();
     }]);

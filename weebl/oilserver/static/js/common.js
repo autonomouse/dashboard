@@ -1,5 +1,59 @@
 app.factory('Common', ['$rootScope', function($rootScope) {
 
+    function filterConfig(origin) {
+        // It might be sensible to add this stuff to a config file, maybe?
+
+        var model_fields = {
+            'completed_at__gte': 'completed_at__gte',
+            'completed_at__lte': 'completed_at__lte',
+            'openstackversion': 'openstackversion__name__in',
+            'ubuntuversion': 'ubuntuversion__name__in',
+            'sdn': 'sdn__name__in',
+            'compute': 'compute__name__in',
+            'blockstorage': 'blockstorage__name__in',
+            'imagestorage': 'imagestorage__name__in',
+            'database': 'database__name__in',
+            'environment': 'buildexecutor__jenkins__environment__name__in',
+            'buildstatus': 'build__buildstatus__name__in',
+            'machine': 'machineconfiguration__machine__hostname__in',
+            'productundertest': 'machineconfiguration__productundertest__name__in',
+            'failedjobs': 'build__jobtype__name__in',
+        };
+
+        // Some model fields are actually called something else in the DB, add them here:
+        var original_model_names = {
+            'failedjobs': 'jobtype',
+        };
+
+        // Some fields may be linked to specific instances of other fields, add here:
+        var linked_fields = {
+            'failedjobs': ['buildstatus', 'failure'],
+        };
+
+        // add the path from the origin model to the fields needed:
+        var prefixtures = {
+            'bug': 'knownbugregex__bugoccurrences__build__pipeline__',
+            'build': 'pipeline__',
+            'knownbugregex': 'bugoccurrences__build__pipeline__',
+            'pipeline': '',
+            'buildstatus': 'build__pipeline__',
+        };
+
+        return [model_fields, prefixtures, original_model_names, linked_fields]
+    };
+
+    function jobtypeLookup(jobname) {
+        var dictionary = {
+            'pipeline_deploy': 'Deploy Openstack',
+            'pipeline_prepare': 'Configure Openstack for test',
+            'pipeline_start': 'Initialise test run',
+            'test_bundletests': 'Bundletest',
+            'test_cloud_image': 'SSH to guest instance',
+            'test_tempest_smoke': 'Tempest test suite',
+        };
+        return dictionary[jobname] != null ? dictionary[jobname] : jobname
+    };
+
     function humaniseDate(datestr) {
         var date_obj = new Date(datestr);
         var monthNames = ["Jan", "Feb", "Mar","Apr", "May", "Jun",
@@ -18,8 +72,22 @@ app.factory('Common', ['$rootScope', function($rootScope) {
         scope.data.currentpage = tab;
     };
 
+    function generateFilterPaths(origin) {
+        if (typeof(origin)==='undefined') origin = '';
+        model_fields = filterConfig()[0];
+        prefixtures = filterConfig()[1];
+        return prefixPathToFields(model_fields, prefixtures[origin]);
+    };
+
+    function getQueryFieldName(field) {
+        original_model_names = filterConfig()[2];
+        return original_model_names[field] != undefined ? original_model_names[field] : field
+    };
+
+
     function generateActiveFilters(scope, origin, exclude_dates) {
         exclude_dates === undefined ? exclude_dates=false : exclude_dates=exclude_dates
+        linked_fields = filterConfig()[3];
         var active_filters = {};
         var field_to_filter = generateFilterPaths(origin);
 
@@ -33,8 +101,16 @@ app.factory('Common', ['$rootScope', function($rootScope) {
             });
 
             // generate active filters from the perspective of origin:
-            active_filters[field_to_filter[enum_field]] = enum_values;
-        }
+            query_field = getQueryFieldName(enum_field);
+            if (enum_field != query_field){
+                active_filters[field_to_filter[enum_field]] = enum_values;
+                for (var key in linked_fields) {
+                    active_filters[field_to_filter[linked_fields[key][0]]] = linked_fields[key][1]
+                };
+            } else {
+                active_filters[field_to_filter[query_field]] = enum_values;
+            };
+        };
         // generate date active filters from the perspective of origin:
         if (exclude_dates != true) {
             if (scope.data.start_date)
@@ -42,7 +118,6 @@ app.factory('Common', ['$rootScope', function($rootScope) {
             if (scope.data.finish_date)
                 active_filters[field_to_filter['completed_at__lte']] = scope.data.finish_date;
         };
-
         return active_filters;
     };
 
@@ -51,37 +126,6 @@ app.factory('Common', ['$rootScope', function($rootScope) {
             fields[field] = path + fields[field];
         }
         return fields;
-    };
-
-    function generateFilterPaths(origin) {
-        if (typeof(origin)==='undefined') origin = '';
-
-        var model_fields = {
-            'completed_at__gte': 'completed_at__gte',
-            'completed_at__lte': 'completed_at__lte',
-            'openstackversion': 'openstackversion__name__in',
-            'ubuntuversion': 'ubuntuversion__name__in',
-            'sdn': 'sdn__name__in',
-            'compute': 'compute__name__in',
-            'blockstorage': 'blockstorage__name__in',
-            'imagestorage': 'imagestorage__name__in',
-            'database': 'database__name__in',
-            'environment': 'buildexecutor__jenkins__environment__name__in',
-            'buildstatus': 'build__buildstatus__name__in',
-            'machine': 'machineconfiguration__machine__hostname__in',
-            'productundertest': 'machineconfiguration__productundertest__name__in',
-        };
-
-        // add the path from the origin model to the fields needed:
-        var prefixtures = {
-            'bug': 'knownbugregex__bugoccurrences__build__pipeline__',
-            'build': 'pipeline__',
-            'knownbugregex': 'bugoccurrences__build__pipeline__',
-            'pipeline': '',
-            'buildstatus': 'build__pipeline__',
-        };
-
-        return prefixPathToFields(model_fields, prefixtures[origin]);
     };
 
     function getFilterModels() {
@@ -99,5 +143,7 @@ app.factory('Common', ['$rootScope', function($rootScope) {
       generateActiveFilters: generateActiveFilters,
       generateFilterPaths: generateFilterPaths,
       getFilterModels: getFilterModels,
+      jobtypeLookup: jobtypeLookup,
+      getQueryFieldName: getQueryFieldName,
     };
 }]);

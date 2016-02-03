@@ -1,7 +1,7 @@
 app.factory('DataService', function ($resource, $http) {
     function refresh(object, user, apikey) {
         var url = "/api/v1/" + object + "/?username=" + user + "&api_key=" + apikey;
-        return $resource(url, {}, {
+        return $resource(url + ":id", {id: '@id'}, {
             query: {
                 method: 'GET',
                 isArray: true,

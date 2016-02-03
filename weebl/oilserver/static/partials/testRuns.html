@@ -1,9 +1,11 @@
+
 <div id="content" class="nine-col last-col">
-    <p>{$ data.testRuns.meta.total_count $} matching <ng-pluralize count="data.testRuns.meta.total_count" when="{'0': 'test runs', '1': 'test run', 'other': 'test runs'}"></ng-pluralize>
+    <p>{$ data.testRuns.meta.total_count $} <ng-pluralize count="data.testRuns.meta.total_count" when="{'0': 'matching test runs', '1': 'matching test run', 'other': 'matching test runs'}"></ng-pluralize>
         <span ng-if="data.testRuns.meta.total_count > data.testRuns.meta.limit ">
             (only displaying the first {$ data.testRuns.meta.limit $} test runs).
         </span>
     </p>
+
     <table class="table-listing">
         <thead>
             <tr class="table-listing__row">
