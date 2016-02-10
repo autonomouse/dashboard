@@ -90,7 +90,7 @@
             </thead>
             <tbody>
                 <tr class="table-listing__row" ng-repeat="pl_build in data.pipeline_builds.objects">
-                    <td class="table-listing__cell">{$ pl_build.jobtype.slice(16,-1) $}</td>
+                    <td class="table-listing__cell">{$ data.jobtypeLookup(pl_build.jobtype.slice(16,-1)) $}</td>
                     <td class="table-listing__cell"><a href="{$ pl_build.jenkins_build_url $}" class="external">{$ pl_build.build_id $}</a></td>
                     <td class="table-listing__cell">{$ pl_build.buildstatus.slice(20, -1) $}</td>
                 </tr>
