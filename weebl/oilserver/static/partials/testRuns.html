@@ -30,7 +30,7 @@
         <tbody>
             <tr class="table-listing__row" ng-repeat="testRun in data.testRuns.objects | orderBy:data.tabs.testRuns.predicate:data.tabs.testRuns.reverse">
                 <td class="table-listing__cell">
-                    <a href="#/testRun/{$ testRun.uuid $}" title="{$ testRun.uuid $}">
+                    <a href="#/results/testRun/{$ testRun.uuid $}" title="{$ testRun.uuid $}">
                         {$ data.abbreviateUUID(testRun.uuid) $}
                     </a>
                 </td>

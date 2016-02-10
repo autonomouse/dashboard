@@ -26,10 +26,17 @@
                         <img width="110" height"10" src="{{ STATIC_URL }}img/logos/logo.svg" alt="OIL" />
                         </a>
                     </div>
-                    <ul id="main-nav" class="nav">
-                    </ul>
-                    <ul id="right-nav" class="nav">
+                    <div  data-ng-controller="successRateController as successRate">
+                        <span class="page-header__title--identicator" id="bulk-actions">
+                            <ul id="main-nav" class="nav">
+                                <li>
+                                    <a href="#/results" data-ng-class="{ active: data.currentsection === 'results' }" data-ng-click="data.highlightSection('results')">Results</a>
+                                </li>
+                            </ul>
+                        </span>
+                    </div>
 
+                    <ul id="right-nav" class="nav">
                         <!-- User Menu -->
                         <li id="user-link">
                             {% if user.is_authenticated %}
@@ -67,11 +74,11 @@
                         <div class="inner-wrapper">
                             <h1 class="page-header__title">
                                 <span class="page-header__title--identicator" id="bulk-actions">
-                                    <a href="#/successRate" data-ng-class="{ active: data.currentpage === 'successRate' }" data-ng-click="data.highlightTab('successRate')">Success Rate</a>
+                                    <a href="#/results/successRate" data-ng-class="{ active: data.currentpage === 'successRate' }" data-ng-click="data.highlightTab('successRate'); data.highlightSection('results')">Success Rate</a>
                                     <span class="divide"></span>
-                                    <a href="#/bugs" data-ng-class="{ active: data.currentpage === 'bugs' }" data-ng-click="data.highlightTab('bugs')">Bugs</a>
+                                    <a href="#/results/bugs" data-ng-class="{ active: data.currentpage === 'bugs' }" data-ng-click="data.highlightTab('bugs'); data.highlightSection('results')">Bugs</a>
                                     <span class="divide"></span>
-                                    <a href="#/testRuns" data-ng-class="{ active: data.currentpage === 'testRuns' }" data-ng-click="data.highlightTab('testRuns')">Test Runs</a>
+                                    <a href="#/results/testRuns" data-ng-class="{ active: data.currentpage === 'testRuns' }" data-ng-click="data.highlightTab('testRuns'); data.highlightSection('results')">Test Runs</a>
                                     {% if user.is_authenticated %}
                                         <span class="power-status--power" data-ng-show="data.loading">
                                             <span class="loader"></span>

@@ -14,31 +14,13 @@ app.controller('successRateController', [
         $scope.data.show_search = true;
 
         $scope.data.default_tab = 'successRate';
+        $scope.data.default_section = 'results';
         $scope.data.time_range = 'Last 24 Hours';
+
+        $scope = Common.initialise($scope);
 
         if (typeof($scope.data.filters)==='undefined') $scope.data.filters = SearchService.getEmptyFilter();
 
-        if (typeof($scope.data.metadata)==='undefined') $scope.data.metadata = {};
-        if (typeof($scope.data.successRate)==='undefined') $scope.data.successRate = {};
-        if (typeof($scope.data.bugs)==='undefined') $scope.data.bugs = {};
-        if (typeof($scope.data.bugs_affecting_pipeline)==='undefined') $scope.data.bugs_affecting_pipeline = {};
-        if (typeof($scope.data.testRuns)==='undefined') $scope.data.testRuns = {};
-        if (typeof($scope.data.regexes)==='undefined') $scope.data.regexes = {};
-
-        if (typeof($scope.data.tabs)==='undefined') {
-            $scope.data.tabs = {};
-            $scope.data.tabs.successRate = {};
-            $scope.data.tabs.successRate.pagetitle = "Success Rate";
-            $scope.data.tabs.testRuns = {};
-            $scope.data.tabs.testRuns.pagetitle = "Test Runs";
-            $scope.data.tabs.testRuns.predicate = "completed_at";
-            $scope.data.tabs.testRuns.reverse = false;
-            $scope.data.tabs.bugs = {};
-            $scope.data.tabs.bugs.pagetitle = "Bugs";
-            $scope.data.tabs.bugs.predicate = "occurrences";
-            $scope.data.tabs.bugs.reverse = false;
-            $scope.data.subfilter_plot_form = {}
-        };
 
         function getMetadata($scope) {
             var enum_fields = Common.getFilterModels();
@@ -198,8 +180,12 @@ app.controller('successRateController', [
             return UUID.slice(0, 4) + "..." + UUID.slice(-5);
         };
 
-        $scope.data.highlightTab = function(datestr) {
-            Common.highlightTab($scope, datestr);
+        $scope.data.highlightTab = function(tab) {
+            Common.highlightTab($scope, tab);
+        };
+
+        $scope.data.highlightSection = function(section) {
+            Common.highlightSection($scope, section);
         };
 
         $scope.data.updateFilter = function(type, value, tab) {
@@ -244,6 +230,7 @@ app.controller('successRateController', [
         if (Object.keys($scope.data.filters).length < 2) {
             $scope.data.updateFilter('date', $scope.data.time_range, $scope.data.default_tab);
             $scope.data.highlightTab($scope.data.default_tab)
+            $scope.data.highlightSection($scope.data.default_section)
             $scope.data = getMetadata($scope);
             updateFromServer();
         };

@@ -42,6 +42,37 @@ app.factory('Common', ['$rootScope', function($rootScope) {
         return [model_fields, prefixtures, original_model_names, linked_fields]
     };
 
+    function initialise($scope) {
+        if (typeof($scope.data.metadata)==='undefined') $scope.data.metadata = {};
+        if (typeof($scope.data.successRate)==='undefined') $scope.data.successRate = {};
+        if (typeof($scope.data.bugs)==='undefined') $scope.data.bugs = {};
+        if (typeof($scope.data.bugs_affecting_pipeline)==='undefined') $scope.data.bugs_affecting_pipeline = {};
+        if (typeof($scope.data.testRuns)==='undefined') $scope.data.testRuns = {};
+        if (typeof($scope.data.regexes)==='undefined') $scope.data.regexes = {};
+
+        if (typeof($scope.data.sections)==='undefined') {
+            $scope.data.sections = {};
+            $scope.data.sections.results = {};
+            $scope.data.sections.results.pagetitle = "Results";
+        };
+
+        if (typeof($scope.data.tabs)==='undefined') {
+            $scope.data.tabs = {};
+            $scope.data.tabs.successRate = {};
+            $scope.data.tabs.successRate.pagetitle = "Success Rate";
+            $scope.data.tabs.testRuns = {};
+            $scope.data.tabs.testRuns.pagetitle = "Test Runs";
+            $scope.data.tabs.testRuns.predicate = "completed_at";
+            $scope.data.tabs.testRuns.reverse = false;
+            $scope.data.tabs.bugs = {};
+            $scope.data.tabs.bugs.pagetitle = "Bugs";
+            $scope.data.tabs.bugs.predicate = "occurrences";
+            $scope.data.tabs.bugs.reverse = true;
+            $scope.data.subfilter_plot_form = {}
+        };
+        return $scope
+    };
+
     function jobtypeLookup(jobname) {
         var dictionary = {
             'pipeline_deploy': 'Deploy Openstack',
@@ -65,6 +96,11 @@ app.factory('Common', ['$rootScope', function($rootScope) {
         var minutes = ('0' + date_obj.getUTCMinutes()).slice(-2);
         var seconds = ('0' + date_obj.getUTCSeconds()).slice(-2);
         return (day + "-" + month_name + "-" + year + " at " + hours + ":" + minutes + ":" + seconds);
+    };
+
+    function highlightSection(scope, section) {
+        $rootScope.section = scope.data.sections[section].pagetitle;
+        scope.data.currentsection = section;
     };
 
     function highlightTab(scope, tab) {
@@ -138,8 +174,10 @@ app.factory('Common', ['$rootScope', function($rootScope) {
     };
 
     return {
+      initialise: initialise,
       humaniseDate: humaniseDate,
       highlightTab: highlightTab,
+      highlightSection: highlightSection,
       generateActiveFilters: generateActiveFilters,
       generateFilterPaths: generateFilterPaths,
       getFilterModels: getFilterModels,

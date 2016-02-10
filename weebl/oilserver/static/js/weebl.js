@@ -2,27 +2,33 @@ var app = angular.module('weebl', ['nvd3', 'ngResource', 'ngRoute']);
 
 app.config(function ($routeProvider) {
     $routeProvider
-        .when('/successRate', {
+        .when('/results/successRate', {
             templateUrl: '/static/partials/successRate.html',
             controller: 'successRateController',
             controllerAs:'successRate'
         })
-        .when('/bugs', {
+        .when('/results/bugs', {
             templateUrl: '/static/partials/bugs.html',
             controller: 'successRateController',
             controllerAs:'successRate'
         })
-        .when('/testRuns', {
+        .when('/results/testRuns', {
             templateUrl: '/static/partials/testRuns.html',
             controller: 'successRateController',
             controllerAs:'successRate'
         })
-        .when('/testRun/:testRunId', {
+        .when('/results/testRun/:testRunId', {
             templateUrl: '/static/partials/individualTestRun.html',
             controller: 'testRunController',
             controllerAs:'testRun'
         })
+        .when('/results', {
+            redirectTo: '/results/successRate'
+        })
+        .when('/triage', {
+            redirectTo: '/triage/triage'
+        })
         .otherwise({
-            redirectTo: '/successRate'
+            redirectTo: '/results/successRate'
         });
   });
