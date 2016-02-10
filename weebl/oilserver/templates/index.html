@@ -73,17 +73,13 @@
                                     <span class="divide"></span>
                                     <a href="#/testRuns" data-ng-class="{ active: data.currentpage === 'testRuns' }" data-ng-click="data.highlightTab('testRuns')">Test Runs</a>
                                     {% if user.is_authenticated %}
-                                        <span class="power-status--power" data-ng-show="loading">
+                                        <span class="power-status--power" data-ng-show="data.loading">
                                             <span class="loader"></span>
                                             Loading...
                                         </span>
-                                        <span class="power-status--power" data-ng-show="plot_data_loading">
+                                        <span class="power-status--power" data-ng-show="data.plot_data_loading">
                                             <span class="loader"></span>
                                             Updating chart...
-                                        </span>
-                                        <span class="power-status--power" data-ng-show="plot_data_loading">
-                                            <span class="loader"></span>
-                                            Fetching data...
                                         </span>
                                     {% endif %}
                                 </span>
