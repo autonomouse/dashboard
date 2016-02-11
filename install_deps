@@ -33,6 +33,7 @@ apt-get -y --no-upgrade install \
     python3-openid \
     python3-bs4 \
     nginx-full \
+    gunicorn3 \
     --fix-missing
 
 # Wily has a weird mix of python3.4 and python3.5. Some of the social auth
