@@ -37,6 +37,7 @@ app.factory('Common', ['$rootScope', function($rootScope) {
             'knownbugregex': 'bugoccurrences__build__pipeline__',
             'pipeline': '',
             'buildstatus': 'build__pipeline__',
+            'machine': 'machineconfiguration__pipeline__',
         };
 
         return [model_fields, prefixtures, original_model_names, linked_fields]

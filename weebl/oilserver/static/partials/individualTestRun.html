@@ -1,6 +1,7 @@
 <div id="content" class="nine-col last-col">
     <p>Test run ID: {$ data.testRunId $}</p>
     <p>Test run completed at: {$ data.humaniseDate(data.individual_testRun.objects[0].completed_at) $}</p>
+
     <table class="table-listing">
         <thead>
             <tr class="table-listing__row">
@@ -72,7 +73,7 @@
         </tbody>
     </table>
 
-    {$ data.pipeline_builds.meta.total_count $} <ng-pluralize count="data.bugs_affecting_pipeline.meta.total_count" when="{'0': 'jobs', '1': 'job', 'other': 'jobs'}"></ng-pluralize> run during this test.
+    {$ data.pipeline_builds.meta.total_count $} <ng-pluralize count="data.pipeline_builds.meta.total_count" when="{'0': 'jobs', '1': 'job', 'other': 'jobs'}"></ng-pluralize> run during this test.
     <span ng-if="data.pipeline_builds.meta.total_count > 0 ">
         <table class="table-listing">
             <thead>
@@ -132,5 +133,11 @@
                 </tr>
             </tbody>
         </table>
+        <p>
+            The {$ data.pipeline_machines.meta.total_count $} <ng-pluralize count="data.pipeline_machines.meta.total_count" when="{'0': 'machines', '1': 'machine', 'other': 'machines'}"></ng-pluralize> used in this Openstack deployment were:
+            <span ng-if="data.pipeline_machines.meta.total_count > 0 ">
+                <span ng-repeat="machine in data.pipeline_machines.objects">{$ $first ? '' : $last ? ' and ' : ', ' $}{$ machine.hostname $}</span>
+            </span>
+        </p>
     </span>
 </div>

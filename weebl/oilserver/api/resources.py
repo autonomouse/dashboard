@@ -309,18 +309,28 @@ class MachineResource(CommonResource):
     methods from CommonResource.
     """
 
+    machineconfiguration = fields.ToManyField(
+        'oilserver.api.resources.MachineConfigurationResource',
+        'machineconfiguration', null=True, readonly=True)
+
     class Meta:
         queryset = models.Machine.objects.all()
         list_allowed_methods = ['get', 'post', 'delete']  # all items
         detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
-        fields = ['hostname', 'uuid']
+        fields = ['hostname', 'uuid', 'machineconfiguration']
         authorization = DjangoAuthorization()
         authentication = ApiKeyAuthentication()
         always_return_data = True
         filtering = {
+            'machineconfiguration': ALL_WITH_RELATIONS,
             'hostname': ('exact', 'in',),
             'uuid': ('exact',), }
         detail_uri_name = 'uuid'
+
+    def apply_filters(self, request, applicable_filters):
+        fixup_set_filters(['machineconfiguration'], applicable_filters)
+        return super(MachineResource, self).apply_filters(
+            request, applicable_filters).distinct()
 
 
 class ProductUnderTestResource(CommonResource):
@@ -578,7 +588,7 @@ class MachineConfigurationResource(CommonResource):
             'machine': ALL_WITH_RELATIONS,
             'name': ('exact',),
             'uuid': ('exact',),
-            'pipeline': ('exact',),
+            'pipeline': ALL_WITH_RELATIONS,
             'productundertest': ALL_WITH_RELATIONS, }
         detail_uri_name = 'uuid'
 

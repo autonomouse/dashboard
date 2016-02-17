@@ -23,6 +23,11 @@ app.controller('testRunController', [
         $scope.data.pipeline_builds = DataService.refresh(
             'build', $scope.data.user, $scope.data.apikey).get(active_filters_for_build);
 
+        active_filters_for_machine = Common.generateActiveFilters($scope, 'build', true);
+        active_filters_for_machine['machineconfiguration__pipeline__uuid'] = $scope.data.testRunId;
+        $scope.data.pipeline_machines = DataService.refresh(
+            'machine', $scope.data.user, $scope.data.apikey).get(active_filters_for_machine);
+
         $scope.data.jobtypeLookup = function(jobname) {
             return Common.jobtypeLookup(jobname);
         };
