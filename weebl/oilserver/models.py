@@ -4,7 +4,6 @@ from django.db import (
     connection,
     models,
     )
-from django.contrib.sites.models import Site
 from oilserver.status_checker import StatusChecker
 from weebl.__init__ import __api_version__
 
@@ -13,7 +12,7 @@ class TimeStampedBaseModel(models.Model):
     """Base model with timestamp information that is common to many models.
     Please note that not all models will inherit from this base model. In
     particular, any that are part of the initial fixtures file do not
-    (weeblsetting, servicestatus, buildstatus, and jobtype).
+    (servicestatus, buildstatus, and jobtype).
     """
 
     class Meta:
@@ -35,58 +34,6 @@ class TimeStampedBaseModel(models.Model):
             self.created_at = current_time
         self.updated_at = current_time
         return super(TimeStampedBaseModel, self).save(*args, **kwargs)
-
-
-class WeeblSetting(models.Model):
-    """Settings for Weebl."""
-    site = models.OneToOneField(
-        Site,
-        unique=True,
-        help_text="To make sure there is only ever one instance per website.")
-    check_in_unstable_threshold = models.IntegerField(
-        default=300,
-        help_text="The time (sec) taken for jenkins to check in, problem \
-        suspected if over.")
-    check_in_down_threshold = models.IntegerField(
-        default=1800,
-        help_text="The time (sec) taken for jenkins to check in, definate \
-        problem if over.")
-    low_build_queue_threshold = models.IntegerField(
-        default=3,
-        help_text="There are too few builds in queue when lower than this.")
-    overall_unstable_th = models.IntegerField(
-        default=65,
-        help_text="Overall success rate unstable thresholds.")
-    overall_down_th = models.IntegerField(
-        default=50,
-        help_text="Overall success rate down thresholds.")
-    down_colour = models.CharField(
-        max_length=25,
-        default="red",
-        help_text="Highlight when warning.")
-    unstable_colour = models.CharField(
-        max_length=25,
-        default="orange",
-        help_text="Highlight when unstable.")
-    up_colour = models.CharField(
-        max_length=25,
-        default="green",
-        help_text="Highlight when no problems (up).")
-    weebl_documentation = models.URLField(
-        default=None,
-        blank=True,
-        help_text="URL to documentation.")
-
-    def __str__(self):
-        return str(self.site)
-
-    @property
-    def weebl_version(self):
-        return utils.get_weebl_version()
-
-    @property
-    def api_version(self):
-        return __api_version__
 
 
 def format_partial(format_string, join=" "):
@@ -124,10 +71,6 @@ class Environment(TimeStampedBaseModel):
 
     def __str__(self):
         return "{} ({})".format(self.name, self.uuid)
-
-    def get_set_go(self):
-        current_site = Site.objects.get_current().id
-        return WeeblSetting.objects.get(pk=current_site)
 
     @property
     def state_description(self):
@@ -522,6 +465,58 @@ class MachineConfiguration(TimeStampedBaseModel):
 
     def __str__(self):
         return self.uuid
+
+
+class JujuService(TimeStampedBaseModel):
+    """The service, as defined by Juju."""
+    uuid = models.CharField(
+        max_length=36,
+        default=utils.generate_uuid,
+        unique=True,
+        blank=False,
+        null=False,
+        help_text="UUID of this Juju service.")
+    name = models.CharField(
+        max_length=255,
+        unique=True,
+        default="unknown",
+        help_text="The name of the Juju service.")
+    productundertest = models.ForeignKey(
+        ProductUnderTest, null=True, blank=True, default=None)
+
+    def __str__(self):
+        return self.uuid
+
+
+class JujuServiceDeployment(TimeStampedBaseModel):
+    """The instance of the deployed Juju service."""
+    uuid = models.CharField(
+        max_length=36,
+        default=utils.generate_uuid,
+        unique=True,
+        blank=False,
+        null=False,
+        help_text="UUID of this juju service deployment.")
+    jujuservice = models.ForeignKey(JujuService, null=True, blank=True, default=None)
+
+    def __str__(self):
+        return self.uuid
+
+
+class Unit(TimeStampedBaseModel):
+    """The unit, as defined by Juju."""
+    name = models.CharField(
+        max_length=255,
+        unique=True,
+        default="unknown",
+        help_text="The name of the unit.")
+    machineconfiguration = models.ForeignKey(
+        MachineConfiguration, null=True, blank=True, default=None)
+    jujuservicedeployment = models.ForeignKey(
+        JujuServiceDeployment, null=True, blank=True, default=None)
+
+    def __str__(self):
+        return self.name
 
 
 class BuildStatus(models.Model):
