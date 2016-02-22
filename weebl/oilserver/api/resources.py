@@ -593,6 +593,93 @@ class MachineConfigurationResource(CommonResource):
         detail_uri_name = 'uuid'
 
 
+class JujuServiceResource(CommonResource):
+    """API Resource for 'JujuService' model.
+
+    Provides a REST API resource for the JujuService model. Inherits common
+    methods from CommonResource.
+
+    Attributes:
+        productundertest: To-Many relation to the ProductUnderTest resource.
+    """
+
+    productundertest = fields.ToManyField(
+        ProductUnderTestResource, 'productundertest', full=True, null=True)
+
+    class Meta:
+        queryset = models.JujuService.objects.all()
+        list_allowed_methods = ['get', 'post', 'delete']  # all items
+        detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
+        fields = ['uuid', 'name', 'productundertest']
+        authorization = DjangoAuthorization()
+        authentication = ApiKeyAuthentication()
+        always_return_data = True
+        filtering = {
+            'uuid': ('exact',),
+            'name': ('exact',),
+            'productundertest': ALL_WITH_RELATIONS, }
+        detail_uri_name = 'name'
+
+
+class JujuServiceDeploymentResource(CommonResource):
+    """API Resource for 'JujuServiceDeployment' model.
+
+    Provides a REST API resource for the JujuServiceDeployment model. Inherits common
+    methods from CommonResource.
+
+    Attributes:
+        jujuservice: Foreign key to the JujuService resource.
+    """
+
+    jujuservice = fields.ForeignKey(
+        JujuServiceResource, 'jujuservice', full=True, null=True)
+
+    class Meta:
+        queryset = models.JujuServiceDeployment.objects.all()
+        list_allowed_methods = ['get', 'post', 'delete']  # all items
+        detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
+        fields = ['uuid', 'jujuservice']
+        authorization = DjangoAuthorization()
+        authentication = ApiKeyAuthentication()
+        always_return_data = True
+        filtering = {
+            'uuid': ('exact',),
+            'jujuservice': ALL_WITH_RELATIONS, }
+        detail_uri_name = 'name'
+
+
+class UnitResource(CommonResource):
+    """API Resource for 'Unit' model.
+
+    Provides a REST API resource for the Unit model. Inherits common
+    methods from CommonResource.
+
+    Attributes:
+        machineconfiguration: Foreign key to the MachineConfiguration resource.
+        jujuservicedeployment: Foreign key to the JujuServiceDeployment
+            resource.
+    """
+
+    machineconfiguration = fields.ForeignKey(MachineConfigurationResource,
+        'machineconfiguration', full=True, null=True)
+    jujuservicedeployment = fields.ForeignKey(
+        JujuServiceResource, 'jujuservicedeployment', full=True, null=True)
+
+    class Meta:
+        queryset = models.Unit.objects.all()
+        list_allowed_methods = ['get', 'post', 'delete']  # all items
+        detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
+        fields = ['name', 'machineconfiguration', 'jujuservicedeployment']
+        authorization = DjangoAuthorization()
+        authentication = ApiKeyAuthentication()
+        always_return_data = True
+        filtering = {
+            'name': ('exact',),
+            'machineconfiguration': ALL_WITH_RELATIONS,
+            'jujuservicedeployment': ALL_WITH_RELATIONS, }
+        detail_uri_name = 'name'
+
+
 class BuildStatusResource(CommonResource):
     """API Resource for 'BuildStatus' model.
 
