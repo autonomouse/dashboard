@@ -64,7 +64,7 @@ app.factory('Common', ['$rootScope', function($rootScope) {
             $scope.data.tabs.testRuns = {};
             $scope.data.tabs.testRuns.pagetitle = "Test Runs";
             $scope.data.tabs.testRuns.predicate = "completed_at";
-            $scope.data.tabs.testRuns.reverse = false;
+            $scope.data.tabs.testRuns.reverse = true;
             $scope.data.tabs.bugs = {};
             $scope.data.tabs.bugs.pagetitle = "Bugs";
             $scope.data.tabs.bugs.predicate = "occurrences";
