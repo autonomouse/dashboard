@@ -595,6 +595,9 @@ class Build(TimeStampedBaseModel):
     buildstatus = models.ForeignKey(BuildStatus)
     jobtype = models.ForeignKey(JobType)
 
+    class Meta:
+        unique_together = (('build_id', 'pipeline', 'jobtype'),)
+
     def __str__(self):
         return self.uuid
 
