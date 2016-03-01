@@ -128,11 +128,12 @@ class EnvironmentResource(CommonResource):
         bundle = super(EnvironmentResource, self).dehydrate(bundle)
         if 'include_job_history' in bundle.request.GET:
             if 'history_start_date' in bundle.request.GET:
-               parsed_date = dateutil.parser.parse(
+                parsed_date = dateutil.parser.parse(
                     bundle.request.GET['history_start_date'])
-               job_history = bundle.obj.get_job_history(start_date=parsed_date)
+                job_history = bundle.obj.get_job_history(
+                    start_date=parsed_date)
             else:
-               job_history = bundle.obj.get_job_history()
+                job_history = bundle.obj.get_job_history()
             bundle.data['job_history'] = job_history
         return bundle
 
@@ -624,8 +625,8 @@ class JujuServiceResource(CommonResource):
 class JujuServiceDeploymentResource(CommonResource):
     """API Resource for 'JujuServiceDeployment' model.
 
-    Provides a REST API resource for the JujuServiceDeployment model. Inherits common
-    methods from CommonResource.
+    Provides a REST API resource for the JujuServiceDeployment model. Inherits
+    common methods from CommonResource.
 
     Attributes:
         jujuservice: Foreign key to the JujuService resource.
@@ -660,8 +661,9 @@ class UnitResource(CommonResource):
             resource.
     """
 
-    machineconfiguration = fields.ForeignKey(MachineConfigurationResource,
-        'machineconfiguration', full=True, null=True)
+    machineconfiguration = fields.ForeignKey(
+        MachineConfigurationResource, 'machineconfiguration', full=True,
+        null=True)
     jujuservicedeployment = fields.ForeignKey(
         JujuServiceResource, 'jujuservicedeployment', full=True, null=True)
 

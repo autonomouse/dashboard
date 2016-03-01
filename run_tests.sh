@@ -5,7 +5,7 @@ for project in $PROJECTS; do
     echo "Testing $project"
     if echo "$@" | grep -q "lint" ; then
       echo "Running flake8 lint tests..."
-      flake8 --exclude ${project}/tests/ ${project} --ignore=F403
+      flake8 --exclude ${project}/tests/,${project}/oilserver/migrations/,${project}/weebl/wsgi.py ${project} --ignore=F403
       echo "OK"
     fi
 

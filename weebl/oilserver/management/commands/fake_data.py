@@ -309,7 +309,7 @@ def make_bugs():
     current_count = models.Bug.objects.count()
     for i in range(current_count, target_count):
         bug = make_bug()
-        known_bug_regex = make_known_bug_regex(bug)
+        make_known_bug_regex(bug)
 
 
 def random_date(start, end):
@@ -412,13 +412,13 @@ def make_builds(pipeline):
 
 
 def make_hardware(pipeline):
-    for _ in range(random.randint(1,5)):
+    for _ in range(random.randint(1, 5)):
         pl = models.Pipeline.objects.get(uuid=pipeline)
         machine_configuration = models.MachineConfiguration(
             pipeline=pl,
             machine=get_random_machine())
         machine_configuration.save()
-        for _ in range(random.randint(1,2)):
+        for _ in range(random.randint(1, 2)):
             machine_configuration.productundertest.add(
                 get_random_productundertest())
             machine_configuration.save()
@@ -431,6 +431,7 @@ def make_pipelines():
         pipeline = make_pipeline()
         make_builds(pipeline)
         make_hardware(pipeline)
+
 
 def populate_data():
     populate_enum_objects()

@@ -3,9 +3,8 @@ from oilserver import utils
 from django.db import (
     connection,
     models,
-    )
+)
 from oilserver.status_checker import StatusChecker
-from weebl.__init__ import __api_version__
 
 
 class TimeStampedBaseModel(models.Model):
@@ -112,27 +111,26 @@ class Environment(TimeStampedBaseModel):
                     start_date=start_date.isoformat())
 
         query = textwrap.dedent("""
-             SELECT
-             {selections},
-             COUNT({db_name}_pipeline.id)
-             FROM {db_name}_pipeline, {db_name}_buildexecutor,
-             {db_name}_jenkins,
-             {table_fields}
-             WHERE
-             {db_name}_pipeline.buildexecutor_id = {db_name}_buildexecutor.id
-             {start_date_clause}
-             AND {db_name}_buildexecutor.jenkins_id = {db_name}_jenkins.id
-             AND {db_name}_jenkins.environment_id = {environment_id}
-             {id_joins}
-             GROUP BY {group_bys}
-             ORDER BY COUNT ASC;""").format(
-                db_name="oilserver",
-                selections=selections,
-                table_fields=table_fields,
-                environment_id=self.id,
-                id_joins=id_joins,
-                group_bys=group_bys,
-                start_date_clause=start_date_clause)
+            SELECT
+            {selections},
+            COUNT({db_name}_pipeline.id)
+            FROM {db_name}_pipeline, {db_name}_buildexecutor,
+            {db_name}_jenkins,
+            {table_fields}
+            WHERE
+            {db_name}_pipeline.buildexecutor_id = {db_name}_buildexecutor.id
+            {start_date_clause}
+            AND {db_name}_buildexecutor.jenkins_id = {db_name}_jenkins.id
+            AND {db_name}_jenkins.environment_id = {environment_id}
+            {id_joins}
+            GROUP BY {group_bys}
+            ORDER BY COUNT ASC;""").format(db_name="oilserver",
+                                           selections=selections,
+                                           table_fields=table_fields,
+                                           environment_id=self.id,
+                                           id_joins=id_joins,
+                                           group_bys=group_bys,
+                                           start_date_clause=start_date_clause)
         cursor = connection.cursor()
         cursor.execute(query)
         description = cursor.description
@@ -497,7 +495,8 @@ class JujuServiceDeployment(TimeStampedBaseModel):
         blank=False,
         null=False,
         help_text="UUID of this juju service deployment.")
-    jujuservice = models.ForeignKey(JujuService, null=True, blank=True, default=None)
+    jujuservice = models.ForeignKey(
+        JujuService, null=True, blank=True, default=None)
 
     def __str__(self):
         return self.uuid
