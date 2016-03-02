@@ -13,17 +13,17 @@ app.controller('testRunController', [
         $scope.data.individual_testRun = DataService.refresh(
                 'pipeline', $scope.data.user, $scope.data.apikey).get({"uuid": $scope.data.testRunId});
 
-        active_filters_for_bug = Common.generateActiveFilters($scope, 'bug', true);
+        active_filters_for_bug = {}
         active_filters_for_bug['knownbugregex__bugoccurrences__build__pipeline__uuid'] = $scope.data.testRunId;
         $scope.data.bugs_affecting_pipeline = DataService.refresh(
             'bug', $scope.data.user, $scope.data.apikey).get(active_filters_for_bug);
 
-        active_filters_for_build = Common.generateActiveFilters($scope, 'build', true);
+        active_filters_for_build = {}
         active_filters_for_build['pipeline__uuid'] = $scope.data.testRunId;
         $scope.data.pipeline_builds = DataService.refresh(
             'build', $scope.data.user, $scope.data.apikey).get(active_filters_for_build);
 
-        active_filters_for_machine = Common.generateActiveFilters($scope, 'build', true);
+        active_filters_for_machine = {}
         active_filters_for_machine['machineconfiguration__pipeline__uuid'] = $scope.data.testRunId;
         $scope.data.pipeline_machines = DataService.refresh(
             'machine', $scope.data.user, $scope.data.apikey).get(active_filters_for_machine);
