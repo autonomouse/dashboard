@@ -3,8 +3,11 @@ from tastypie import fields
 from tastypie.resources import ModelResource, ALL, ALL_WITH_RELATIONS
 from tastypie.authorization import DjangoAuthorization
 from tastypie.authentication import ApiKeyAuthentication
+from tastypie.http import HttpBadRequest, HttpCreated, HttpApplicationError
 from tastypie.utils import trailing_slash
 from django.conf.urls import url
+from django.conf import settings
+from django.http import HttpResponse
 from oilserver import models, utils
 from oilserver.exceptions import NonUserEditableError
 
@@ -557,6 +560,40 @@ class PipelineResource(CommonResource):
         fixup_set_filters(['build'], applicable_filters)
         return super(PipelineResource, self).apply_filters(
             request, applicable_filters).distinct()
+
+    def prepend_urls(self):
+        return [url(r"^(?P<resource_name>%s)/(?P<uuid>[-\w]+)/bundleimage/$" %
+                (self._meta.resource_name),
+                self.wrap_view('post_bundleimage'), name="post_bundleimage"),
+                url(r"^(?P<resource_name>%s)/(?P<uuid>[-\w]+)/bundleimage$" %
+                (self._meta.resource_name),
+                self.wrap_view('get_bundleimage'), name="get_bundleimage"),]
+
+    def post_bundleimage(self, request, **kwargs):
+        self.method_check(request, allowed=['post'])
+        format = request.META.get('CONTENT_TYPE', 'application/json')
+        if format.startswith('multipart'):
+            try:
+                uuid = kwargs['uuid']
+                bundle_image = request.FILES['bundleimage']
+                with open('%s/img/bundles/%s.svg' % (settings.BUILTIN_STATIC, uuid), 'wb+') as save_file:
+                    for chunk in bundle_image.chunks():
+                        save_file.write(chunk)
+                return self.create_response(request, 'Bundle image stored', response_class=HttpCreated)
+            except Exception as e:
+                return self.create_response(request, str(e), response_class=HttpApplicationError)
+        else:
+            return self.create_response(request, 'Malformed request', response_class=HttpBadRequest)
+
+    def get_bundleimage(self, request, **kwargs):
+        self.method_check(request, allowed=['get'])
+        try:
+            uuid = kwargs['uuid']
+            with open('%s/img/bundles/%s.svg' % (settings.BUILTIN_STATIC, uuid), 'rb') as image_file:
+                response = HttpResponse(image_file.read(), content_type="image/svg")
+            return response
+        except Exception as e:
+            return self.create_response(request, str(e), response_class=HttpApplicationError)
 
 
 class MachineConfigurationResource(CommonResource):

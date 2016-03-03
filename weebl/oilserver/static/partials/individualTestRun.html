@@ -1,6 +1,8 @@
 <div id="content" class="nine-col last-col">
     <p>Test run ID: {$ data.testRunId $}</p>
     <p>Test run completed at: {$ data.humaniseDate(data.individual_testRun.objects[0].completed_at) $}</p>
+    <p>Graphical representation of the components in this test run:</p>
+    <img class="centered" data-ng-src="{$ data.image $}" />
 
     <table class="table-listing">
         <thead>
