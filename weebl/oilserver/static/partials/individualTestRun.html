@@ -133,11 +133,6 @@
                 </tr>
             </tbody>
         </table>
-        <p>
-            The {$ data.pipeline_machines.meta.total_count $} <ng-pluralize count="data.pipeline_machines.meta.total_count" when="{'0': 'machines', '1': 'machine', 'other': 'machines'}"></ng-pluralize> used in this Openstack deployment were:
-            <span ng-if="data.pipeline_machines.meta.total_count > 0 ">
-                <span ng-repeat="machine in data.pipeline_machines.objects">{$ $first ? '' : $last ? ' and ' : ', ' $}{$ machine.hostname $}</span>
-            </span>
-        </p>
+
     </span>
 </div>
