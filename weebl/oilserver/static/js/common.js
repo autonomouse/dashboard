@@ -174,6 +174,10 @@ app.factory('Common', ['$rootScope', function($rootScope) {
         return enum_fields;
     };
 
+    function getBundleImageLocation(testRunId) {
+	return '/static/img/bundles/' + testRunId + '.svg';
+    };
+
     return {
       initialise: initialise,
       humaniseDate: humaniseDate,
@@ -184,5 +188,6 @@ app.factory('Common', ['$rootScope', function($rootScope) {
       getFilterModels: getFilterModels,
       jobtypeLookup: jobtypeLookup,
       getQueryFieldName: getQueryFieldName,
+      getBundleImageLocation: getBundleImageLocation,
     };
 }]);

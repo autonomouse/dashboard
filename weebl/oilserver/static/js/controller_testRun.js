@@ -28,6 +28,8 @@ app.controller('testRunController', [
         $scope.data.pipeline_machines = DataService.refresh(
             'machine', $scope.data.user, $scope.data.apikey).get(active_filters_for_machine);
 
+	$scope.data.image = Common.getBundleImageLocation($scope.data.testRunId)
+
         $scope.data.jobtypeLookup = function(jobname) {
             return Common.jobtypeLookup(jobname);
         };
