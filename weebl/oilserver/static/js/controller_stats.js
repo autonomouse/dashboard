@@ -75,7 +75,9 @@ app.controller('successRateController', [
             $q.all([
                 $scope.data.graphValues.total.$promise,
                 $scope.data.graphValues.deploy.pass.$promise,
+                $scope.data.graphValues.deploy.jobtotal.$promise,
                 $scope.data.graphValues.prepare.pass.$promise,
+                $scope.data.graphValues.prepare.jobtotal.$promise,
                 $scope.data.graphValues.test_cloud_image.pass.$promise,
                 $scope.data.graphValues.test_cloud_image.jobtotal.$promise
             ]).then(function() {
