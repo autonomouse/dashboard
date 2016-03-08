@@ -35,6 +35,9 @@ v_api.register(resources.MachineConfigurationResource())
 v_api.register(resources.JujuServiceResource())
 v_api.register(resources.JujuServiceDeploymentResource())
 v_api.register(resources.UnitResource())
+v_api.register(resources.ReportResource())
+v_api.register(resources.ReportPeriodResource())
+v_api.register(resources.ReportInstanceResource())
 
 urlpatterns = patterns(
     '',

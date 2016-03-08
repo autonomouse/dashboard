@@ -317,6 +317,23 @@ class Machine(TimeStampedBaseModel):
         return self.uuid
 
 
+class Report(TimeStampedBaseModel):
+    """A specific group of product(s) to generate reports for."""
+    uuid = models.CharField(
+        max_length=36,
+        default=utils.generate_uuid,
+        unique=True,
+        blank=False,
+        null=False,
+        help_text="UUID of this report.")
+    name = models.CharField(
+        max_length=255,
+        help_text="Pretty name for this report.")
+
+    def __str__(self):
+        return self.uuid
+
+
 class ProductUnderTest(TimeStampedBaseModel):
     """The product that is undergoing testing, such as a piece of hardware
     sold by a vendor.
@@ -336,6 +353,8 @@ class ProductUnderTest(TimeStampedBaseModel):
     vendor = models.ForeignKey(Vendor, null=True, blank=True, default=None)
     internalcontact = models.ForeignKey(
         InternalContact, null=True, blank=True, default=None)
+    report = models.ManyToManyField(
+        Report, null=True, blank=True, default=None)
 
     def __str__(self):
         return self.uuid
@@ -708,6 +727,56 @@ class BugOccurrence(TimeStampedBaseModel):
     class Meta:
         # Only create one BugOccurrence instance per build/regex combo:
         unique_together = (('build', 'regex'),)
+
+    def __str__(self):
+        return self.uuid
+
+
+class ReportPeriod(TimeStampedBaseModel):
+    """Time period for a set of reports"""
+    uuid = models.CharField(
+        max_length=36,
+        default=utils.generate_uuid,
+        unique=True,
+        blank=False,
+        null=False,
+        help_text="UUID of this time range.")
+    name = models.CharField(
+        max_length=255,
+        unique=True,
+        help_text="Pretty name for time range.")
+    start_date = models.DateTimeField(
+        default=None,
+        help_text="Start DateTime reports of this period will cover.")
+    end_date = models.DateTimeField(
+        default=None,
+        help_text="End DateTime reports of this period will cover.")
+    overall_summary = models.TextField(
+        default=None,
+        blank=True,
+        null=True,
+        help_text="Summary text for time period.")
+
+    def __str__(self):
+        return self.uuid
+
+
+class ReportInstance(TimeStampedBaseModel):
+    """The instance of a report."""
+    uuid = models.CharField(
+        max_length=36,
+        default=utils.generate_uuid,
+        unique=True,
+        blank=False,
+        null=False,
+        help_text="UUID of this report instance.")
+    specific_summary = models.TextField(
+        default=None,
+        blank=True,
+        null=True,
+        help_text="Summary text for specific report.")
+    report = models.ForeignKey(Report)
+    report_period = models.ForeignKey(ReportPeriod)
 
     def __str__(self):
         return self.uuid

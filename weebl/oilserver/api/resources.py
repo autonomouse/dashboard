@@ -337,6 +337,28 @@ class MachineResource(CommonResource):
             request, applicable_filters).distinct()
 
 
+class ReportResource(CommonResource):
+    """API Resource for 'Report' model.
+
+    Provides a REST API resource for the Report model. Inherits
+    common methods from CommonResource.
+
+    """
+
+    class Meta:
+        queryset = models.Report.objects.all()
+        list_allowed_methods = ['get', 'post', 'delete']  # all items
+        detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
+        fields = ['name', 'uuid']
+        authorization = DjangoAuthorization()
+        authentication = ApiKeyAuthentication()
+        always_return_data = True
+        filtering = {
+            'uuid': ('exact',),
+            'name': ('exact',), }
+        detail_uri_name = 'uuid'
+
+
 class ProductUnderTestResource(CommonResource):
     """API Resource for 'ProductUnderTest' model.
 
@@ -347,6 +369,7 @@ class ProductUnderTestResource(CommonResource):
         project: Foreign key to the Project resource.
         vendor: Foreign key to the Vendor resource.
         internalcontact: Foreign key to the InternalContact resource.
+        report: To-Many relation to the Report resource.
     """
 
     project = fields.ForeignKey(
@@ -354,13 +377,15 @@ class ProductUnderTestResource(CommonResource):
     vendor = fields.ForeignKey(VendorResource, 'vendor', full=True, null=True)
     internalcontact = fields.ForeignKey(
         InternalContactResource, 'internalcontact', full=True, null=True)
+    report = fields.ToManyField(
+        ReportResource, 'report', full=True, null=True)
 
     class Meta:
         queryset = models.ProductUnderTest.objects.all()
         list_allowed_methods = ['get', 'post', 'delete']  # all items
         detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
         fields = [
-            'name', 'project', 'vendor', 'uuid', 'internalcontact']
+            'name', 'project', 'vendor', 'uuid', 'internalcontact', 'report']
         authorization = DjangoAuthorization()
         authentication = ApiKeyAuthentication()
         always_return_data = True
@@ -368,6 +393,7 @@ class ProductUnderTestResource(CommonResource):
             'project': ('exact',),
             'internalcontact': ('exact',),
             'vendor': ('exact',),
+            'report': ('exact',),
             'uuid': ('uuid',),
             'name': ('exact', 'in',), }
         detail_uri_name = 'uuid'
@@ -987,7 +1013,7 @@ class BugOccurrenceResource(CommonResource):
     methods from CommonResource.
 
     Attributes:
-        build: To-Many relation to the Build resource.
+        build: Foreign key to the Build resource.
         regex: Foreign key to the KnownBugRegex resource.
     """
     build = fields.ForeignKey(BuildResource, 'build')
@@ -1004,4 +1030,55 @@ class BugOccurrenceResource(CommonResource):
         filtering = {'uuid': ALL,
                      'build': ALL_WITH_RELATIONS,
                      'regex': ALL_WITH_RELATIONS, }
+        detail_uri_name = 'uuid'
+
+
+class ReportPeriodResource(CommonResource):
+    """API Resource for 'ReportPeriod' model.
+
+    Provides a REST API resource for the ReportPeriod model. Inherits common
+    methods from CommonResource.
+
+    Attributes:
+        build: Foreign key to the Build resource.
+        regex: Foreign key to the KnownBugRegex resource.
+    """
+
+    class Meta:
+        queryset = models.ReportPeriod.objects.all()
+        list_allowed_methods = ['get', 'post', 'delete']  # all items
+        detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
+        fields = ['uuid', 'name', 'start_date', 'end_date', 'overall_summary']
+        authorization = DjangoAuthorization()
+        authentication = ApiKeyAuthentication()
+        always_return_data = True
+        filtering = {'uuid': ('exact',),
+                     'name': ('exact',), }
+        detail_uri_name = 'uuid'
+
+
+class ReportInstanceResource(CommonResource):
+    """API Resource for 'ReportInstance' model.
+
+    Provides a REST API resource for the ReportInstance model. Inherits common
+    methods from CommonResource.
+
+    Attributes:
+        report: Foreign key to the Report resource.
+        report_period: Foreign key to the ReportPeriod resource.
+    """
+    report = fields.ForeignKey(ReportResource, 'report')
+    report_period = fields.ForeignKey(ReportPeriodResource, 'report_period')
+
+    class Meta:
+        queryset = models.ReportInstance.objects.all()
+        list_allowed_methods = ['get', 'post', 'delete']  # all items
+        detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
+        fields = ['uuid', 'specific_summary', 'report', 'report_period']
+        authorization = DjangoAuthorization()
+        authentication = ApiKeyAuthentication()
+        always_return_data = True
+        filtering = {'uuid': ('exact',),
+                     'report': ('exact',),
+                     'report_period': ('exact',), }
         detail_uri_name = 'uuid'
