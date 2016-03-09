@@ -2,6 +2,7 @@
 import os
 import re
 import sys
+import django
 import psycopg2
 import psutil
 import shutil
@@ -115,23 +116,58 @@ def backup_database(database, force=False):
 
 @task(help={'fixture': "Fixture to load into database"})
 def load_fixtures(fixture="initial_settings.yaml"):
+    """Loads up data from a fixtures file (defaults to initial_settings.yaml).
+    """
     print("Adding data from {} into database".format(fixture))
     run('{} {}/manage.py loaddata "{}"'.format(
         python3_version, application, fixture))
 
 @task()
 def fake_data():
+    """Generates fake data for development/debugging."""
     initialise_database("production")
     print("Creating fake data...")
     run('{} {}/manage.py fake_data'.format(python3_version, application))
 
 @task(help={'filetype': "Format of output file (defaults to .png)"})
 def schema(filetype="png"):
+    """Generates an image depicting the current database schema. """
     run('{0}/manage.py graph_models -X TimeStampedBaseModel -a > {0}.dot'
         .format(application))
     run('dot -T{1} {0}.dot -o {0}_schema.{1}'.format(application, filetype))
     run('rm {}.dot'.format(application))
     print("Schema generated at {0}_schema.{1}".format(application, filetype))
+
+@task(help={'username': "Username of existing user to make into a superuser.",
+            'database': "Test or production. Defaults to production."})
+def make_superuser(username, database="production"):
+    """Converts a user into a superuser (the user must have already logged in
+    at least once).
+    """
+    sys.path.append(deploy_path)
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'weebl.settings'
+    django.setup()
+    from django.contrib.auth.models import User
+    try:
+        user = User.objects.get(username=username)
+    except Exception:
+        print("There is no user that matches the name: '{}'".format(username))
+        users = ", ".join([user.username for user in User.objects.all()])
+        if len(users):
+            print("Available users are as follows: {}".format(users))
+        else:
+            print("No users in database - log on via UI to create a user.")
+        return
+    user.is_staff = True
+    user.is_superuser = True
+    user.save()
+    print("User: '{}' has been given {} superpowers.".format(
+          username, application))
+
+@task
+def run_lint_tests():
+    """Runs lint tests. """
+    lint_weebl()
 
 def initialise_database(database):
     if database == "production":
@@ -323,10 +359,6 @@ def run_unit_tests(app=None):
         print('OK')
     except Exception as e:
         print("Some tests failed")
-
-@task
-def run_lint_tests():
-    lint_weebl()
 
 def lint_weebl():
     print("Running flake8 lint tests on weebl code...")
