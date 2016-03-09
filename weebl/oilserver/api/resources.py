@@ -593,7 +593,7 @@ class PipelineResource(CommonResource):
                 self.wrap_view('post_bundleimage'), name="post_bundleimage"),
                 url(r"^(?P<resource_name>%s)/(?P<uuid>[-\w]+)/bundleimage$" %
                 (self._meta.resource_name),
-                self.wrap_view('get_bundleimage'), name="get_bundleimage"),]
+                self.wrap_view('get_bundleimage'), name="get_bundleimage"), ]
 
     def post_bundleimage(self, request, **kwargs):
         self.method_check(request, allowed=['post'])
@@ -602,24 +602,31 @@ class PipelineResource(CommonResource):
             try:
                 uuid = kwargs['uuid']
                 bundle_image = request.FILES['bundleimage']
-                with open('%s/img/bundles/%s.svg' % (settings.BUILTIN_STATIC, uuid), 'wb+') as save_file:
+                with open("{}/img/bundles/{}.svg".format(
+                          settings.BUILTIN_STATIC, uuid), 'wb+') as save_file:
                     for chunk in bundle_image.chunks():
                         save_file.write(chunk)
-                return self.create_response(request, 'Bundle image stored', response_class=HttpCreated)
+                return self.create_response(
+                    request, 'Bundle image stored', response_class=HttpCreated)
             except Exception as e:
-                return self.create_response(request, str(e), response_class=HttpApplicationError)
+                return self.create_response(
+                    request, str(e), response_class=HttpApplicationError)
         else:
-            return self.create_response(request, 'Malformed request', response_class=HttpBadRequest)
+            return self.create_response(
+                request, 'Malformed request', response_class=HttpBadRequest)
 
     def get_bundleimage(self, request, **kwargs):
         self.method_check(request, allowed=['get'])
         try:
             uuid = kwargs['uuid']
-            with open('%s/img/bundles/%s.svg' % (settings.BUILTIN_STATIC, uuid), 'rb') as image_file:
-                response = HttpResponse(image_file.read(), content_type="image/svg")
+            with open("{}/img/bundles/{}.svg".format(
+                      settings.BUILTIN_STATIC, uuid), 'rb') as image_file:
+                response = HttpResponse(
+                    image_file.read(), content_type="image/svg")
             return response
         except Exception as e:
-            return self.create_response(request, str(e), response_class=HttpApplicationError)
+            return self.create_response(
+                request, str(e), response_class=HttpApplicationError)
 
 
 class MachineConfigurationResource(CommonResource):
