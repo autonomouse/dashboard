@@ -1,0 +1,10 @@
+                                    {% if user.is_authenticated %}
+                                        <span class="power-status--power" data-ng-show="data.loading">
+                                            <span class="loader"></span>
+                                            Loading...
+                                        </span>
+                                        <span class="power-status--power" data-ng-show="data.plot_data_loading">
+                                            <span class="loader"></span>
+                                            Fetching data...
+                                        </span>
+                                    {% endif %}
