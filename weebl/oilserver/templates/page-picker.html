@@ -1,6 +1,12 @@
+<div data-ng-show="data.currentsection === 'results'">
                                     <a href="#/results/successRate" data-ng-class="{ active: data.currentpage === 'successRate' }" data-ng-click="data.highlightTab('successRate'); data.highlightSection('results')">Success Rate</a>
                                     <span class="divide"></span>
                                     <a href="#/results/bugs" data-ng-class="{ active: data.currentpage === 'bugs' }" data-ng-click="data.highlightTab('bugs'); data.highlightSection('results')">Bugs</a>
                                     <span class="divide"></span>
                                     <a href="#/results/testRuns" data-ng-class="{ active: data.currentpage === 'testRuns' }" data-ng-click="data.highlightTab('testRuns'); data.highlightSection('results')">Test Runs</a>
                                     {% include 'spinner.html' %}
+</div>
+<div data-ng-show="data.currentsection === 'reports'">
+                                    <a href="#/reports/overview" data-ng-class="{ active: data.currentpage === 'overview' }" data-ng-click="data.highlightTab('overview'); data.highlightSection('reports')">Overview</a>
+                                    {% include 'spinner.html' %}
+</div>

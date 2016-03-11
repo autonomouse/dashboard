@@ -50,13 +50,15 @@ app.factory('Common', ['$rootScope', function($rootScope) {
         if (typeof($scope.data.bugs_affecting_pipeline)==='undefined') $scope.data.bugs_affecting_pipeline = {};
         if (typeof($scope.data.testRuns)==='undefined') $scope.data.testRuns = {};
         if (typeof($scope.data.regexes)==='undefined') $scope.data.regexes = {};
-
         if (typeof($scope.data.sections)==='undefined') {
             $scope.data.sections = {};
             $scope.data.sections.results = {};
             $scope.data.sections.results.pagetitle = "Results";
+            $scope.data.sections.results.primaryTab = "successRate";
+            $scope.data.sections.reports = {};
+            $scope.data.sections.reports.pagetitle = "Reports";
+            $scope.data.sections.reports.primaryTab = "overview";
         };
-
         if (typeof($scope.data.tabs)==='undefined') {
             $scope.data.tabs = {};
             $scope.data.tabs.successRate = {};
@@ -69,7 +71,15 @@ app.factory('Common', ['$rootScope', function($rootScope) {
             $scope.data.tabs.bugs.pagetitle = "Bugs";
             $scope.data.tabs.bugs.predicate = "occurrences";
             $scope.data.tabs.bugs.reverse = true;
-            $scope.data.subfilter_plot_form = {}
+            $scope.data.tabs.overview = {};
+            $scope.data.tabs.overview.pagetitle = "Overview";
+        };
+        if (angular.isUndefined($scope.data.subfilter_plot_form)) {
+            $scope.data.subfilter_plot_form = {};
+        };
+        if (angular.isUndefined($scope.data.currentsection)) {
+            $scope.data.currentsection = "";
+            highlightSection($scope, "results");
         };
         return $scope
     };
@@ -101,7 +111,10 @@ app.factory('Common', ['$rootScope', function($rootScope) {
 
     function highlightSection(scope, section) {
         $rootScope.section = scope.data.sections[section].pagetitle;
-        scope.data.currentsection = section;
+        if (scope.data.currentsection !== section) {
+            scope.data.currentsection = section;
+            scope.data.currentpage = scope.data.sections[section].primaryTab;
+        };
     };
 
     function highlightTab(scope, tab) {
