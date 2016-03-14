@@ -1,4 +1,4 @@
-app.factory('Common', ['$rootScope', function($rootScope) {
+app.factory('Common', ['$rootScope', '$location', function($rootScope, $location) {
 
     function filterConfig(origin) {
         // It might be sensible to add this stuff to a config file, maybe?
@@ -78,8 +78,14 @@ app.factory('Common', ['$rootScope', function($rootScope) {
             $scope.data.subfilter_plot_form = {};
         };
         if (angular.isUndefined($scope.data.currentsection)) {
-            $scope.data.currentsection = "";
-            highlightSection($scope, "results");
+            locationParts = $location.path().split('/');
+            //remove all '' from locationParts
+            while (locationParts.indexOf('') !== -1) {
+                locationParts.splice(locationParts.indexOf(''), 1);
+            }
+            if (locationParts.length >= 1) highlightSection($scope, locationParts[0]);
+            if (locationParts.length >= 2) highlightTab($scope, locationParts[1]);
+            if (locationParts.length == 0) highlightSection($scope, 'results');
         };
         return $scope
     };
@@ -113,7 +119,7 @@ app.factory('Common', ['$rootScope', function($rootScope) {
         $rootScope.section = scope.data.sections[section].pagetitle;
         if (scope.data.currentsection !== section) {
             scope.data.currentsection = section;
-            scope.data.currentpage = scope.data.sections[section].primaryTab;
+            highlightTab(scope, scope.data.sections[section].primaryTab);
         };
     };
 
@@ -188,7 +194,7 @@ app.factory('Common', ['$rootScope', function($rootScope) {
     };
 
     function getBundleImageLocation(testRunId) {
-	return '/static/img/bundles/' + testRunId + '.svg';
+    return '/static/img/bundles/' + testRunId + '.svg';
     };
 
     return {

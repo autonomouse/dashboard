@@ -59,7 +59,9 @@
                                     </li>
                                 </ul>
                             {% else %}
-                                <a href="{{ site }}{% url 'social:begin' 'ubuntu' %}">Log in</a>
+                            <div data-ng-controller="locationController" >
+                                <a href="{{ site }}{% url 'social:begin' 'ubuntu' %}?next={$ data.absURI $}">Log in</a>
+                            </div>
                             {% endif %}
 
                         </li>
@@ -93,8 +95,8 @@
                         <!-- main content -->
                         <div id="main-content" data-maas-error-overlay>
                             {% if not user.is_authenticated %}
-                                <div id="content" class="nine-col last-col">
-                                    <p>Please <a href="{{ site }}{% url 'social:begin' 'ubuntu' %}">log in</a> to see data.</p>
+                                <div id="content" class="nine-col last-col" data-ng-controller="locationController">
+                                    <p>Please <a href="{{ site }}{% url 'social:begin' 'ubuntu' %}?next={$ data.absURI $}">log in</a> to see data.</p>
                                 </div>
                             {% else %}
                                 <!------------------------------------------------>

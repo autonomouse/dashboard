@@ -231,8 +231,6 @@ app.controller('successRateController', [
 
         if (Object.keys($scope.data.filters).length < 2) {
             $scope.data.updateFilter('date', $scope.data.time_range, $scope.data.default_tab);
-            $scope.data.highlightTab($scope.data.default_tab)
-            $scope.data.highlightSection($scope.data.default_section)
             $scope.data = getMetadata($scope);
             updateFromServer();
         };
