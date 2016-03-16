@@ -1,9 +1,6 @@
 import textwrap
 from oilserver import utils
-from django.db import (
-    connection,
-    models,
-)
+from django.db import connection, models
 from oilserver.status_checker import StatusChecker
 
 
