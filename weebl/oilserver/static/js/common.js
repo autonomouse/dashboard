@@ -77,6 +77,7 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
         if (angular.isUndefined($scope.data.subfilter_plot_form)) {
             $scope.data.subfilter_plot_form = {};
         };
+        if (angular.isUndefined($scope.data.results)) $scope.data.results = {};
         if (angular.isUndefined($scope.data.reports)) $scope.data.reports = {};
         if (angular.isUndefined($scope.data.currentsection)) {
             locationParts = $location.path().split('/');
@@ -148,12 +149,12 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
         var active_filters = {};
         var field_to_filter = generateFilterPaths(origin);
 
-        for (var enum_field in scope.data.filters) {
+        for (var enum_field in scope.data.results.search.filters) {
             if (!(enum_field in scope.data.metadata))
                 continue;
 
             enum_values = [];
-            scope.data.filters[enum_field].forEach(function(enum_value) {
+            scope.data.results.search.filters[enum_field].forEach(function(enum_value) {
                 enum_values.push(enum_value.substr(1));
             });
 

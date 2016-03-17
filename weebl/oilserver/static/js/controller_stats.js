@@ -1,7 +1,7 @@
 var app = angular.module('weebl');
 app.controller('successRateController', [
-    '$scope', '$q', 'data', 'SearchService', 'DataService', 'graphFactory', 'Common',
-    function($scope, $q, data, SearchService, DataService, graphFactory, Common) {
+    '$scope', '$q', 'data', 'SearchFactory', 'DataService', 'graphFactory', 'Common',
+    function($scope, $q, data, SearchFactory, DataService, graphFactory, Common) {
         for (var datum in $scope.data) {
             data[datum] = $scope.data[datum]
         };
@@ -11,18 +11,16 @@ app.controller('successRateController', [
         binding.user = $scope.data.user;
         binding.apikey = $scope.data.apikey;
 
+
         $scope = Common.initialise($scope);
+        if ($scope.data.results.search === undefined) $scope.data.results.search = new SearchFactory.Search();
 
         $scope.data.reports.show_filters = false;
-        $scope.data.show_filters = true;
-        $scope.data.show_search = true;
+        $scope.data.results.show_filters = true;
+        $scope.data.results.show_search = true;
 
         $scope.data.default_tab = 'successRate';
         $scope.data.default_section = 'results';
-        $scope.data.time_range = 'Last 24 Hours';
-
-        if (typeof($scope.data.filters)==='undefined') $scope.data.filters = SearchService.getEmptyFilter();
-
 
         function getMetadata($scope) {
             var enum_fields = Common.getFilterModels();
@@ -107,10 +105,6 @@ app.controller('successRateController', [
             return data
         };
 
-        function dateToString(date) {
-            return date.getUTCFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getUTCDate();
-        };
-
         $scope.data.calcPercentage = function(value, number_of_test_runs) {
             return graphFactory.calcPercentage(value, number_of_test_runs);
         };
@@ -133,17 +127,24 @@ app.controller('successRateController', [
             'Last 24 Hours': 1,
             'Last 7 Days': 7,
             'Last 30 Days': 30,
-            'Last Year': 365
+            'Last Year': 365,
+            'All Time': null
         };
 
         function updateDates(value) {
             var days_offset = dateSymbolToDays[value];
             console.log("Updating to last %d days.", days_offset);
-            today = new Date();
-            prior_date = new Date(new Date().setDate(today.getDate()-days_offset));
-            $scope.data.start_date = prior_date.toISOString();
-            $scope.data.finish_date = today.toISOString();
-        };
+            if (days_offset === null) {
+                $scope.data.start_date = null;
+                $scope.data.finish_date = null;
+            }
+            else {
+                today = new Date();
+                prior_date = new Date(new Date().setDate(today.getDate()-days_offset));
+                $scope.data.start_date = prior_date.toISOString();
+                $scope.data.finish_date = today.toISOString();
+            }
+        }
 
         function updateFromServer() {
             $scope.data.bugs = update('bug');
@@ -152,33 +153,20 @@ app.controller('successRateController', [
             updateGraphValues();
         }
 
-        // Clear the search bar.
-        $scope.data.clearSearch = function() {
-            $scope.data.search = "";
-            $scope.data.start_date = null;
-            $scope.data.finish_date = null;
-            $scope.data.updateSearch();
-        };
-
-        // Update the filters object when the search bar is updated.
-        $scope.data.updateSearch = function() {
-            if($scope.data.search.search('date') == -1) {
-                var gap = ""
-                if($scope.data.search.length > 0){ var gap = " " }
-                $scope.data.search = $scope.data.search + gap + "date:(=All Time)"
-            }
-
-            var filters = SearchService.getCurrentFilters(
-                $scope.data.search);
-            if(filters === null) {
-                $scope.data.filters = SearchService.getEmptyFilter();
-                $scope.data.searchValid = false;
-            } else {
-                $scope.data.filters = filters;
-                $scope.data.searchValid = true;
-            }
+        function updateSearch() {
+            // slicing to pull off the prepended '=' for exact searches
+            updateDates($scope.data.results.search.filters["date"][0].slice(1));
             updateFromServer();
-        };
+        }
+
+        $scope.data.results.search.defaultFilters = {"date": "All Time"};
+        $scope.data.results.search.individualFilters = ["date"];
+        $scope.data.results.search.runOnUpdate = updateSearch;
+        // set the first search to 24 hours
+        // if not doing that run update() instead to apply the above changes
+        if($scope.data.results.search.search == "") {
+            $scope.data.results.search.toggleFilter("date", "Last 24 Hours", true);
+        }
 
         $scope.data.abbreviateUUID = function(UUID) {
             return UUID.slice(0, 4) + "..." + UUID.slice(-5);
@@ -192,35 +180,6 @@ app.controller('successRateController', [
             Common.highlightSection($scope, section);
         };
 
-        $scope.data.updateFilter = function(type, value, tab) {
-            console.log("Updating filter! %s %s %s", type, value, tab);
-
-            if (type == "date") {
-                // Only one date can be set at a time.
-                new_value = "=" + value;
-                if (($scope.data.filters["date"] && $scope.data.filters["date"][0] == new_value) || (new_value == "=All Time")){
-                    $scope.data.filters["date"] = [];
-                    $scope.data.start_date = null;
-                    $scope.data.finish_date = null;
-                    $scope.data.filters = SearchService.toggleFilter(
-                        $scope.data.filters, type, "All Time", true);
-                } else {
-                    updateDates(value);
-                    $scope.data.filters["date"] = [new_value];
-                }
-            } else {
-                $scope.data.filters = SearchService.toggleFilter(
-                    $scope.data.filters, type, value, true);
-            }
-            $scope.data.search = SearchService.filtersToString($scope.data.filters);
-            updateFromServer();
-        };
-
-        $scope.data.isFilterActive = function(type, value, tab) {
-            return SearchService.isFilterActive(
-                $scope.data.filters, type, value, true);
-        };
-
         // Sorts the table by predicate.
         $scope.data.sortTable = function(predicate, tab) {
             $scope.data.tabs[tab].predicate = predicate;
@@ -231,11 +190,7 @@ app.controller('successRateController', [
             return Common.jobtypeLookup(jobname);
         };
 
-        if (Object.keys($scope.data.filters).length < 2) {
-            $scope.data.updateFilter('date', $scope.data.time_range, $scope.data.default_tab);
-            $scope.data = getMetadata($scope);
-            updateFromServer();
-        };
+        $scope.data = getMetadata($scope);
         $scope.data.sortTable('occurrence_count', 'bugs');
         $scope.data.subfilter_plot_form.type = 'cumulative';
         $scope.data.testRuns = update('pipeline');

@@ -11,46 +11,83 @@ app.factory('SearchFactory', [function() {
         // Would be private, but want to access via ng-model
         this.search = "";
         this.filters = this.getEmptyFilter();
+        this.individualFilters = [];
+        this.defaultFilters = {};
+        this.runOnUpdate = angular.noop;
+        this.isValid = true;
 
-        this.updateSearch = function() {
-            this.getCurrentFilters();
-        }
-        this.setFilters = function(filters) {
-            this.filters = filters;
-            this.filtersToString();
-        }
+        this._setIndividual = function () {
+            angular.forEach(this.individualFilters, function(key, idx) {
+                values = this.filters[key];
+                if(angular.isUndefined(values)) {
+                    return;
+                }
+                if (values.length > 1) {
+                    // use the last value as it was added most recently
+                    this.filters[key] = [values[values.length - 1]];
+                }
+            }, this);
+            this._filtersToString();
+        };
+
+        this._setDefaults = function () {
+            angular.forEach(this.defaultFilters, function(value, key) {
+                if(angular.isUndefined(this.filters[key])) {
+                    //defaults are assumed to be exact for now
+                    this.toggleFilter(key, value, true);
+                }
+            }, this);
+        };
+
+        this.update = function() {
+            this._getCurrentFilters();
+            if (this.isValid) {
+                this._setDefaults();
+                this._setIndividual();
+                this.runOnUpdate();
+            }
+        };
+
+        this.reset = function() {
+            this.search = "";
+            this.update();
+        };
+
+        var _countParens = function (input) {
+            var count = 0;
+            var start = 0;
+            var max = input.length + 1;
+            while(start < max) {
+                nextOpen = input.indexOf('(', start);
+                nextClose = input.indexOf(')', start);
+                if(nextOpen === -1) nextOpen = max;
+                if(nextClose === -1) nextClose = max;
+                start = Math.min(nextOpen, nextClose);
+                if(start != max) {
+                    if(nextOpen === start) count++;
+                    if(nextClose === start) count--;
+                }
+                start++;
+            }
+            return count;
+        };
         // Splits the search string into different terms based on white space.
         // This handles the ability for whitespace to be inside of '(', ')'.
-        //
-        // XXX blake_r 28-01-15: This could be improved with a regex, but was
-        // unable to come up with one that would allow me to validate the end
-        // ')' in the string.
-        this.getSplitSearch = function() {
+        // Can't do PDA matching with regex, dumped that logic to _countParens.
+        this._getSplitSearch = function() {
             var terms = this.search.split(' ');
             var fixedTerms = [];
-            var spanningParentheses = false;
+            var spanningParentheses = 0;
             angular.forEach(terms, function(term, idx) {
                 if(spanningParentheses) {
                     // Previous term had an opening '(' but not a ')'. This
                     // term should join that previous term.
                     fixedTerms[fixedTerms.length - 1] += ' ' + term;
-
-                    // If the term contains the ending ')' then its the last
-                    // in the group.
-                    if(term.indexOf(')') !== -1) {
-                        spanningParentheses = false;
-                    }
+                    spanningParentheses += _countParens(term);
                 } else {
                     // Term is not part of a previous '(' span.
                     fixedTerms.push(term);
-
-                    var startIdx = term.indexOf('(');
-                    if(startIdx !== -1) {
-                        if(term.indexOf(')', startIdx) === -1) {
-                            // Contains a starting '(' but not a ending ')'.
-                            spanningParentheses = true;
-                        }
-                    }
+                    spanningParentheses = _countParens(term);
                 }
             });
 
@@ -62,15 +99,19 @@ app.factory('SearchFactory', [function() {
         };
 
         // Return all of the currently active filters for the given search.
-        this.getCurrentFilters = function() {
+        this._getCurrentFilters = function() {
             var filters = this.getEmptyFilter();
             if(this.search.length === 0) {
-                return filters;
+                this.isValid = true;
+                this.filters = filters;
+                return this.filters;
             }
-            var searchTerms = this.getSplitSearch();
+            var searchTerms = this._getSplitSearch();
             if(!searchTerms) {
-                return null;
+                this.isValid = false;
+                return this.filters;
             }
+            this.isValid = true;
             angular.forEach(searchTerms, function(terms) {
                 terms = terms.split(':');
                 if(terms.length === 1) {
@@ -107,30 +148,28 @@ app.factory('SearchFactory', [function() {
                 }
             });
             this.filters = filters;
-            return filters;
         };
 
         // Convert "filters" into a search string.
-        this.filtersToString = function() {
+        this._filtersToString = function() {
             var search = "";
-            angular.forEach(this.filters, function(terms, type) {
+            angular.forEach(this.filters, function(terms, key) {
                 // Skip empty and skip "_" as it gets appended at the
                 // beginning of the search.
-                if(terms.length === 0 || type === "_") {
+                if(terms.length === 0 || key === "_") {
                     return;
                 }
-                search += type + ":(" + terms.join(",") + ") ";
+                search += key + ":(" + terms.join(",") + ") ";
             });
             if(this.filters._.length > 0) {
                 search = this.filters._.join(" ") + " " + search;
             }
             this.search = search.trim();
-            return this.search;
         };
 
-        // Return the index of the value in the type for the filter.
-        this._getFilterValueIndex = function(type, value) {
-            var values = this.filters[type];
+        // Return the index of the value in the key for the filter.
+        this._getFilterValueIndex = function(key, value) {
+            var values = this.filters[key];
             if(angular.isUndefined(values)) {
                 return -1;
             }
@@ -140,9 +179,9 @@ app.factory('SearchFactory', [function() {
             return lowerValues.indexOf(value.toLowerCase());
         };
 
-        // Return true if the type and value are in the filters.
-        this.isFilterActive = function(type, value, exact) {
-            var values = this.filters[type];
+        // Return true if the key and value are in the filters.
+        this.isFilterActive = function(key, value, exact) {
+            var values = this.filters[key];
             if(angular.isUndefined(values)) {
                 return false;
             }
@@ -152,25 +191,35 @@ app.factory('SearchFactory', [function() {
             if(exact) {
                 value = "=" + value;
             }
-            return this._getFilterValueIndex(type, value) !== -1;
+            return this._getFilterValueIndex(key, value) !== -1;
         };
 
-        // Toggles a filter on or off based on type and value.
-        this.toggleFilter = function(type, value, exact) {
-            console.log('toggling: ' + type + ' ' + value);
-            if(angular.isUndefined(this.filters[type])) {
-                this.filters[type] = [];
+        // Toggles a filter on or off based on key and value.
+        this.toggleFilter = function(key, value, exact) {
+            console.log('toggling: ' + key + ' ' + value);
+            if(angular.isUndefined(this.filters[key])) {
+                this.filters[key] = [];
             }
             if(exact) {
                 value = "=" + value;
             }
-            var idx = this._getFilterValueIndex(type, value);
-            if(idx === -1) {
-                this.filters[type].push(value);
-            } else {
-                this.filters[type].splice(idx, 1);
+            var idx = this._getFilterValueIndex(key, value);
+            if(key in this.individualFilters) {
+                if(idx === -1) {
+                    this.filters[key] = [value];
+                } else {
+                    this.filters[key] = [];
+                }
             }
-            return this.filters;
+            else {
+                if(idx === -1) {
+                    this.filters[key].push(value);
+                } else {
+                    this.filters[key].splice(idx, 1);
+                }
+            }
+            this._filtersToString();
+            this.update();
         };
     };
     return {
