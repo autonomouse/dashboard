@@ -131,15 +131,28 @@
                                                 <li class="accordion__tab-item" data-ng-repeat="date in ['Last 24 Hours', 'Last 7 Days', 'Last 30 Days', 'Last Year', 'All Time']"  data-ng-class="{ active: data.reports.search.isFilterActive('date', date, true) }">
                                                     <a class="accordion__tab-link" href="" data-ng-click="data.reports.search.toggleFilter('date', date, true)">{$ date $}</a>
                                                 </li>
+                                                <li class="accordion__tab-item" data-ng-repeat="reportPeriod in data.reports.metadata.reportPeriods | orderBy:-['end_date']"  data-ng-class="{ active: data.reports.search.isFilterActive('date', reportPeriod.name, true) }">
+                                                    <a class="accordion__tab-link" href="" data-ng-click="data.reports.search.toggleFilter('date', reportPeriod.name, true)">{$ reportPeriod.name $}</a>
+                                                </li>
                                             </ul>
                                         </div>
                                     </div>
-                                    <div class="ng-hide accordion__tab" data-ng-show="data.metadata.environment.length">
+                                    <div class="ng-hide accordion__tab" data-ng-show="data.reports.metadata.environments.length">
                                         <h4 class="accordion__tab-title maas-accordion-tab">Environment</h4>
                                         <div class="accordion__tab-content">
                                             <ul class="accordion__tab-list">
-                                                <li class="accordion__tab-item" data-ng-repeat="env in data.metadata.environment | orderBy:['name']"  data-ng-class="{ active: data.reports.search.isFilterActive('environment', env.name, true) }">
+                                                <li class="accordion__tab-item" data-ng-repeat="env in data.reports.metadata.environments | orderBy:['name']"  data-ng-class="{ active: data.reports.search.isFilterActive('environment', env.name, true) }">
                                                     <a class="accordion__tab-link" href="" data-ng-click="data.reports.search.toggleFilter('environment', env.name, true)">{$ env.name $}</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="ng-hide accordion__tab" data-ng-show="data.reports.metadata.reportGroups.length">
+                                        <h4 class="accordion__tab-title maas-accordion-tab">Report</h4>
+                                        <div class="accordion__tab-content">
+                                            <ul class="accordion__tab-list">
+                                                <li class="accordion__tab-item" data-ng-repeat="reportGroup in data.reports.metadata.reportGroups | orderBy:['name']"  data-ng-class="{ active: data.reports.search.isFilterActive('report', reportGroup.name, true) }">
+                                                    <a class="accordion__tab-link" href="" data-ng-click="data.reports.search.toggleFilter('report', reportGroup.name, true)">{$ reportGroup.name $}</a>
                                                 </li>
                                             </ul>
                                         </div>
