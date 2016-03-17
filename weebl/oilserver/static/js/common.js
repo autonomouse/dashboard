@@ -77,6 +77,7 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
         if (angular.isUndefined($scope.data.subfilter_plot_form)) {
             $scope.data.subfilter_plot_form = {};
         };
+        if (angular.isUndefined($scope.data.reports)) $scope.data.reports = {};
         if (angular.isUndefined($scope.data.currentsection)) {
             locationParts = $location.path().split('/');
             //remove all '' from locationParts

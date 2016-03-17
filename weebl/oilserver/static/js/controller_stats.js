@@ -10,14 +10,16 @@ app.controller('successRateController', [
         binding = this;
         binding.user = $scope.data.user;
         binding.apikey = $scope.data.apikey;
+
+        $scope = Common.initialise($scope);
+
+        $scope.data.reports.show_filters = false;
         $scope.data.show_filters = true;
         $scope.data.show_search = true;
 
         $scope.data.default_tab = 'successRate';
         $scope.data.default_section = 'results';
         $scope.data.time_range = 'Last 24 Hours';
-
-        $scope = Common.initialise($scope);
 
         if (typeof($scope.data.filters)==='undefined') $scope.data.filters = SearchService.getEmptyFilter();
 
