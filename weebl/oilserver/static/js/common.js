@@ -126,8 +126,10 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
     };
 
     function highlightTab(scope, tab) {
-        $rootScope.title = scope.data.tabs[tab].pagetitle;
-        scope.data.currentpage = tab;
+        if (tab in scope.data.tabs) {
+            $rootScope.title = scope.data.tabs[tab].pagetitle;
+            scope.data.currentpage = tab;
+        };
     };
 
     function generateFilterPaths(origin) {
