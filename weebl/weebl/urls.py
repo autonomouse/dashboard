@@ -11,7 +11,6 @@ v_api.register(resources.ServiceStatusResource())
 v_api.register(resources.JenkinsResource())
 v_api.register(resources.BuildExecutorResource())
 v_api.register(resources.PipelineResource())
-v_api.register(resources.BuildStatusResource())
 v_api.register(resources.JobTypeResource())
 v_api.register(resources.BuildResource())
 v_api.register(resources.TargetFileGlobResource())
@@ -38,6 +37,12 @@ v_api.register(resources.UnitResource())
 v_api.register(resources.ReportResource())
 v_api.register(resources.ReportPeriodResource())
 v_api.register(resources.ReportInstanceResource())
+v_api.register(resources.TestFrameworkResource())
+v_api.register(resources.TestCaseClassResource())
+v_api.register(resources.TestCaseInstanceStatusResource())
+v_api.register(resources.TestCaseInstanceResource())
+v_api.register(resources.TestCaseResource())
+
 
 urlpatterns = patterns(
     '',

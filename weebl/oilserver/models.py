@@ -8,7 +8,7 @@ class TimeStampedBaseModel(models.Model):
     """Base model with timestamp information that is common to many models.
     Please note that not all models will inherit from this base model. In
     particular, any that are part of the initial fixtures file do not
-    (servicestatus, buildstatus, and jobtype).
+    (servicestatus, testcaseinstancestatus, and jobtype).
     """
 
     class Meta:
@@ -534,25 +534,6 @@ class Unit(TimeStampedBaseModel):
         return self.name
 
 
-class BuildStatus(models.Model):
-    """Potential states that the build may be in following being run on the CI
-    server (Jenkins; e.g. success, failure, aborted, unknown).
-    """
-    name = models.CharField(
-        max_length=255,
-        unique=True,
-        default="unknown",
-        help_text="The resulting state of the build.")
-    description = models.TextField(
-        default=None,
-        blank=True,
-        null=True,
-        help_text="Optional description for state.")
-
-    def __str__(self):
-        return self.name
-
-
 class JobType(models.Model):
     """The type of job run (e.g. pipeline_deploy, pipeline_prepare,
     test_tempest_smoke).
@@ -607,7 +588,6 @@ class Build(TimeStampedBaseModel):
         null=True,
         help_text="DateTime build analysed by weebl, or None if unanalysed.")
     pipeline = models.ForeignKey(Pipeline)
-    buildstatus = models.ForeignKey(BuildStatus)
     jobtype = models.ForeignKey(JobType)
 
     class Meta:
@@ -621,6 +601,103 @@ class Build(TimeStampedBaseModel):
         url = self.pipeline.buildexecutor.jenkins.external_access_url
         return "{}/job/{}/{}/".format(
             url.rstrip('/'), self.jobtype.name, self.build_id)
+
+
+class TestFramework(TimeStampedBaseModel):
+    """The suite of Openstack tests used."""
+    name = models.CharField(
+        max_length=255,
+        unique=True,
+        blank=False,
+        null=False,
+        help_text="Name of the testing framework.")
+    description = models.TextField(
+        default=None,
+        blank=True,
+        null=True,
+        help_text="Optional description for this test framework.")
+    version = models.TextField(
+        default=None,
+        blank=True,
+        null=True,
+        help_text="Version of this test framework.")
+
+    def __str__(self):
+        return self.name
+
+
+class TestCaseClass(TimeStampedBaseModel):
+    """The class of test cases, within the larger suite of Openstack tests
+    used.
+    """
+    name = models.CharField(
+        max_length=255,
+        unique=True,
+        blank=False,
+        null=False,
+        help_text="Name of this individual test case.")
+    testframework = models.ForeignKey(
+        TestFramework, null=True, blank=True, default=None)
+
+    def __str__(self):
+        return self.name
+
+
+class TestCaseInstanceStatus(models.Model):
+    """Potential states that the build may be in following being run on the CI
+    server (Jenkins; e.g. success, failure, aborted, unknown).
+    """
+    name = models.CharField(
+        max_length=255,
+        unique=True,
+        default="unknown",
+        help_text="The resulting outcome of the test.")
+    description = models.TextField(
+        default=None,
+        blank=True,
+        null=True,
+        help_text="Optional description for outcome.")
+
+    def __str__(self):
+        return self.name
+
+
+class TestCase(TimeStampedBaseModel):
+    """The individual test case - part of the larger suite of Openstack tests
+    used.
+    """
+    name = models.CharField(
+        max_length=255,
+        unique=True,
+        blank=False,
+        null=False,
+        help_text="Name of this individual test case.")
+    testcaseclass = models.ForeignKey(
+        TestCaseClass, null=True, blank=True, default=None)
+
+    def __str__(self):
+        return self.name
+
+
+class TestCaseInstance(models.Model):
+    """Potential states that the build may be in following being run on the CI
+    server (Jenkins; e.g. success, failure, aborted, unknown).
+    """
+    testcaseinstancestatus = models.ForeignKey(
+        TestCaseInstanceStatus, null=True, blank=True, default=None)
+    uuid = models.CharField(
+        max_length=36,
+        default=utils.generate_uuid,
+        unique=True,
+        blank=False,
+        null=False,
+        help_text="UUID of this TestCase.")
+    build = models.ForeignKey(
+        Build, null=True, blank=True, default=None)
+    testcase = models.ForeignKey(TestCase, null=True, blank=True, default=None)
+
+    def __str__(self):
+        return self.uuid
 
 
 class TargetFileGlob(TimeStampedBaseModel):
@@ -718,12 +795,13 @@ class BugOccurrence(TimeStampedBaseModel):
         blank=False,
         null=False,
         help_text="UUID of this bug occurrence.")
-    build = models.ForeignKey(Build)
+    testcaseinstance = models.ForeignKey(
+        TestCaseInstance, null=True, blank=True, default=None)
     regex = models.ForeignKey(KnownBugRegex)
 
     class Meta:
         # Only create one BugOccurrence instance per build/regex combo:
-        unique_together = (('build', 'regex'),)
+        unique_together = (('testcaseinstance', 'regex'),)
 
     def __str__(self):
         return self.uuid

@@ -752,25 +752,6 @@ class UnitResource(CommonResource):
         detail_uri_name = 'name'
 
 
-class BuildStatusResource(CommonResource):
-    """API Resource for 'BuildStatus' model.
-
-    Provides a REST API resource for the BuildStatus model. Inherits common
-    methods from CommonResource.
-    """
-
-    class Meta:
-        queryset = models.BuildStatus.objects.all()
-        list_allowed_methods = ['get']  # all items
-        detail_allowed_methods = ['get']  # individual
-        fields = ['name', 'description']
-        authorization = DjangoAuthorization()
-        authentication = ApiKeyAuthentication()
-        always_return_data = True
-        filtering = {'name': ALL, }
-        detail_uri_name = 'name'
-
-
 class JobTypeResource(CommonResource):
     """API Resource for 'JobType' model.
 
@@ -798,21 +779,23 @@ class BuildResource(CommonResource):
 
     Attributes:
         pipeline: Foreign key to the Pipeline resource.
-        buildstatus: Foreign key to the BuildStatus resource.
         jobtype: Foreign key to the JobType resource.
+        testcaseinstances: To-Many relation to the TestCaseInstance resource.
     """
+
     pipeline = fields.ForeignKey(PipelineResource, 'pipeline')
-    buildstatus = fields.ForeignKey(BuildStatusResource, 'buildstatus')
     jobtype = fields.ForeignKey(JobTypeResource, 'jobtype')
+    testcaseinstances = fields.ToManyField(
+        'oilserver.api.resources.TestCaseInstanceResource',
+        'testcaseinstance', null=True)  #, use_in='detail')
 
     class Meta:
-        queryset = models.Build.objects.select_related(
-            'pipeline', 'jobtype', 'buildstatus').all()
+        queryset = models.Build.objects.all()
         list_allowed_methods = ['get', 'post', 'delete']  # all items
         detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
         fields = ['uuid', 'build_id', 'artifact_location', 'build_started_at',
                   'build_finished_at', 'build_analysed_at', 'pipeline',
-                  'buildstatus', 'jobtype']
+                  'jobtype', 'testcaseinstances']
         authorization = DjangoAuthorization()
         authentication = ApiKeyAuthentication()
         always_return_data = True
@@ -820,13 +803,153 @@ class BuildResource(CommonResource):
                      'build_id': ALL,
                      'jobtype': ALL_WITH_RELATIONS,
                      'pipeline': ALL_WITH_RELATIONS,
-                     'buildstatus': ALL_WITH_RELATIONS}
+                     'buildstatus': ALL_WITH_RELATIONS,
+                     'testcaseinstances': ALL_WITH_RELATIONS, }
         detail_uri_name = 'uuid'
 
     def dehydrate(self, bundle):
         bundle = super(BuildResource, self).dehydrate(bundle)
         bundle.data['jenkins_build_url'] = bundle.obj.jenkins_build_url
         return bundle
+
+    def apply_filters(self, request, applicable_filters):
+        fixup_set_filters(['testcaseinstances'], applicable_filters)
+        return super(BuildResource, self).apply_filters(
+            request, applicable_filters).distinct()
+
+
+class TestFrameworkResource(CommonResource):
+    """API Resource for 'TestFramework' model.
+
+    Provides a REST API resource for the TestFramework model. Inherits common
+    methods from CommonResource.
+
+    """
+
+    class Meta:
+        queryset = models.TestFramework.objects.all()
+        list_allowed_methods = ['get', 'post', 'delete']  # all items
+        detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
+        fields = ['name', 'description', 'version']
+        authorization = DjangoAuthorization()
+        authentication = ApiKeyAuthentication()
+        always_return_data = True
+        filtering = {'name': ('exact'), }
+        detail_uri_name = 'name'
+
+
+class TestCaseClassResource(CommonResource):
+    """API Resource for 'TestCaseClass' model.
+
+    Provides a REST API resource for the TestCaseClass model. Inherits common
+    methods from CommonResource.
+
+    Attributes:
+        testframework: Foreign key to the TestFramework resource.
+    """
+
+    testframework = fields.ForeignKey(
+        TestFrameworkResource, 'testframework', full=True, null=True)
+
+    class Meta:
+        queryset = models.TestCaseClass.objects.all()
+        list_allowed_methods = ['get', 'post', 'delete']  # all items
+        detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
+        fields = ['name', 'testframework']
+        authorization = DjangoAuthorization()
+        authentication = ApiKeyAuthentication()
+        always_return_data = True
+        filtering = {
+            'name': ('exact'),
+            'testframework': ALL_WITH_RELATIONS,
+        }
+        detail_uri_name = 'name'
+
+
+class TestCaseInstanceStatusResource(CommonResource):
+    """API Resource for 'TestCaseInstanceStatus' model.
+    Provides a REST API resource for the TestCaseInstanceStatus model. Inherits
+    common methods from CommonResource.
+
+    """
+
+    class Meta:
+        queryset = models.TestCaseInstanceStatus.objects.all()
+        list_allowed_methods = ['get', 'post', 'delete']  # all items
+        detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
+        fields = ['name', 'description']
+        authorization = DjangoAuthorization()
+        authentication = ApiKeyAuthentication()
+        always_return_data = True
+        filtering = {
+            'name': ('exact', 'in'),
+        }
+        detail_uri_name = 'name'
+
+
+class TestCaseResource(CommonResource):
+    """API Resource for 'TestCase' model.
+
+    Provides a REST API resource for the TestCase model. Inherits common
+    methods from CommonResource.
+
+    Attributes:
+        testcaseclass: Foreign key to the TestCaseClass resource.
+    """
+
+    testcaseclass = fields.ForeignKey(
+        TestCaseClassResource, 'testcaseclass', full=True, null=True)
+
+    class Meta:
+        queryset = models.TestCase.objects.all()
+        list_allowed_methods = ['get', 'post', 'delete']  # all items
+        detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
+        fields = ['name', 'testcaseclass']
+        authorization = DjangoAuthorization()
+        authentication = ApiKeyAuthentication()
+        always_return_data = True
+        filtering = {
+            'name': ('exact'),
+            'testcaseclass': ALL_WITH_RELATIONS,
+        }
+        detail_uri_name = 'name'
+
+
+class TestCaseInstanceResource(CommonResource):
+    """API Resource for 'TestCaseInstance' model.
+
+    Provides a REST API resource for the TestCaseInstance model. Inherits
+    common methods from CommonResource.
+
+    Attributes:
+        testcaseinstancestatus: Foreign key to the
+            TestCaseInstanceStatusResource resource.
+        build: Foreign key to the BuildResource resource.
+        testcase: Foreign key to the TestCase resource.
+    """
+
+    testcaseinstancestatus = fields.ForeignKey(
+        TestCaseInstanceStatusResource, 'testcaseinstancestatus', full=True,
+        null=True)
+    build = fields.ForeignKey(BuildResource, 'build', full=True, null=True)
+    testcase = fields.ForeignKey(
+        TestCaseResource, 'testcase', full=True, null=True)
+
+    class Meta:
+        queryset = models.TestCaseInstance.objects.all()
+        list_allowed_methods = ['get', 'post', 'delete']  # all items
+        detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
+        fields = ['testcaseinstancestatus', 'uuid', 'build', 'testcase']
+        authorization = DjangoAuthorization()
+        authentication = ApiKeyAuthentication()
+        always_return_data = True
+        filtering = {
+            'uuid': ('exact'),
+            'build': ALL_WITH_RELATIONS,
+            'testcaseinstancestatus': ALL_WITH_RELATIONS,
+            'testcase': ALL_WITH_RELATIONS,
+        }
+        detail_uri_name = 'uuid'
 
 
 class TargetFileGlobResource(CommonResource):
@@ -972,10 +1095,12 @@ class BugResource(CommonResource):
         bugoccurrences = get_bugoccurrences(bundle)
         bundle.data['occurrence_count'] = bugoccurrences.count()
         if bugoccurrences.exists():
-            bundle.data['last_seen'] = bugoccurrences.latest(
-                'build__pipeline__completed_at').build.pipeline.completed_at
+            try:
+                bundle.data['last_seen'] = bugoccurrences.latest(
+                    'testcaseinstance__build__pipeline__completed_at').testcaseinstance.build.pipeline.completed_at
+            except AttributeError:
+                bundle.data['last_seen'] = None
         return bundle
-
 
 class KnownBugRegexResource(CommonResource):
     """API Resource for 'BugTrackerBug' model.
@@ -1000,7 +1125,7 @@ class KnownBugRegexResource(CommonResource):
         queryset = models.KnownBugRegex.objects.select_related('bug').all()
         list_allowed_methods = ['get', 'post', 'delete']  # all items
         detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
-        fields = ['bug', 'uuid', 'regex', 'targetfileglobs',
+        fields = ['bug', 'uuid', 'regex', 'targetfileglobs', 'bugoccurrences'
                   'created_at', 'updated_at']
         authorization = DjangoAuthorization()
         authentication = ApiKeyAuthentication()
@@ -1012,6 +1137,11 @@ class KnownBugRegexResource(CommonResource):
                      'bugoccurrences': ALL_WITH_RELATIONS}
         detail_uri_name = 'uuid'
 
+    def apply_filters(self, request, applicable_filters):
+        fixup_set_filters(['bugoccurrences'], applicable_filters)
+        return super(KnownBugRegexResource, self).apply_filters(
+            request, applicable_filters).distinct()
+
 
 class BugOccurrenceResource(CommonResource):
     """API Resource for 'BugTrackerBug' model.
@@ -1022,21 +1152,76 @@ class BugOccurrenceResource(CommonResource):
     Attributes:
         build: Foreign key to the Build resource.
         regex: Foreign key to the KnownBugRegex resource.
+        testcaseinstance: Foreign key to the TestCaseInstance resource.
     """
-    build = fields.ForeignKey(BuildResource, 'build')
+
     regex = fields.ForeignKey(KnownBugRegexResource, 'regex')
+    testcaseinstance = fields.ForeignKey(
+        TestCaseInstanceResource, 'testcaseinstance')
 
     class Meta:
         queryset = models.BugOccurrence.objects.all()
         list_allowed_methods = ['get', 'post', 'delete']  # all items
         detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
-        fields = ['uuid', 'build', 'regex', 'created_at', 'updated_at']
+        fields = ['uuid', 'regex', 'testcaseinstance', 'created_at',
+                  'updated_at']
         authorization = DjangoAuthorization()
         authentication = ApiKeyAuthentication()
         always_return_data = True
         filtering = {'uuid': ALL,
-                     'build': ALL_WITH_RELATIONS,
-                     'regex': ALL_WITH_RELATIONS, }
+                     'regex': ALL_WITH_RELATIONS,
+                     'testcaseinstance': ALL_WITH_RELATIONS, }
+        detail_uri_name = 'uuid'
+
+
+class ReportPeriodResource(CommonResource):
+    """API Resource for 'ReportPeriod' model.
+
+    Provides a REST API resource for the ReportPeriod model. Inherits common
+    methods from CommonResource.
+
+    Attributes:
+        build: Foreign key to the Build resource.
+        regex: Foreign key to the KnownBugRegex resource.
+    """
+
+    class Meta:
+        queryset = models.ReportPeriod.objects.all()
+        list_allowed_methods = ['get', 'post', 'delete']  # all items
+        detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
+        fields = ['uuid', 'name', 'start_date', 'end_date', 'overall_summary']
+        authorization = DjangoAuthorization()
+        authentication = ApiKeyAuthentication()
+        always_return_data = True
+        filtering = {'uuid': ('exact',),
+                     'name': ('exact',), }
+        detail_uri_name = 'uuid'
+
+
+class ReportInstanceResource(CommonResource):
+    """API Resource for 'ReportInstance' model.
+
+    Provides a REST API resource for the ReportInstance model. Inherits common
+    methods from CommonResource.
+
+    Attributes:
+        report: Foreign key to the Report resource.
+        report_period: Foreign key to the ReportPeriod resource.
+    """
+    report = fields.ForeignKey(ReportResource, 'report')
+    report_period = fields.ForeignKey(ReportPeriodResource, 'report_period')
+
+    class Meta:
+        queryset = models.ReportInstance.objects.all()
+        list_allowed_methods = ['get', 'post', 'delete']  # all items
+        detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
+        fields = ['uuid', 'specific_summary', 'report', 'report_period']
+        authorization = DjangoAuthorization()
+        authentication = ApiKeyAuthentication()
+        always_return_data = True
+        filtering = {'uuid': ('exact',),
+                     'report': ('exact',),
+                     'report_period': ('exact',), }
         detail_uri_name = 'uuid'
 
 

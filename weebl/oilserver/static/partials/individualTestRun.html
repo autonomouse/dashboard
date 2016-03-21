@@ -92,10 +92,16 @@
                 </tr>
             </thead>
             <tbody>
-                <tr class="table-listing__row" ng-repeat="pl_build in data.pipeline_builds.objects">
-                    <td class="table-listing__cell">{$ data.jobtypeLookup(pl_build.jobtype.slice(16,-1)) $}</td>
-                    <td class="table-listing__cell"><a href="{$ pl_build.jenkins_build_url $}" class="external">{$ pl_build.build_id $}</a></td>
-                    <td class="table-listing__cell">{$ pl_build.buildstatus.slice(20, -1) $}</td>
+                <tr class="table-listing__row" data-ng-repeat="pl_testcase in data.pipeline_testcaseinstance.objects  | filter:filterFn" >
+                    <td class="table-listing__cell">
+                        {$ data.jobtypeLookup((pl_testcase.build['jobtype']).slice(16,-1)); $}
+                    </td>
+                    <td class="table-listing__cell">
+                        <a href="{$ pl_testcase.build['jenkins_build_url']; $}" class="external">{$ pl_testcase.build['build_id']; $}</a>
+                    </td>
+                    <td class="table-listing__cell">
+                        {$ pl_testcase['testcaseinstancestatus']['name']; $}
+                    </td>
                 </tr>
             </tbody>
         </table>

@@ -43,9 +43,9 @@ app.controller('successRateController', [
                 graphValues.total = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(filter_set);
             } else {
                 filter_set['jobtype__name'] = jobname;
-                delete filter_set['buildstatus__name']
+                delete filter_set['testcaseinstances__testcaseinstancestatus__name__in']
                 graphValues.jobtotal = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(filter_set);
-                filter_set['buildstatus__name'] = 'success';
+                filter_set['testcaseinstances__testcaseinstancestatus__name__in'] = 'success';
                 graphValues.pass = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(filter_set);
             };
         };
@@ -100,9 +100,13 @@ app.controller('successRateController', [
         function update(model) {
             $scope.data.fetching_data = true;
             active_filters = Common.generateActiveFilters($scope, model);
-            var data = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(active_filters);
+            var datum = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(active_filters);
             $scope.data.fetching_data = false;
-            return data
+            return datum
+        };
+
+        function dateToString(date) {
+            return date.getUTCFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getUTCDate();
         };
 
         $scope.data.calcPercentage = function(value, number_of_test_runs) {

@@ -1,30 +1,53 @@
 import random
-
-from datetime import (
-    datetime,
-    timedelta,
-    timezone, )
-
+from datetime import datetime, timedelta, timezone
 from django.core.management.base import BaseCommand
 from django.db.utils import IntegrityError
 from oilserver import models
+from collections import OrderedDict
 
-
-DEPENDENT_JOBS = [
-    'pipeline_start',
-    'pipeline_deploy',
-    'pipeline_prepare',
-    'test_cloud_image'
+TEMPEST_TESTS = [
+    ('tempest',
+     'tempest.scenario.test_network_basic_ops.TestNetworkBasicOps',
+     'test_network_basic_ops[compute,gate,network,smoke]'),
+    ('tempest',
+     'tempest.thirdparty.boto.test_ec2_keys.EC2KeysTest',
+     'test_create_ec2_keypair[gate,smoke]'),
+    ('tempest',
+     'tempest.api.compute.v3.admin.test_quotas.QuotasAdminV3TestJSON',
+     'test_get_default_quotas[gate,smoke]'),
 ]
 
 
-INDEPENDENT_JOBS = [
-    'test_tempest_smoke',
-    'test_bundletests',
+OIL_GUEST_OS_TESTS = [
+    ('OIL guest OS',
+     'oil_ci.oil_tests.verification.cloud_image.guest_OS.OILGuestOSTest',
+     'test_boot_ssh_image'),
+    ('OIL guest OS',
+     'oil_ci.oil_tests.verification.cloud_image.guest_OS.OILGuestOSTest',
+     'test_boot_ssh_intance_to_instance'),
 ]
 
 
-JOB_TYPES = DEPENDENT_JOBS + INDEPENDENT_JOBS
+DEPENDENT_JOBS = OrderedDict()
+
+DEPENDENT_JOBS['pipeline_start'] = [[('pipeline_start', 'pipeline_start',
+                                    'pipeline_start')]]
+DEPENDENT_JOBS['pipeline_deploy'] = [[('pipeline_deploy', 'pipeline_deploy',
+                                     'pipeline_deploy')]]
+DEPENDENT_JOBS['pipeline_prepare'] = [[('pipeline_prepare', 'pipeline_prepare',
+                                      'pipeline_prepare')]]
+DEPENDENT_JOBS['test_cloud_image'] = [[('test_cloud_image', 'test_cloud_image',
+                                      'test_cloud_image')], OIL_GUEST_OS_TESTS]
+
+INDEPENDENT_JOBS = {
+    'test_tempest_smoke': [[('test_tempest_smoke', 'test_tempest_smoke',
+                           'test_tempest_smoke')], TEMPEST_TESTS],
+    'test_bundletests': [[('test_bundletests', 'test_bundletests',
+                         'test_bundletests')]]
+}
+
+
+JOB_TYPES = list(DEPENDENT_JOBS.keys()) + list(INDEPENDENT_JOBS.keys())
 
 
 BUILD_STATUSES = [
@@ -135,7 +158,7 @@ MACHINE_NAMES = [
 
 ENUM_MAPPINGS = [
     (models.JobType, JOB_TYPES, 'name'),
-    (models.BuildStatus, BUILD_STATUSES, 'name'),
+    (models.TestCaseInstanceStatus, BUILD_STATUSES, 'name'),
     (models.ServiceStatus, SERVICE_STATUSES, 'name'),
     (models.OpenstackVersion, OPENSTACK_VERSIONS, 'name'),
     (models.SDN, SDNS, 'name'),
@@ -304,8 +327,7 @@ def make_known_bug_regex(bug):
     return known_bug_regex
 
 
-def make_bugs():
-    target_count = 30
+def make_bugs(target_count):
     current_count = models.Bug.objects.count()
     for i in range(current_count, target_count):
         bug = make_bug()
@@ -341,38 +363,91 @@ def make_pipeline():
     return pipeline
 
 
-def get_build_status(success_rate):
+def get_test_case_instance_status(success_rate):
     if random.random() < success_rate:
-        build_status_name = 'success'
+        test_case_instance_status_name = 'success'
     else:
-        build_status_name = 'failure'
-    build_status = models.BuildStatus.objects.get(
-        name=build_status_name)
-    return build_status
+        test_case_instance_status_name = 'failure'
+    test_case_instance_status = models.TestCaseInstanceStatus.objects.get(
+        name=test_case_instance_status_name)
+    return test_case_instance_status
 
 
-def make_bug_occurrence(build):
+def make_bug_occurrence(testcaseinstance):
     regexes = models.KnownBugRegex.objects.all()
     regex = random.choice(regexes)
     bug_occurrence = models.BugOccurrence(
-        build=build,
+        testcaseinstance=testcaseinstance,
         regex=regex)
     bug_occurrence.save()
 
 
-def make_build(pipeline, jobtype, success_rate):
-    build_status = get_build_status(success_rate)
+def make_testcaseinstance(testcase, build, success_rate):
+    test_case_instance_status = get_test_case_instance_status(success_rate)
+    testcaseinstance = models.TestCaseInstance(
+        testcaseinstancestatus=test_case_instance_status,
+        build=build,
+        testcase=testcase)
+    testcaseinstance.save()
+    return testcaseinstance, test_case_instance_status
+
+
+def make_build(pipeline, jobtype, testcases, success_rate):
     build = models.Build(
         pipeline=pipeline,
-        buildstatus=build_status,
         jobtype=jobtype,
         build_id=random.randint(100000, 3000000))
     build.save()
 
-    if build_status.name == 'failure':
-        make_bug_occurrence(build)
+    for testcase in testcases:
+        testcaseinstance, test_case_instance_status = make_testcaseinstance(
+            testcase, build, success_rate)
 
-    return build
+    if test_case_instance_status.name == 'failure':
+        make_bug_occurrence(testcaseinstance)
+
+    return build, test_case_instance_status
+
+def make_testframework(framework_name):
+    try:
+        testframework = models.TestFramework(
+            name=framework_name,
+            description=framework_name,
+            version='1.0')
+
+        testframework.save()
+    except IntegrityError:
+        testframework = models.TestFramework.objects.get(name=framework_name)
+    return testframework
+
+
+def make_testclass(testframework, testclass_name):
+    try:
+        testcaseclass = models.TestCaseClass(
+            name=testclass_name,
+            testframework=testframework)
+        testcaseclass.save()
+    except IntegrityError:
+        testcaseclass = models.TestCaseClass.objects.get(name=testclass_name)
+    return testcaseclass
+
+
+def make_testcase(testcaseclass, test_name):
+    try:
+        testcase = models.TestCase(
+            name=test_name,
+            testcaseclass=testcaseclass)
+        testcase.save()
+    except IntegrityError:
+        testcase = models.TestCase.objects.get(name=test_name)
+    return testcase
+
+
+def make_test_framework_class_and_case(framework_name, testclass_name,
+                                       test_name):
+    testframework = make_testframework(framework_name)
+    testcaseclass = make_testclass(testframework, testclass_name)
+    return make_testcase(testcaseclass, test_name)
 
 
 def make_target_file_globs(glob_pattern):
@@ -384,23 +459,37 @@ def make_target_file_globs(glob_pattern):
 
 
 def make_dependent_builds(pipeline):
-    for jobtype_name in DEPENDENT_JOBS:
-        build = make_build(
+    for jobtype_name, tests in DEPENDENT_JOBS.items():
+        testcases = []
+        for _test in tests:
+            test = random.choice(_test)
+            testcase = make_test_framework_class_and_case(*test)
+            testcases.append(testcase)
+
+        build, test_case_instance_status = make_build(
             pipeline=pipeline,
             jobtype=models.JobType.objects.get(name=jobtype_name),
+            testcases=testcases,
             success_rate=0.9)
 
-        if build.buildstatus.name == 'failure':
+        if test_case_instance_status.name == 'failure':
             return False
 
     return True
 
 
 def make_independent_builds(pipeline):
-    for jobtype_name in INDEPENDENT_JOBS:
+    for jobtype_name, tests in INDEPENDENT_JOBS.items():
+        testcases = []
+        for _test in tests:
+            test = random.choice(_test)
+            testcase = make_test_framework_class_and_case(*test)
+            testcases.append(testcase)
+
         make_build(
             pipeline=pipeline,
             jobtype=models.JobType.objects.get(name=jobtype_name),
+            testcases=testcases,
             success_rate=0.5)
 
 
@@ -424,21 +513,20 @@ def make_hardware(pipeline):
             machine_configuration.save()
 
 
-def make_pipelines():
-    target_count = 1050
+def make_pipelines(num_pipelines):
     current_count = models.Pipeline.objects.count()
-    for i in range(current_count, target_count):
+    for i in range(current_count, num_pipelines):
         pipeline = make_pipeline()
         make_builds(pipeline)
         make_hardware(pipeline)
 
 
-def populate_data():
+def populate_data(num_bugs, num_pipelines):
     populate_enum_objects()
     populate_ubuntu_versions()
     make_infrastructure()
-    make_bugs()
-    make_pipelines()
+    make_bugs(num_bugs)
+    make_pipelines(num_pipelines)
 
 
 class Command(BaseCommand):
@@ -449,4 +537,4 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.stdout.write('Creating fake application data!')
-        populate_data()
+        populate_data(num_bugs=30, num_pipelines=1050)

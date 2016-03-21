@@ -22,25 +22,25 @@
     name: down
     description: Jenkins is broken.
 
-- model: oilserver.buildstatus
+- model: oilserver.testcaseinstancestatus
   pk: 1
   fields:
     name: unknown
     description: Current state of the build is unknown.
 
-- model: oilserver.buildstatus
+- model: oilserver.testcaseinstancestatus
   pk: 2
   fields:
     name: success
     description: The build completed successfully.
 
-- model: oilserver.buildstatus
+- model: oilserver.testcaseinstancestatus
   pk: 3
   fields:
     name: failure
     description: The build completed but was not successful.
 
-- model: oilserver.buildstatus
+- model: oilserver.testcaseinstancestatus
   pk: 4
   fields:
     name: aborted

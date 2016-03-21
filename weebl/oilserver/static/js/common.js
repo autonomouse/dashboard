@@ -14,7 +14,7 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
             'imagestorage': 'imagestorage__name__in',
             'database': 'database__name__in',
             'environment': 'buildexecutor__jenkins__environment__name__in',
-            'buildstatus': 'build__buildstatus__name__in',
+            'testcaseinstancestatus': 'testcaseinstance__testcaseinstancestatus__name__in',
             'machine': 'machineconfiguration__machine__hostname__in',
             'productundertest': 'machineconfiguration__productundertest__name__in',
             'failedjobs': 'build__jobtype__name__in',
@@ -27,16 +27,16 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
 
         // Some fields may be linked to specific instances of other fields, add here:
         var linked_fields = {
-            'failedjobs': ['buildstatus', 'failure'],
+            'failedjobs': ['build__testcaseinstance__testcaseinstancestatus', 'failure'],
         };
 
         // add the path from the origin model to the fields needed:
         var prefixtures = {
-            'bug': 'knownbugregex__bugoccurrences__build__pipeline__',
+            'bug': 'knownbugregex__bugoccurrences__testcaseinstance__build__pipeline__',
             'build': 'pipeline__',
-            'knownbugregex': 'bugoccurrences__build__pipeline__',
+            'knownbugregex': 'bugoccurrences__testcaseinstance__build__pipeline__',
             'pipeline': '',
-            'buildstatus': 'build__pipeline__',
+            'testcaseinstancestatus': 'build__pipeline__',
             'machine': 'machineconfiguration__pipeline__',
         };
 

@@ -7,9 +7,7 @@ from oilserver.tests.common_test_methods import (
     ResourceTests,
 )
 from oilserver import models
-from oilserver.api.resources import (
-    get_bugoccurrence_filters,
-)
+from oilserver.api.resources import get_bugoccurrence_filters
 
 
 class TimeStampedBaseModelTest(ResourceTests):

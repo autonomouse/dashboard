@@ -152,12 +152,14 @@ def make_database(self, name=None):
         'database', data=data)
 
 
-def make_build(build_id=None, buildstatus=None, jobtype=None, pipeline=None):
+def make_build(build_id=None, testcaseinstancestatus=None, jobtype=None,
+               pipeline=None):
     if build_id is None:
         build_id = str(random.randint(1, 1000000))
 
-    if buildstatus is None:
-        buildstatus = models.BuildStatus.objects.get(name='success')
+    if testcaseinstancestatus is None:
+        testcaseinstancestatus =\
+            models.TestCaseInstanceStatus.objects.get(name='success')
 
     if jobtype is None:
         jobtype = models.JobType.objects.get(name='pipeline_deploy')
@@ -167,7 +169,7 @@ def make_build(build_id=None, buildstatus=None, jobtype=None, pipeline=None):
 
     build = models.Build(
         build_id=build_id,
-        buildstatus=buildstatus,
+        testcaseinstancestatus=testcaseinstancestatus,
         jobtype=jobtype,
         pipeline=pipeline)
     build.save()
