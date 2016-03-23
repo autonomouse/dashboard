@@ -607,7 +607,6 @@ class TestFramework(TimeStampedBaseModel):
     """The suite of Openstack tests used."""
     name = models.CharField(
         max_length=255,
-        unique=True,
         blank=False,
         null=False,
         help_text="Name of the testing framework.")
@@ -621,9 +620,19 @@ class TestFramework(TimeStampedBaseModel):
         blank=True,
         null=True,
         help_text="Version of this test framework.")
+    uuid = models.CharField(
+        max_length=36,
+        default=utils.generate_uuid,
+        unique=True,
+        blank=False,
+        null=False,
+        help_text="UUID of this test framework and version.")
+
+    class Meta:
+        unique_together = (('name', 'version'),)
 
     def __str__(self):
-        return self.name
+        return "{}_{}".format(self.name, self.version)
 
 
 class TestCaseClass(TimeStampedBaseModel):
@@ -632,12 +641,21 @@ class TestCaseClass(TimeStampedBaseModel):
     """
     name = models.CharField(
         max_length=255,
-        unique=True,
         blank=False,
         null=False,
         help_text="Name of this individual test case.")
     testframework = models.ForeignKey(
         TestFramework, null=True, blank=True, default=None)
+    uuid = models.CharField(
+        max_length=36,
+        default=utils.generate_uuid,
+        unique=True,
+        blank=False,
+        null=False,
+        help_text="UUID of this testcaseclass.")
+
+    class Meta:
+        unique_together = (('name', 'testframework'),)
 
     def __str__(self):
         return self.name
@@ -668,12 +686,18 @@ class TestCase(TimeStampedBaseModel):
     """
     name = models.CharField(
         max_length=255,
-        unique=True,
         blank=False,
         null=False,
         help_text="Name of this individual test case.")
     testcaseclass = models.ForeignKey(
         TestCaseClass, null=True, blank=True, default=None)
+    uuid = models.CharField(
+        max_length=36,
+        default=utils.generate_uuid,
+        unique=True,
+        blank=False,
+        null=False,
+        help_text="UUID of this testcase.")
 
     def __str__(self):
         return self.name

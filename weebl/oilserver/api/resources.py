@@ -785,9 +785,6 @@ class BuildResource(CommonResource):
 
     pipeline = fields.ForeignKey(PipelineResource, 'pipeline')
     jobtype = fields.ForeignKey(JobTypeResource, 'jobtype')
-    testcaseinstances = fields.ToManyField(
-        'oilserver.api.resources.TestCaseInstanceResource',
-        'testcaseinstance', null=True)  #, use_in='detail')
 
     class Meta:
         queryset = models.Build.objects.all()
@@ -830,13 +827,14 @@ class TestFrameworkResource(CommonResource):
         queryset = models.TestFramework.objects.all()
         list_allowed_methods = ['get', 'post', 'delete']  # all items
         detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
-        fields = ['name', 'description', 'version']
+        fields = ['name', 'description', 'version', 'uuid']
         authorization = DjangoAuthorization()
         authentication = ApiKeyAuthentication()
         always_return_data = True
-        filtering = {'name': ('exact'), }
-        detail_uri_name = 'name'
-
+        filtering = {'name': ('exact'),
+                     'version': ('exact'),
+                     'uuid': ('exact'), }
+        detail_uri_name = 'uuid'
 
 class TestCaseClassResource(CommonResource):
     """API Resource for 'TestCaseClass' model.
@@ -855,15 +853,16 @@ class TestCaseClassResource(CommonResource):
         queryset = models.TestCaseClass.objects.all()
         list_allowed_methods = ['get', 'post', 'delete']  # all items
         detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
-        fields = ['name', 'testframework']
+        fields = ['name', 'testframework', 'uuid']
         authorization = DjangoAuthorization()
         authentication = ApiKeyAuthentication()
         always_return_data = True
         filtering = {
             'name': ('exact'),
+            'uuid': ('exact'),
             'testframework': ALL_WITH_RELATIONS,
         }
-        detail_uri_name = 'name'
+        detail_uri_name = 'uuid'
 
 
 class TestCaseInstanceStatusResource(CommonResource):
@@ -904,15 +903,16 @@ class TestCaseResource(CommonResource):
         queryset = models.TestCase.objects.all()
         list_allowed_methods = ['get', 'post', 'delete']  # all items
         detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
-        fields = ['name', 'testcaseclass']
+        fields = ['name', 'testcaseclass', 'uuid']
         authorization = DjangoAuthorization()
         authentication = ApiKeyAuthentication()
         always_return_data = True
         filtering = {
             'name': ('exact'),
+            'uuid': ('exact'),
             'testcaseclass': ALL_WITH_RELATIONS,
         }
-        detail_uri_name = 'name'
+        detail_uri_name = 'uuid'
 
 
 class TestCaseInstanceResource(CommonResource):
