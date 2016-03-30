@@ -169,10 +169,13 @@ def make_build(build_id=None, testcaseinstancestatus=None, jobtype=None,
 
     build = models.Build(
         build_id=build_id,
-        testcaseinstancestatus=testcaseinstancestatus,
         jobtype=jobtype,
         pipeline=pipeline)
     build.save()
+
+    # FIXME: This test needs updating now that all builds are tests:
+    # make_testcaseinstance(
+    #    build.uuid, testcase_uuid, pipeline, testcaseinstancestatus)
     return build
 
 

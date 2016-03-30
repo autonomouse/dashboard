@@ -785,6 +785,9 @@ class BuildResource(CommonResource):
 
     pipeline = fields.ForeignKey(PipelineResource, 'pipeline')
     jobtype = fields.ForeignKey(JobTypeResource, 'jobtype')
+    testcaseinstances = fields.ToManyField(
+        'oilserver.api.resources.TestCaseInstanceResource',
+        'testcaseinstance', null=True, readonly=True, use_in='detail')
 
     class Meta:
         queryset = models.Build.objects.all()
@@ -800,7 +803,6 @@ class BuildResource(CommonResource):
                      'build_id': ALL,
                      'jobtype': ALL_WITH_RELATIONS,
                      'pipeline': ALL_WITH_RELATIONS,
-                     'buildstatus': ALL_WITH_RELATIONS,
                      'testcaseinstances': ALL_WITH_RELATIONS, }
         detail_uri_name = 'uuid'
 
@@ -835,6 +837,7 @@ class TestFrameworkResource(CommonResource):
                      'version': ('exact'),
                      'uuid': ('exact'), }
         detail_uri_name = 'uuid'
+
 
 class TestCaseClassResource(CommonResource):
     """API Resource for 'TestCaseClass' model.
@@ -1096,11 +1099,14 @@ class BugResource(CommonResource):
         bundle.data['occurrence_count'] = bugoccurrences.count()
         if bugoccurrences.exists():
             try:
-                bundle.data['last_seen'] = bugoccurrences.latest(
-                    'testcaseinstance__build__pipeline__completed_at').testcaseinstance.build.pipeline.completed_at
+                last_seen = bugoccurrences.latest(
+                    'testcaseinstance__build__pipeline__completed_at')
+                bundle.data['last_seen'] =\
+                    last_seen.testcaseinstance.build.pipeline.completed_at
             except AttributeError:
                 bundle.data['last_seen'] = None
         return bundle
+
 
 class KnownBugRegexResource(CommonResource):
     """API Resource for 'BugTrackerBug' model.
@@ -1246,31 +1252,4 @@ class ReportPeriodResource(CommonResource):
         always_return_data = True
         filtering = {'uuid': ('exact',),
                      'name': ('exact',), }
-        detail_uri_name = 'uuid'
-
-
-class ReportInstanceResource(CommonResource):
-    """API Resource for 'ReportInstance' model.
-
-    Provides a REST API resource for the ReportInstance model. Inherits common
-    methods from CommonResource.
-
-    Attributes:
-        report: Foreign key to the Report resource.
-        report_period: Foreign key to the ReportPeriod resource.
-    """
-    report = fields.ForeignKey(ReportResource, 'report')
-    report_period = fields.ForeignKey(ReportPeriodResource, 'report_period')
-
-    class Meta:
-        queryset = models.ReportInstance.objects.all()
-        list_allowed_methods = ['get', 'post', 'delete']  # all items
-        detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
-        fields = ['uuid', 'specific_summary', 'report', 'report_period']
-        authorization = DjangoAuthorization()
-        authentication = ApiKeyAuthentication()
-        always_return_data = True
-        filtering = {'uuid': ('exact',),
-                     'report': ('exact',),
-                     'report_period': ('exact',), }
         detail_uri_name = 'uuid'

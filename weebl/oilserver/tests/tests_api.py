@@ -63,7 +63,6 @@ class EnvironmentResourceTest(ResourceTests):
 
 
 class BugResourceTest(ResourceTests):
-
     def retrieve_bug(self, uuid):
         url = '/api/%s/bug/%s/' % (self.version, uuid)
         response = self.api_client.get(
