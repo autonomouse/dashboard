@@ -15,8 +15,7 @@ def get_or_create_new_model(Model, key, get_params_dict, new_params_dict):
 
 def link_bugoccurrence_to_testcaseinstance(build, BugOccurrence,
                                            testcaseinstance):
-    if BugOccurrence.objects.filter(build=build):
-        bugoccurrence = BugOccurrence.objects.get(build=build)
+    for bugoccurrence in BugOccurrence.objects.filter(build=build):
         bugoccurrence.testcaseinstance = testcaseinstance
         bugoccurrence.save()
 

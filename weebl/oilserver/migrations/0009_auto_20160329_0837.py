@@ -15,19 +15,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='testcase',
             name='uuid',
-            field=models.CharField(max_length=36, unique=True, help_text='UUID of this testcase.', default=oilserver.utils.generate_uuid),
+            field=models.CharField(max_length=36, null=True, help_text='UUID of this testcase.', default=oilserver.utils.generate_uuid),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='testcaseclass',
             name='uuid',
-            field=models.CharField(max_length=36, unique=True, help_text='UUID of this testcaseclass.', default=oilserver.utils.generate_uuid),
+            field=models.CharField(max_length=36, null=True, help_text='UUID of this testcaseclass.', default=oilserver.utils.generate_uuid),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='testframework',
             name='uuid',
-            field=models.CharField(max_length=36, unique=True, help_text='UUID of this test framework and version.', default=oilserver.utils.generate_uuid),
+            field=models.CharField(max_length=36, null=True, help_text='UUID of this test framework and version.', default=oilserver.utils.generate_uuid),
             preserve_default=True,
         ),
         migrations.AlterField(
