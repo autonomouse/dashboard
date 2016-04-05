@@ -147,6 +147,18 @@ HARDWARE_COMPONENTS = [
     'cisco-b260-m4'
 ]
 
+SERVICES = [
+    'keystone',
+    'mysql',
+    'nova-cloud-controller',
+    'glance',
+    'cinder',
+    'rabbitmq-server',
+    'nova-compute',
+    'neutron-gateway',
+    'bird',
+]
+
 MACHINE_NAMES = [
     'codliver.oil',
     'engine.oil',
@@ -170,6 +182,7 @@ ENUM_MAPPINGS = [
     (models.TargetFileGlob, TARGET_FILES, 'glob_pattern'),
     (models.ProductUnderTest, HARDWARE_COMPONENTS, 'name'),
     (models.Machine, MACHINE_NAMES, 'hostname'),
+    (models.JujuService, SERVICES, 'name'),
 ]
 
 
@@ -278,6 +291,11 @@ def get_random_machine():
 def get_random_productundertest():
     product = random.choice(HARDWARE_COMPONENTS)
     return models.ProductUnderTest.objects.get(name=product)
+
+
+def get_random_service():
+    product = random.choice(SERVICES)
+    return models.JujuService.objects.get(name=product)
 
 
 def make_bug():
@@ -502,6 +520,8 @@ def make_builds(pipeline):
 
 
 def make_hardware(pipeline):
+    services = {}
+    unit_count = 0
     for _ in range(random.randint(1, 5)):
         pl = models.Pipeline.objects.get(uuid=pipeline)
         machine_configuration = models.MachineConfiguration(
@@ -512,6 +532,20 @@ def make_hardware(pipeline):
             machine_configuration.productundertest.add(
                 get_random_productundertest())
             machine_configuration.save()
+        for _ in range(random.randint(1, 2)):
+            service = get_random_service()
+            if service.name not in services:
+                deployment = models.JujuServiceDeployment(jujuservice=service)
+                deployment.save()
+                services[service.name] = deployment
+            else:
+                deployment = services[service.name]
+            unit = models.Unit(
+                number=unit_count,
+                machineconfiguration=machine_configuration,
+                jujuservicedeployment=deployment)
+            unit.save()
+            unit_count += 1
 
 
 def make_pipelines(num_pipelines):

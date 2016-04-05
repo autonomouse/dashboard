@@ -520,18 +520,28 @@ class JujuServiceDeployment(TimeStampedBaseModel):
 
 class Unit(TimeStampedBaseModel):
     """The unit, as defined by Juju."""
-    name = models.CharField(
-        max_length=255,
+    uuid = models.CharField(
+        max_length=36,
+        default=utils.generate_uuid,
         unique=True,
-        default="unknown",
-        help_text="The name of the unit.")
+        blank=False,
+        null=False,
+        help_text="UUID of this unit.")
+    number = models.IntegerField(
+        default=0,
+        blank=False,
+        null=False,
+        help_text="Number of this unit (unit is: service_name/unit_number).")
     machineconfiguration = models.ForeignKey(
         MachineConfiguration, null=True, blank=True, default=None)
     jujuservicedeployment = models.ForeignKey(
         JujuServiceDeployment, null=True, blank=True, default=None)
 
+    class Meta:
+        unique_together = (('number', 'jujuservicedeployment'),)
+
     def __str__(self):
-        return self.name
+        return self.uuid
 
 
 class JobType(models.Model):

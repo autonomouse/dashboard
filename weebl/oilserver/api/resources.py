@@ -741,15 +741,17 @@ class UnitResource(CommonResource):
         queryset = models.Unit.objects.all()
         list_allowed_methods = ['get', 'post', 'delete']  # all items
         detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
-        fields = ['name', 'machineconfiguration', 'jujuservicedeployment']
+        fields = ['uuid', 'number', 'machineconfiguration',
+                  'jujuservicedeployment']
         authorization = DjangoAuthorization()
         authentication = ApiKeyAuthentication()
         always_return_data = True
         filtering = {
-            'name': ('exact',),
+            'uuid': ('exact',),
+            'number': ('exact',),
             'machineconfiguration': ALL_WITH_RELATIONS,
             'jujuservicedeployment': ALL_WITH_RELATIONS, }
-        detail_uri_name = 'name'
+        detail_uri_name = 'uuid'
 
 
 class JobTypeResource(CommonResource):
