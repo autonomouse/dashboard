@@ -3,12 +3,12 @@ from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
 from django.db.models import get_models, get_app
-from oilserver.models import ProductUnderTest, Bug, BugTrackerBug, Project, KnownBugRegex
+from oilserver.models import (
+    ProductUnderTest, Bug, BugTrackerBug, Project, KnownBugRegex)
 from django.contrib.admin.sites import AlreadyRegistered
 from tastypie.models import ApiKey
 from tastypie.admin import ApiKeyInline
 from django.contrib.admin.widgets import RelatedFieldWidgetWrapper
-
 
 
 def add_related_field_wrapper(form, col_name):
@@ -17,14 +17,15 @@ def add_related_field_wrapper(form, col_name):
     form.fields[col_name].widget = RelatedFieldWidgetWrapper(
         form.fields[col_name].widget, rel, admin.site, can_add_related=True)
 
+
 class CustomModelChoiceField_Name(forms.ModelChoiceField):
-     def label_from_instance(self, obj):
-         return obj.name
+    def label_from_instance(self, obj):
+        return obj.name
 
 
 class CustomModelChoiceField_BugNumber(forms.ModelChoiceField):
-     def label_from_instance(self, obj):
-         return obj.bug_number
+    def label_from_instance(self, obj):
+        return obj.bug_number
 
 
 class UserModelAdmin(UserAdmin):
@@ -75,6 +76,7 @@ class BugTrackerBugForm(forms.ModelForm):
         super(BugTrackerBugForm, self).__init__(*args, **kwargs)
         add_related_field_wrapper(self, 'project')
 
+
 class BugTrackerBugAdmin(admin.ModelAdmin):
     list_display = ['bug_number', 'project_name']
 
@@ -110,6 +112,7 @@ class BugForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(BugForm, self).__init__(*args, **kwargs)
         add_related_field_wrapper(self, 'bugtrackerbug')
+
 
 class BugAdmin(admin.ModelAdmin):
     list_display = ['summary', 'bugtrackerbug_number']
