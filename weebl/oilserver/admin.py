@@ -71,6 +71,7 @@ class BugTrackerBugForm(forms.ModelForm):
 
     class Meta:
         model = BugTrackerBug
+        fields = '__all__'
 
     def __init__(self, *args, **kwargs):
         super(BugTrackerBugForm, self).__init__(*args, **kwargs)
@@ -108,6 +109,7 @@ class BugForm(forms.ModelForm):
 
     class Meta:
         model = Bug
+        fields = '__all__'
 
     def __init__(self, *args, **kwargs):
         super(BugForm, self).__init__(*args, **kwargs)
@@ -115,7 +117,7 @@ class BugForm(forms.ModelForm):
 
 
 class BugAdmin(admin.ModelAdmin):
-    list_display = ['summary', 'bugtrackerbug_number']
+    list_display = ['summary', 'bugtrackerbug_number', 'project_name']
     inlines = [KnownBugRegexInline]
 
     def bugtrackerbug_number(self, obj):
@@ -123,6 +125,12 @@ class BugAdmin(admin.ModelAdmin):
             return obj.bugtrackerbug.bug_number
         except AttributeError:
             return obj.bugtrackerbug
+
+    def project_name(self, obj):
+        try:
+            return obj.bugtrackerbug.project.name
+        except AttributeError:
+            return obj.bugtrackerbug.project
 
     search_fields = ['summary']
     ordering = ['summary']
