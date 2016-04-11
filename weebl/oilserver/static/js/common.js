@@ -105,6 +105,9 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
     };
 
     function humaniseDate(datestr) {
+        if (typeof(datestr) === "undefined") {
+            return "";
+        };
         var date_obj = new Date(datestr);
         var monthNames = ["Jan", "Feb", "Mar","Apr", "May", "Jun",
                           "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
