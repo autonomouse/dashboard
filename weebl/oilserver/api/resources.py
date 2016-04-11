@@ -795,7 +795,7 @@ class BuildResource(CommonResource):
         queryset = models.Build.objects.all()
         list_allowed_methods = ['get', 'post', 'delete']  # all items
         detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
-        fields = ['uuid', 'build_id', 'artifact_location', 'build_started_at',
+        fields = ['uuid', 'build_id', 'build_started_at',
                   'build_finished_at', 'build_analysed_at', 'pipeline',
                   'jobtype', 'testcaseinstances']
         authorization = DjangoAuthorization()

@@ -64,6 +64,11 @@ class Environment(TimeStampedBaseModel):
         blank=True,
         null=True,
         help_text="Name of environment.")
+    data_archive_url = models.URLField(
+        default=None,
+        blank=True,
+        null=True,
+        help_text="A base URL to the data archive used.")
 
     def __str__(self):
         return "{} ({})".format(self.name, self.uuid)
@@ -575,13 +580,6 @@ class Build(TimeStampedBaseModel):
     build_id = models.CharField(
         max_length=255,
         help_text="The build number or other identifier used by jenkins.")
-    artifact_location = models.URLField(
-        default=None,
-        null=True,
-        unique=True,
-        help_text="URL where build artifacts can be obtainedIf archived, then \
-        jenkins has been wiped and the build numbers reset, so this data is \
-        no longer accessble via jenkins link")
     build_started_at = models.DateTimeField(
         default=None,
         blank=True,
