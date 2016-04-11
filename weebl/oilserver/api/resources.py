@@ -1,4 +1,6 @@
 import dateutil
+import operator
+from functools import reduce
 from tastypie import fields
 from tastypie.resources import ModelResource, ALL, ALL_WITH_RELATIONS
 from tastypie.authorization import DjangoAuthorization
@@ -8,6 +10,7 @@ from tastypie.utils import trailing_slash
 from django.conf.urls import url
 from django.conf import settings
 from django.http import HttpResponse
+from django.db.models import Q
 from oilserver import models, utils
 from oilserver.exceptions import NonUserEditableError
 
@@ -85,6 +88,37 @@ class CommonResource(ModelResource):
         # this isn't used, a new object is created instead of updating
         # the existing one.
         return None
+
+    def build_filters(self, filters=None):
+        def build_Q_from_query(query_dict):
+            return Q(**super(CommonResource, self).build_filters(query_dict))
+
+        if filters is None:  # if you don't pass any filters at all
+            filters = {}
+
+        custom_filters = {}
+        for filter_, value in dict(filters).items():
+            if '|' in filter_:
+                custom_queries = [build_Q_from_query({query: ','.join(value)})
+                                  for query in filter_.split('|')]
+                custom_filters[filter_] = reduce(operator.or_, custom_queries)
+                del filters[filter_]
+        orm_filters = super(CommonResource, self).build_filters(filters)
+        orm_filters.update(custom_filters)
+        return orm_filters
+
+    def apply_filters(self, request, applicable_filters):
+        querysets = []
+        for filter_, value in dict(applicable_filters).items():
+            if '|' in filter_:
+                querysets.append(value)
+                del applicable_filters[filter_]
+        semi_filtered = super(CommonResource, self).apply_filters(
+            request, applicable_filters
+        )
+        for queryset in querysets:
+            semi_filtered = semi_filtered.filter(queryset)
+        return semi_filtered
 
 
 class EnvironmentResource(CommonResource):
@@ -646,12 +680,16 @@ class MachineConfigurationResource(CommonResource):
         PipelineResource, 'pipeline', full=True, null=True)
     productundertest = fields.ToManyField(
         ProductUnderTestResource, 'productundertest', full=True, null=True)
+    unit = fields.ToManyField(
+        'oilserver.api.resources.UnitResource',
+        'unit', null=True, readonly=True)
 
     class Meta:
         queryset = models.MachineConfiguration.objects.all()
         list_allowed_methods = ['get', 'post', 'delete']  # all items
         detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
-        fields = ['name', 'uuid', 'machine', 'pipeline', 'productundertest']
+        fields = ['name', 'uuid', 'machine', 'pipeline', 'productundertest',
+                  'unit']
         authorization = DjangoAuthorization()
         authentication = ApiKeyAuthentication()
         always_return_data = True
@@ -660,7 +698,8 @@ class MachineConfigurationResource(CommonResource):
             'name': ('exact',),
             'uuid': ('exact',),
             'pipeline': ALL_WITH_RELATIONS,
-            'productundertest': ALL_WITH_RELATIONS, }
+            'productundertest': ALL_WITH_RELATIONS,
+            'unit': ALL_WITH_RELATIONS, }
         detail_uri_name = 'uuid'
 
 
@@ -734,8 +773,9 @@ class UnitResource(CommonResource):
     machineconfiguration = fields.ForeignKey(
         MachineConfigurationResource, 'machineconfiguration', full=True,
         null=True)
-    jujuservicedeployment = fields.ForeignKey(
-        JujuServiceResource, 'jujuservicedeployment', full=True, null=True)
+    jujuservicedeployment = fields.ForeignKey(JujuServiceDeploymentResource,
+                                              'jujuservicedeployment',
+                                              full=True, null=True)
 
     class Meta:
         queryset = models.Unit.objects.all()
