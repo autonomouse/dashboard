@@ -637,7 +637,7 @@ class PipelineResource(CommonResource):
                 uuid = kwargs['uuid']
                 bundle_image = request.FILES['bundleimage']
                 with open("{}/img/bundles/{}.svg".format(
-                          settings.BUILTIN_STATIC, uuid), 'wb+') as save_file:
+                          settings.STATIC_ROOT, uuid), 'wb+') as save_file:
                     for chunk in bundle_image.chunks():
                         save_file.write(chunk)
                 return self.create_response(
@@ -654,7 +654,7 @@ class PipelineResource(CommonResource):
         try:
             uuid = kwargs['uuid']
             with open("{}/img/bundles/{}.svg".format(
-                      settings.BUILTIN_STATIC, uuid), 'rb') as image_file:
+                      settings.STATIC_ROOT, uuid), 'rb') as image_file:
                 response = HttpResponse(
                     image_file.read(), content_type="image/svg")
             return response
