@@ -707,6 +707,9 @@ class TestCase(TimeStampedBaseModel):
         null=False,
         help_text="UUID of this testcase.")
 
+    class Meta:
+        unique_together = (('name', 'testcaseclass'),)
+
     def __str__(self):
         return self.name
 
