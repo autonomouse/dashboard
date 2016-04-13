@@ -40,3 +40,15 @@ app.config(function ($routeProvider) {
             redirectTo: '/results/successRate'
         });
   });
+
+app.directive('onErrorSrc', function() {
+    return {
+	link: function(scope, element, attrs) {
+	    element.bind('error', function() {
+		if (attrs.src != attrs.onErrorSrc) {
+		    attrs.$set('src', attrs.onErrorSrc);
+		}
+	    });
+	}
+    }
+});

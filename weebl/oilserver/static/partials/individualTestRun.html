@@ -1,7 +1,7 @@
 <div id="content" class="nine-col last-col">
     <p>Test run ID: {$ data.testRunId $}</p>
     <p>Test run completed at: {$ data.humaniseDate(data.individual_testRun.objects[0].completed_at) $}</p>
-    <img class="centered" data-ng-src="{$ data.image $}" />
+    <img class="centered" data-ng-src="{$ data.image $}" on-error-src="/static/img/bundles/missing.png" />
 
     <table class="table-listing">
         <thead>
