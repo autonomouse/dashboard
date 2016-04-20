@@ -3,8 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
 from django.db.models import get_models, get_app
-from oilserver.models import (
-    ProductUnderTest, Bug, BugTrackerBug, Project, KnownBugRegex)
+from oilserver import models
 from django.contrib.admin.sites import AlreadyRegistered
 from tastypie.models import ApiKey
 from tastypie.admin import ApiKeyInline
@@ -44,6 +43,49 @@ admin.site.unregister(ApiKey)
 admin.site.register(ApiKey, ApiKeyAdmin)
 
 
+class PipelineForm(forms.ModelForm):
+    buildexecutor = CustomModelChoiceField_Name(
+        queryset=models.BuildExecutor.objects.all())
+
+    class Meta:
+        model = models.Pipeline
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super(PipelineForm, self).__init__(*args, **kwargs)
+        add_related_field_wrapper(self, 'buildexecutor')
+
+class PipelineAdmin(admin.ModelAdmin):
+    list_display = ['uuid', 'completed_at', 'buildexecutor_name']
+
+    def buildexecutor_name(self, obj):
+        try:
+            return obj.buildexecutor.name
+        except AttributeError:
+            return obj.buildexecutor
+
+    search_fields = ['uuid']
+    ordering = ['completed_at']
+    form = PipelineForm
+
+admin.site.register(models.Pipeline, PipelineAdmin)
+
+class BuildAdmin(admin.ModelAdmin):
+    list_display = ['build_id', 'pipeline', 'jobtype']
+    search_fields = ['build_id']
+    ordering = ['build_id']
+
+admin.site.register(models.Build, BuildAdmin)
+
+class KnownBugRegexAdmin(admin.ModelAdmin):
+    list_display = ['regex']
+
+    search_fields = ['regex']
+    ordering = ['created_at']
+
+admin.site.register(models.KnownBugRegex, KnownBugRegexAdmin)
+
+
 class ProductUnderTestAdmin(admin.ModelAdmin):
     list_display = ['name', 'vendor_name', 'project_name']
 
@@ -62,15 +104,15 @@ class ProductUnderTestAdmin(admin.ModelAdmin):
     search_fields = ['name']
     ordering = ['name']
 
-admin.site.register(ProductUnderTest, ProductUnderTestAdmin)
+admin.site.register(models.ProductUnderTest, ProductUnderTestAdmin)
 
 
 class BugTrackerBugForm(forms.ModelForm):
     project = CustomModelChoiceField_Name(
-        queryset=Project.objects.all())
+        queryset=models.Project.objects.all())
 
     class Meta:
-        model = BugTrackerBug
+        model = models.BugTrackerBug
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
@@ -91,24 +133,24 @@ class BugTrackerBugAdmin(admin.ModelAdmin):
     ordering = ['bug_number']
     form = BugTrackerBugForm
 
-admin.site.register(BugTrackerBug, BugTrackerBugAdmin)
+admin.site.register(models.BugTrackerBug, BugTrackerBugAdmin)
 
 
 class BugTrackerBugInline(admin.StackedInline):
-    model = BugTrackerBug
+    model = models.BugTrackerBug
 
 
 class KnownBugRegexInline(admin.StackedInline):
-    model = KnownBugRegex
+    model = models.KnownBugRegex
     extra = 1
 
 
 class BugForm(forms.ModelForm):
     bugtrackerbug = CustomModelChoiceField_BugNumber(
-        queryset=BugTrackerBug.objects.all())
+        queryset=models.BugTrackerBug.objects.all())
 
     class Meta:
-        model = Bug
+        model = models.Bug
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
@@ -136,7 +178,15 @@ class BugAdmin(admin.ModelAdmin):
     ordering = ['summary']
     form = BugForm
 
-admin.site.register(Bug, BugAdmin)
+admin.site.register(models.Bug, BugAdmin)
+
+
+class ProjectAdmin(admin.ModelAdmin):
+    list_display = ['name']
+    search_fields = ['name']
+    ordering = ['name']
+
+admin.site.register(models.Project, ProjectAdmin)
 
 
 # Register any remaining models that have not been explicitly registered:
