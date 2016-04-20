@@ -432,7 +432,7 @@ def make_testframework(framework_name):
         testframework = models.TestFramework(
             name=framework_name,
             description=framework_name,
-            version='1.0')
+            version='notapplicable')
 
         testframework.save()
     except IntegrityError:

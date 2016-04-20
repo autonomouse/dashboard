@@ -26,25 +26,31 @@
   pk: 1
   fields:
     name: unknown
-    description: Current state of the build is unknown.
+    description: Current state of the build or test is unknown.
 
 - model: oilserver.testcaseinstancestatus
   pk: 2
   fields:
     name: success
-    description: The build completed successfully.
+    description: The build or test completed successfully.
 
 - model: oilserver.testcaseinstancestatus
   pk: 3
   fields:
     name: failure
-    description: The build completed but was not successful.
+    description: The build or test completed but was not successful.
 
 - model: oilserver.testcaseinstancestatus
   pk: 4
   fields:
     name: aborted
-    description: The build was aborted.
+    description: The build or test was aborted.
+
+- model: oilserver.testcaseinstancestatus
+  pk: 5
+  fields:
+    name: error
+    description: The build or test was in error.
 
 - model: oilserver.jobtype
   pk: 1
