@@ -55,6 +55,7 @@ class PipelineForm(forms.ModelForm):
         super(PipelineForm, self).__init__(*args, **kwargs)
         add_related_field_wrapper(self, 'buildexecutor')
 
+
 class PipelineAdmin(admin.ModelAdmin):
     list_display = ['uuid', 'completed_at', 'buildexecutor_name']
 
@@ -70,12 +71,14 @@ class PipelineAdmin(admin.ModelAdmin):
 
 admin.site.register(models.Pipeline, PipelineAdmin)
 
+
 class BuildAdmin(admin.ModelAdmin):
     list_display = ['build_id', 'pipeline', 'jobtype']
     search_fields = ['build_id']
     ordering = ['build_id']
 
 admin.site.register(models.Build, BuildAdmin)
+
 
 class KnownBugRegexAdmin(admin.ModelAdmin):
     list_display = ['regex']

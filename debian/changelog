@@ -1,3 +1,93 @@
+weebl (1.1.4) wily; urgency=medium
+
+  * Added the error testcaseinstancestatus and made fakedata use the right default version string.
+  * Added searching by pipeline and better display for several models in the admin panel.
+
+ -- Darren Hoyland <darren.hoyland@canonical.com>  Thu, 21 Apr 2016 15:16:29 +0100
+
+weebl (1.1.3) wily; urgency=medium
+
+  * Added a(n) unique to build so that only one can ever exist with that build_id, pipeline and jobtype.
+  * Fix for repeats - removed extra filters from API call.
+  * Add a few promises for sometimes missing data 
+  * Add initial models/resources for reports
+  * The following command now makes the user a superuser/staff: invoke make_superuser  - You have to get the name exact though (i.e. DarrenHoyland != darrenhoyland).
+  * Linting and removed bad tests
+  * Move html around with jinja includes. No changes other than moving lines and adding the includes lines.
+  * Add separate pages for report overview.
+  * Fix for bug https://bugs.launchpad.net/weebl/+bug/1553268. Now highlights tab/section when not logged in too.
+  * Admin page improvements: Made it a bit easier to fish out your API key and see names (not just UUIDs) in Product Under Test.
+  * Start of accordion breakup.
+  * Port stats over to new search. 
+  * Get useful information into report accordion.
+  * Rearranged models so that all builds have a testcase, even deploy and prepare and it is that which has a pass/fail status (now called TestCaseInstanceStatus rather than BuildStatus). [Merge] ~autonomouse/weebl:dev/builds_as_tests_models into weebl:master. 
+  * Required changes for client/dev/builds_as_tests.
+  * Now displays svg in individual testrun page.
+  * Reimplemented the testcaseinstances ToMany field with readonly=True this time. Also removed an erroneous buildstatus field.
+  * Add fake_data for jujuservices/units and fixup units.
+  * A link from the user bit in the top right hand corner now take you directly to the new bug page in the admin panel. This has been set up to allow a new bug number, regex, etc to be submitted from this one page.
+  * Fix for the annoying RemovedInDjango18Warning message about including fields in Forms
+  * Fix for bug #1552838 where 'aN-undefined-aN at aN:aN:an' is showing up for 'Last Seen (UTC)' on the bugs page. 
+  * Removed any reference to artifact_location, which is no longer needed as it can simply be reconstruct from the pipeline (swift:base_container/pipeline/files_from_jenkins_artifacts_directory). This will require a later change to inclide the data_archive_url field in the Environment model.
+  * Added OR filtering to weebl's API.
+  * Made TestCase name + class unique  together
+  * Use STATIC_ROOT instead of BUILTIN_STATIC for saving images.
+
+ -- Darren Hoyland <darren.hoyland@canonical.com>  Thu, 21 Apr 2016 15:16:29 +0100
+
+
+weebl (1.1.2) wily; urgency=medium
+
+  * Added full url to jenkins job to build. 
+  * Complete refactor to use ngRoute to move between tabs. This also allows new pages and new page-specific controllers to be used.
+  * Graph now uses ngResource. It also resolves the smooshing issue.
+  * Added a 'bugs affecting this pipeline' table in the individual test tun page. 
+  * Allow loading settings from a yaml file.
+  * Database now better reflects the hardware data for submission from the oil-nodes file.
+  * fix for no percentsges bug (#1527507)
+  * Adds 'All Time' to date filter (A later branch will add custom date fields, but we'll still need these short cuts). 
+  * Can now filter by machine and by productundertest.
+  * Can now choose between cumulative and individual success rate plots.
+  * Added readonly to the build and machineconfiguration reverse relations in the Pipeline resource.
+  * Made hostname of machine unique
+  * Add a new method to get job history for an environment.
+  * Used name when I should have used hostname. This fix will allow machines to be ordered in the filter bar. 
+  * Allow limit job history by date, at the model level.
+  * Fix for bug 1527509: A copied-and-pasted individual test run url does not display data ( https://bugs.launchpad.net/weebl/+bug/1527509 ).
+  * Can now filter by failed job. 
+  * Individual test run was showing our names for jobs, not the 'official' name/description - fixed.
+  * Fix for bug #1543550 'Loading data notification no longer works' - somewhere along the lines, I must've knocked the 'data.' part from the loading booleans. I put them back :-)
+  * Sets up a hierarchy for pages and tabs. Will be useful for adding more pages soon.
+  * Reworded loading notification from 'Updating chart' to 'fetching dat' as it affects non-chart things too
+  * Added gunicorn3 to install_deps file
+  * To investigate the cause of bug #1543224 I listed all of the machines used for an individual pipeline in the individual test run view.
+  * Unit, JujuService, JujuServiceDeployment models in DB.
+  * API changes for new models introduced in the dev/charms_etc branch (JujuServiceResource, JujuServiceDeploymentResource, UnitResource).
+  * Renamed stats to controller_stats to maintain consistency with the other controllers. also reversed order of Completed_At in the test runs table.
+
+ -- Darren Hoyland <darren.hoyland@canonical.com>  Thu, 21 Apr 2016 15:16:27 +0100
+
+weebl (1.1.1) wily; urgency=medium
+
+  * Improvements to debian packaging for weebl.
+  * Fixes for errors retrieving regexes.
+  * Use toISOString() to start date searches from the current time.
+  * Adds a 'Test Runs' tab and lists the pipelines that show up in the filter range given. When a pipeline is clicked on, it takes you to a detailed view page.
+  * Added the following models: Machine, Vendor, ProductUnderTest, InternalContact, MachineConfiguration.
+  * Added a 'please log in' so new users unaccustomed to weebl won't be confused by lack of data shown.
+  * Allow filtering on environment. 
+  * Add gunicorn3 as a dependency.
+  * Cosmetic improvements to pipelines and dates (Shortened UUID and made a date nicerifier). 
+  * Added leading zeros
+  * Replaces regexRetriever, pipelinesRetriever, buildsRetriever, bugsRetriever and metadataRetriever now that ngResource is working.
+  * Make weebl and oilserver separate packages.
+  * Added basic docstrings to api code.
+  * Removed client test stuff from tasks.py.
+  * Added admin.py that makes oilserver app tables viewable in the admin console.
+  * Use git-describe to generate versions.
+
+ -- Darren Hoyland <darren.hoyland@canonical.com>  Thu, 21 Apr 2016 15:16:26 +0100
+
 weebl (1.1.0) precise; urgency=medium
 
   * Removed weeblclient, which now llives in a separate package.
