@@ -27,7 +27,7 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
 
         // Some fields may be linked to specific instances of other fields, add here:
         var linked_fields = {
-            'failedjobs': ['build__testcaseinstance__testcaseinstancestatus', 'failure'],
+            'failedjobs': ['build__testcaseinstances__testcaseinstancestatus__name__in', 'failure'],
         };
 
         // add the path from the origin model to the fields needed:
@@ -168,7 +168,7 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
             if (enum_field != query_field){
                 active_filters[field_to_filter[enum_field]] = enum_values;
                 for (var key in linked_fields) {
-                    active_filters[field_to_filter[linked_fields[key][0]]] = linked_fields[key][1]
+                    active_filters[linked_fields[key][0]] = linked_fields[key][1]
                 };
             } else {
                 active_filters[field_to_filter[query_field]] = enum_values;
