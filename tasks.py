@@ -396,8 +396,8 @@ def deploy(ipaddr=None, port=None, server="runserver"):
         deploy_with_runserver(ipaddr, port)
 
 def deploy_with_runserver(ipaddr, port):
-    result = run('{} {} {}/manage.py runserver {}:{}'.format(preamble,
-                 python3_version, application, ipaddr, port), pty=True)
+    result = run('{} {} {}/manage.py runserver {}:{}'.format(
+        preamble, python3_version, application, ipaddr, port), pty=True)
 
 def mkdir(directory):
     """ Make a directory, check and throw an error if failed. """

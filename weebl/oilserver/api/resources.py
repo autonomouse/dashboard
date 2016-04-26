@@ -122,11 +122,7 @@ class CommonResource(ModelResource):
 
 
 class EnvironmentResource(CommonResource):
-    """API Resource for 'Environment' model.
-
-    Provides a REST API resource for the Environment model. Inherits common
-    methods from CommonResource.
-    """
+    """API Resource for 'Environment' model. """
     class Meta:
         queryset = models.Environment.objects.all()
         list_allowed_methods = ['get', 'post', 'delete']  # all items
@@ -176,11 +172,7 @@ class EnvironmentResource(CommonResource):
 
 
 class ServiceStatusResource(CommonResource):
-    """API Resource for 'ServiceStatus' model.
-
-    Provides a REST API resource for the ServiceStatus model. Inherits common
-    methods from CommonResource.
-    """
+    """API Resource for 'ServiceStatus' model. """
 
     class Meta:
         queryset = models.ServiceStatus.objects.all()
@@ -196,9 +188,6 @@ class ServiceStatusResource(CommonResource):
 
 class JenkinsResource(CommonResource):
     """API Resource for 'Jenkins' model.
-
-    Provides a REST API resource for the Jenkins model. Inherits common
-    methods from CommonResource.
 
     Attributes:
         environment: Foreign key to the Environment resource.
@@ -234,9 +223,6 @@ class JenkinsResource(CommonResource):
 class BuildExecutorResource(CommonResource):
     """API Resource for 'BuildExecutor' model.
 
-    Provides a REST API resource for the BuildExecutor model. Inherits common
-    methods from CommonResource.
-
     Attributes:
         jenkins: Foreign key to the Jenkins resource.
     """
@@ -258,11 +244,7 @@ class BuildExecutorResource(CommonResource):
 
 
 class UbuntuVersionResource(CommonResource):
-    """API Resource for 'UbuntuVersion' model.
-
-    Provides a REST API resource for the UbuntuVersion model. Inherits common
-    methods from CommonResource.
-    """
+    """API Resource for 'UbuntuVersion' model. """
 
     class Meta:
         queryset = models.UbuntuVersion.objects.all()
@@ -277,11 +259,7 @@ class UbuntuVersionResource(CommonResource):
 
 
 class ProjectResource(CommonResource):
-    """API Resource for 'Project' model.
-
-    Provides a REST API resource for the Project model. Inherits common methods
-    from CommonResource.
-    """
+    """API Resource for 'Project' model. """
 
     class Meta:
         queryset = models.Project.objects.all()
@@ -298,11 +276,7 @@ class ProjectResource(CommonResource):
 
 
 class VendorResource(CommonResource):
-    """API Resource for 'Vendor' model.
-
-    Provides a REST API resource for the Vendor model. Inherits common
-    methods from CommonResource.
-    """
+    """API Resource for 'Vendor' model. """
 
     class Meta:
         queryset = models.Vendor.objects.all()
@@ -319,12 +293,7 @@ class VendorResource(CommonResource):
 
 
 class InternalContactResource(CommonResource):
-    """API Resource for 'InternalContact' model.
-
-    Provides a REST API resource for the InternalContact model. Inherits
-    common methods from CommonResource.
-
-    """
+    """API Resource for 'InternalContact' model. """
 
     class Meta:
         queryset = models.InternalContact.objects.all()
@@ -341,11 +310,7 @@ class InternalContactResource(CommonResource):
 
 
 class MachineResource(CommonResource):
-    """API Resource for 'Machine' model.
-
-    Provides a REST API resource for the Machine model. Inherits common
-    methods from CommonResource.
-    """
+    """API Resource for 'Machine' model. """
 
     machineconfiguration = fields.ToManyField(
         'oilserver.api.resources.MachineConfigurationResource',
@@ -372,12 +337,7 @@ class MachineResource(CommonResource):
 
 
 class ReportResource(CommonResource):
-    """API Resource for 'Report' model.
-
-    Provides a REST API resource for the Report model. Inherits
-    common methods from CommonResource.
-
-    """
+    """API Resource for 'Report' model. """
 
     class Meta:
         queryset = models.Report.objects.all()
@@ -395,9 +355,6 @@ class ReportResource(CommonResource):
 
 class ProductUnderTestResource(CommonResource):
     """API Resource for 'ProductUnderTest' model.
-
-    Provides a REST API resource for the ProductUnderTest model. Inherits
-    common methods from CommonResource.
 
     Attributes:
         project: Foreign key to the Project resource.
@@ -434,11 +391,7 @@ class ProductUnderTestResource(CommonResource):
 
 
 class OpenstackVersionResource(CommonResource):
-    """API Resource for 'OpenstackVersion' model.
-
-    Provides a REST API resource for the OpenstackVersion model. Inherits
-    common methods from CommonResource.
-    """
+    """API Resource for 'OpenstackVersion' model. """
 
     class Meta:
         queryset = models.OpenstackVersion.objects.all()
@@ -453,11 +406,7 @@ class OpenstackVersionResource(CommonResource):
 
 
 class SDNResource(CommonResource):
-    """API Resource for 'SDN' model.
-
-    Provides a REST API resource for the SDN model. Inherits common methods
-    from CommonResource.
-    """
+    """API Resource for 'SDN' model. """
 
     class Meta:
         resource_name = 'sdn'
@@ -473,11 +422,7 @@ class SDNResource(CommonResource):
 
 
 class ComputeResource(CommonResource):
-    """API Resource for 'Compute' model.
-
-    Provides a REST API resource for the Compute model. Inherits common methods
-    from CommonResource.
-    """
+    """API Resource for 'Compute' model. """
 
     class Meta:
         queryset = models.Compute.objects.all()
@@ -492,11 +437,7 @@ class ComputeResource(CommonResource):
 
 
 class BlockStorageResource(CommonResource):
-    """API Resource for 'BlockStorage' model.
-
-    Provides a REST API resource for the BlockStorage model. Inherits common
-    methods from CommonResource.
-    """
+    """API Resource for 'BlockStorage' model. """
 
     class Meta:
         queryset = models.BlockStorage.objects.all()
@@ -511,11 +452,7 @@ class BlockStorageResource(CommonResource):
 
 
 class ImageStorageResource(CommonResource):
-    """API Resource for 'ImageStorage' model.
-
-    Provides a REST API resource for the ImageStorage model. Inherits common
-    methods from CommonResource.
-    """
+    """API Resource for 'ImageStorage' model. """
 
     class Meta:
         queryset = models.ImageStorage.objects.all()
@@ -530,11 +467,7 @@ class ImageStorageResource(CommonResource):
 
 
 class DatabaseResource(CommonResource):
-    """API Resource for 'Database' model.
-
-    Provides a REST API resource for the Database model. Inherits common
-    methods from CommonResource.
-    """
+    """API Resource for 'Database' model. """
 
     class Meta:
         queryset = models.Database.objects.all()
@@ -550,9 +483,6 @@ class DatabaseResource(CommonResource):
 
 class PipelineResource(CommonResource):
     """API Resource for 'Pipeline' model.
-
-    Provides a REST API resource for the Pipeline model. Inherits common
-    methods from CommonResource.
 
     Attributes:
         ubuntuversion: Foreign key to the UbuntuVersion resource.
@@ -666,9 +596,6 @@ class PipelineResource(CommonResource):
 class MachineConfigurationResource(CommonResource):
     """API Resource for 'Machine' model.
 
-    Provides a REST API resource for the Machine model. Inherits common
-    methods from CommonResource.
-
     Attributes:
         machine: To-Many relation to the Machine resource.
         pipeline: Foreign key to the Pipeline resource.
@@ -706,9 +633,6 @@ class MachineConfigurationResource(CommonResource):
 class JujuServiceResource(CommonResource):
     """API Resource for 'JujuService' model.
 
-    Provides a REST API resource for the JujuService model. Inherits common
-    methods from CommonResource.
-
     Attributes:
         productundertest: To-Many relation to the ProductUnderTest resource.
     """
@@ -734,9 +658,6 @@ class JujuServiceResource(CommonResource):
 class JujuServiceDeploymentResource(CommonResource):
     """API Resource for 'JujuServiceDeployment' model.
 
-    Provides a REST API resource for the JujuServiceDeployment model. Inherits
-    common methods from CommonResource.
-
     Attributes:
         jujuservice: Foreign key to the JujuService resource.
     """
@@ -760,9 +681,6 @@ class JujuServiceDeploymentResource(CommonResource):
 
 class UnitResource(CommonResource):
     """API Resource for 'Unit' model.
-
-    Provides a REST API resource for the Unit model. Inherits common
-    methods from CommonResource.
 
     Attributes:
         machineconfiguration: Foreign key to the MachineConfiguration resource.
@@ -795,11 +713,7 @@ class UnitResource(CommonResource):
 
 
 class JobTypeResource(CommonResource):
-    """API Resource for 'JobType' model.
-
-    Provides a REST API resource for the JobType model. Inherits common
-    methods from CommonResource.
-    """
+    """API Resource for 'JobType' model. """
 
     class Meta:
         queryset = models.JobType.objects.all()
@@ -815,9 +729,6 @@ class JobTypeResource(CommonResource):
 
 class BuildResource(CommonResource):
     """API Resource for 'Pipeline' model.
-
-    Provides a REST API resource for the Pipeline model. Inherits common
-    methods from CommonResource.
 
     Attributes:
         pipeline: Foreign key to the Pipeline resource.
@@ -860,12 +771,7 @@ class BuildResource(CommonResource):
 
 
 class TestFrameworkResource(CommonResource):
-    """API Resource for 'TestFramework' model.
-
-    Provides a REST API resource for the TestFramework model. Inherits common
-    methods from CommonResource.
-
-    """
+    """API Resource for 'TestFramework' model. """
 
     class Meta:
         queryset = models.TestFramework.objects.all()
@@ -883,9 +789,6 @@ class TestFrameworkResource(CommonResource):
 
 class TestCaseClassResource(CommonResource):
     """API Resource for 'TestCaseClass' model.
-
-    Provides a REST API resource for the TestCaseClass model. Inherits common
-    methods from CommonResource.
 
     Attributes:
         testframework: Foreign key to the TestFramework resource.
@@ -911,11 +814,7 @@ class TestCaseClassResource(CommonResource):
 
 
 class TestCaseInstanceStatusResource(CommonResource):
-    """API Resource for 'TestCaseInstanceStatus' model.
-    Provides a REST API resource for the TestCaseInstanceStatus model. Inherits
-    common methods from CommonResource.
-
-    """
+    """API Resource for 'TestCaseInstanceStatus' model. """
 
     class Meta:
         queryset = models.TestCaseInstanceStatus.objects.all()
@@ -933,9 +832,6 @@ class TestCaseInstanceStatusResource(CommonResource):
 
 class TestCaseResource(CommonResource):
     """API Resource for 'TestCase' model.
-
-    Provides a REST API resource for the TestCase model. Inherits common
-    methods from CommonResource.
 
     Attributes:
         testcaseclass: Foreign key to the TestCaseClass resource.
@@ -962,9 +858,6 @@ class TestCaseResource(CommonResource):
 
 class TestCaseInstanceResource(CommonResource):
     """API Resource for 'TestCaseInstance' model.
-
-    Provides a REST API resource for the TestCaseInstance model. Inherits
-    common methods from CommonResource.
 
     Attributes:
         testcaseinstancestatus: Foreign key to the
@@ -999,9 +892,6 @@ class TestCaseInstanceResource(CommonResource):
 
 class TargetFileGlobResource(CommonResource):
     """API Resource for 'TargetFileGlob' model.
-
-    Provides a REST API resource for the TargetFileGlob model. Inherits common
-    methods from CommonResource.
 
     Attributes:
         jobtypes: To-Many relation to the JobType resource.
@@ -1072,9 +962,6 @@ def get_bugoccurrences(bundle):
 class BugTrackerBugResource(CommonResource):
     """API Resource for 'BugTrackerBug' model.
 
-    Provides a REST API resource for the BugTrackerBug model. Inherits common
-    methods from CommonResource.
-
     Attributes:
         project: Foreign key to the Project resource.
     """
@@ -1096,9 +983,6 @@ class BugTrackerBugResource(CommonResource):
 
 class BugResource(CommonResource):
     """API Resource for 'Bug' model.
-
-    Provides a REST API resource for the Bug model. Inherits common methods
-    from CommonResource.
 
     Attributes:
         knownbugregex: To-Many relation to the KnownBugRegex resource.
@@ -1153,9 +1037,6 @@ class BugResource(CommonResource):
 class KnownBugRegexResource(CommonResource):
     """API Resource for 'BugTrackerBug' model.
 
-    Provides a REST API resource for the BugTrackerBug model. Inherits common
-    methods from CommonResource.
-
     Attributes:
         targetfileglobs: To-Many relation to the TargetFileGlobs resource.
         bug: Foreign key to the Bug resource.
@@ -1194,9 +1075,6 @@ class KnownBugRegexResource(CommonResource):
 class BugOccurrenceResource(CommonResource):
     """API Resource for 'BugTrackerBug' model.
 
-    Provides a REST API resource for the BugTrackerBug model. Inherits common
-    methods from CommonResource.
-
     Attributes:
         build: Foreign key to the Build resource.
         regex: Foreign key to the KnownBugRegex resource.
@@ -1225,9 +1103,6 @@ class BugOccurrenceResource(CommonResource):
 class ReportPeriodResource(CommonResource):
     """API Resource for 'ReportPeriod' model.
 
-    Provides a REST API resource for the ReportPeriod model. Inherits common
-    methods from CommonResource.
-
     Attributes:
         build: Foreign key to the Build resource.
         regex: Foreign key to the KnownBugRegex resource.
@@ -1248,9 +1123,6 @@ class ReportPeriodResource(CommonResource):
 
 class ReportInstanceResource(CommonResource):
     """API Resource for 'ReportInstance' model.
-
-    Provides a REST API resource for the ReportInstance model. Inherits common
-    methods from CommonResource.
 
     Attributes:
         report: Foreign key to the Report resource.
@@ -1275,9 +1147,6 @@ class ReportInstanceResource(CommonResource):
 
 class ReportPeriodResource(CommonResource):
     """API Resource for 'ReportPeriod' model.
-
-    Provides a REST API resource for the ReportPeriod model. Inherits common
-    methods from CommonResource.
 
     Attributes:
         build: Foreign key to the Build resource.
