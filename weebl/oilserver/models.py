@@ -1,7 +1,6 @@
 import textwrap
 from oilserver import utils
 from django.db import connection, models
-from oilserver.status_checker import StatusChecker
 
 
 class TimeStampedBaseModel(models.Model):
@@ -21,7 +20,6 @@ class TimeStampedBaseModel(models.Model):
         help_text="DateTime this model instance was created.")
     updated_at = models.DateTimeField(
         default=utils.time_now,
-        auto_now_add=True,
         help_text="DateTime this model instance was last updated.")
 
     def save(self, *args, **kwargs):
@@ -188,7 +186,6 @@ class Jenkins(TimeStampedBaseModel):
         to this server.")
     servicestatus_updated_at = models.DateTimeField(
         default=utils.time_now,
-        auto_now_add=True,
         help_text="DateTime the service status was last updated.")
 
     def __str__(self):
