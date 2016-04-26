@@ -567,9 +567,6 @@ def populate_data(num_bugs, num_pipelines):
 class Command(BaseCommand):
     help = 'Create fake application data'
 
-    def add_arguments(self, parser):
-        parser.add_argument('poll_id', nargs='+', type=int)
-
     def handle(self, *args, **options):
         self.stdout.write('Creating fake application data!')
         populate_data(num_bugs=30, num_pipelines=1050)
