@@ -80,15 +80,6 @@ class BuildAdmin(admin.ModelAdmin):
 admin.site.register(models.Build, BuildAdmin)
 
 
-class KnownBugRegexAdmin(admin.ModelAdmin):
-    list_display = ['regex']
-
-    search_fields = ['regex']
-    ordering = ['created_at']
-
-admin.site.register(models.KnownBugRegex, KnownBugRegexAdmin)
-
-
 class ProductUnderTestAdmin(admin.ModelAdmin):
     list_display = ['name', 'vendor_name', 'project_name']
 
@@ -143,9 +134,17 @@ class BugTrackerBugInline(admin.StackedInline):
     model = models.BugTrackerBug
 
 
+class KnownBugRegexAdmin(admin.ModelAdmin):
+    list_display = ['regex']
+    search_fields = ['regex']
+    ordering = ['created_at']
+
+admin.site.register(models.KnownBugRegex, KnownBugRegexAdmin)
+
+
 class KnownBugRegexInline(admin.StackedInline):
     model = models.KnownBugRegex
-    extra = 1
+    extra = 0
 
 
 class BugForm(forms.ModelForm):
