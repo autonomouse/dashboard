@@ -105,10 +105,15 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
     };
 
     function humaniseDate(datestr) {
-        if (typeof(datestr) === "undefined") {
+        // Return an empty string if the date is null or isn't there:
+        if ((typeof(datestr) === "undefined") || (datestr === null)) {
             return "";
         };
         var date_obj = new Date(datestr);
+        // Return an empty string if the date is invalid:
+        if (date_obj == "Invalid Date") {
+            return "";
+        }
         var monthNames = ["Jan", "Feb", "Mar","Apr", "May", "Jun",
                           "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         var day = ('0' + date_obj.getUTCDate()).slice(-2);
