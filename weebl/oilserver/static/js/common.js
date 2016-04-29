@@ -44,13 +44,13 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
     };
 
     function initialise($scope) {
-        if (typeof($scope.data.metadata)==='undefined') $scope.data.metadata = {};
-        if (typeof($scope.data.successRate)==='undefined') $scope.data.successRate = {};
-        if (typeof($scope.data.bugs)==='undefined') $scope.data.bugs = {};
-        if (typeof($scope.data.bugs_affecting_pipeline)==='undefined') $scope.data.bugs_affecting_pipeline = {};
-        if (typeof($scope.data.testRuns)==='undefined') $scope.data.testRuns = {};
-        if (typeof($scope.data.regexes)==='undefined') $scope.data.regexes = {};
-        if (typeof($scope.data.sections)==='undefined') {
+        if (angular.isUndefined($scope.data.metadata)) $scope.data.metadata = {};
+        if (angular.isUndefined($scope.data.successRate)) $scope.data.successRate = {};
+        if (angular.isUndefined($scope.data.bugs)) $scope.data.bugs = {};
+        if (angular.isUndefined($scope.data.bugs_affecting_pipeline)) $scope.data.bugs_affecting_pipeline = {};
+        if (angular.isUndefined($scope.data.testRuns)) $scope.data.testRuns = {};
+        if (angular.isUndefined($scope.data.regexes)) $scope.data.regexes = {};
+        if (angular.isUndefined($scope.data.sections)) {
             $scope.data.sections = {};
             $scope.data.sections.results = {};
             $scope.data.sections.results.pagetitle = "Results";
@@ -59,7 +59,7 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
             $scope.data.sections.reports.pagetitle = "Reports";
             $scope.data.sections.reports.primaryTab = "overview";
         };
-        if (typeof($scope.data.tabs)==='undefined') {
+        if (angular.isUndefined($scope.data.tabs)) {
             $scope.data.tabs = {};
             $scope.data.tabs.successRate = {};
             $scope.data.tabs.successRate.pagetitle = "Success Rate";
@@ -106,8 +106,7 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
     };
 
     function humaniseDate(datestr) {
-        // Return an empty string if the date is null or isn't there:
-        if ((typeof(datestr) === "undefined") || (datestr === null)) {
+        if (angular.isUndefined(datestr) || (datestr === null)) {
             return "";
         };
         var date_obj = new Date(datestr);
@@ -153,7 +152,7 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
     };
 
     function generateFilterPaths(origin) {
-        if (typeof(origin)==='undefined') origin = '';
+        if (angular.isUndefined(origin)) origin = '';
         model_fields = filterConfig()[0];
         prefixtures = filterConfig()[1];
         return prefixPathToFields(model_fields, prefixtures[origin]);
@@ -161,12 +160,12 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
 
     function getQueryFieldName(field) {
         original_model_names = filterConfig()[2];
-        return original_model_names[field] != undefined ? original_model_names[field] : field
+        return angular.isUndefined(original_model_names[field]) ? field : original_model_names[field]
     };
 
 
     function generateActiveFilters(scope, origin, exclude_dates) {
-        exclude_dates === undefined ? exclude_dates=false : exclude_dates=exclude_dates
+        angular.isUndefined(exclude_dates) ? exclude_dates=false : exclude_dates=exclude_dates
         linked_fields = filterConfig()[3];
         var active_filters = {};
         var field_to_filter = generateFilterPaths(origin);
