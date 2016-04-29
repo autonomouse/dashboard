@@ -85,6 +85,7 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
             while (locationParts.indexOf('') !== -1) {
                 locationParts.splice(locationParts.indexOf(''), 1);
             }
+            console.log($location.path() + " => " + locationParts)
             if (locationParts.length >= 1) highlightSection($scope, locationParts[0]);
             if (locationParts.length >= 2) highlightTab($scope, locationParts[1]);
             if (locationParts.length == 0) highlightSection($scope, 'results');
@@ -126,14 +127,25 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
     };
 
     function highlightSection(scope, section) {
-        $rootScope.section = scope.data.sections[section].pagetitle;
-        if (scope.data.currentsection !== section) {
-            scope.data.currentsection = section;
-            highlightTab(scope, scope.data.sections[section].primaryTab);
+        if (!(section in scope.data.sections)) {
+            console.log("There is no " + section + " section!")
+        } else {
+            console.log("Highlighting section: " + section)
+            $rootScope.section = scope.data.sections[section].pagetitle;
+            if (scope.data.currentsection !== section) {
+                scope.data.currentsection = section;
+                highlightTab(scope, scope.data.sections[section].primaryTab);
+            };
         };
     };
 
     function highlightTab(scope, tab) {
+        if (!(tab in scope.data.tabs)) {
+            console.log("There is no " + tab + " tab!")
+            return
+        } else {
+            console.log("Highlighting tab: " + tab)
+        }
         if (tab in scope.data.tabs) {
             $rootScope.title = scope.data.tabs[tab].pagetitle;
             scope.data.currentpage = tab;
