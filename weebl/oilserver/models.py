@@ -596,7 +596,7 @@ class Build(TimeStampedBaseModel):
     jobtype = models.ForeignKey(JobType)
 
     class Meta:
-        unique_together = (('build_id', 'pipeline', 'jobtype'),)
+        unique_together = (('pipeline', 'jobtype'),)
 
     def __str__(self):
         return self.uuid
@@ -711,7 +711,7 @@ class TestCase(TimeStampedBaseModel):
         return self.name
 
 
-class TestCaseInstance(models.Model):
+class TestCaseInstance(TimeStampedBaseModel):
     """Potential states that the build may be in following being run on the CI
     server (Jenkins; e.g. success, failure, aborted, unknown).
     """
@@ -724,9 +724,11 @@ class TestCaseInstance(models.Model):
         blank=False,
         null=False,
         help_text="UUID of this TestCase.")
-    build = models.ForeignKey(
-        Build, null=True, blank=True, default=None)
-    testcase = models.ForeignKey(TestCase, null=True, blank=True, default=None)
+    build = models.ForeignKey(Build, default=None)
+    testcase = models.ForeignKey(TestCase, default=None)
+
+    class Meta:
+        unique_together = (('testcase', 'build'),)
 
     def __str__(self):
         return self.uuid
