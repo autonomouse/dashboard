@@ -71,20 +71,6 @@ class Environment(TimeStampedBaseModel):
     def __str__(self):
         return "{} ({})".format(self.name, self.uuid)
 
-    @property
-    def state_description(self):
-        status_checker = StatusChecker(self.get_set_go())
-        return status_checker.get_current_oil_situation(self, ServiceStatus)
-
-    @property
-    def state(self):
-        status_checker = StatusChecker(self.get_set_go())
-        return status_checker.get_current_oil_state(self, ServiceStatus)
-
-    @property
-    def state_colour(self):
-        return getattr(self.get_set_go(), '{}_colour'.format(self.state))
-
     def get_job_history(self, start_date=None):
         """Return the number of time each run config has been run in this
         environment.
