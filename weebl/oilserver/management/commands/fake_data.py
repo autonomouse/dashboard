@@ -216,11 +216,15 @@ def populate_ubuntu_versions():
         ubuntu_version.save()
 
 
+def create_single_object(enum_class, item, key):
+    if not enum_class.objects.filter(**{key: item}).exists():
+        enum_class(**{key: item}).save()
+    return enum_class.objects.get(**{key: item})
+
+
 def populate_enum_object(enum_class, enum_list, key='name'):
     for enum in enum_list:
-        if enum_class.objects.filter(**{key: enum}).exists():
-            continue
-        enum_class(**{key: enum}).save()
+        create_single_object(enum_class, enum, key)
 
 
 def populate_enum_objects():
