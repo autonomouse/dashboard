@@ -293,9 +293,9 @@ def get_random_productundertest():
     return models.ProductUnderTest.objects.get(name=product)
 
 
-def get_random_service():
-    product = random.choice(SERVICES)
-    return models.JujuService.objects.get(name=product)
+def get_services():
+    for service in SERVICES:
+        yield models.JujuService.objects.get(name=service)
 
 
 def make_bug():
@@ -532,8 +532,7 @@ def make_hardware(pipeline):
             machine_configuration.productundertest.add(
                 get_random_productundertest())
             machine_configuration.save()
-        for _ in range(random.randint(1, 2)):
-            service = get_random_service()
+        for service in get_services():
             if service.name not in services:
                 deployment = models.JujuServiceDeployment(jujuservice=service)
                 deployment.save()

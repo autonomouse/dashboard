@@ -652,7 +652,7 @@ class JujuServiceResource(CommonResource):
             'uuid': ('exact',),
             'name': ('exact',),
             'productundertest': ALL_WITH_RELATIONS, }
-        detail_uri_name = 'name'
+        detail_uri_name = 'uuid'
 
 
 class JujuServiceDeploymentResource(CommonResource):
@@ -676,7 +676,7 @@ class JujuServiceDeploymentResource(CommonResource):
         filtering = {
             'uuid': ('exact',),
             'jujuservice': ALL_WITH_RELATIONS, }
-        detail_uri_name = 'name'
+        detail_uri_name = 'uuid'
 
 
 class UnitResource(CommonResource):
