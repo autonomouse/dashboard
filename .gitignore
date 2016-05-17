@@ -41,3 +41,9 @@ weebl/oilserver/static/*
 # Remote access files:
 
 test-catalog-auth.json
+
+# Pipeline bundle SVGs:
+
+weebl/oilserver/static/img/bundles/*
+!weebl/oilserver/static/img/bundles/missing.png
+ 
