@@ -13,16 +13,19 @@ def get_or_create(model, params):
     return correct_model
 
 def get_or_create_correct_test_framework(jobtype):
+    TestFramework = apps.get_model('oilserver', 'TestFramework')
     params = {'name': jobtype.name, 'version': 'notapplicable'}
-    return get_or_create(models.TestFramework, params)
+    return get_or_create(TestFramework, params)
 
 def get_or_create_correct_correct_testcaseclass(jobtype, test_framework):
+    TestCaseClass = apps.get_model('oilserver', 'TestCaseClass')
     params = {'name': jobtype.name, 'testframework': test_framework}
-    return get_or_create(models.TestCaseClass, params)
+    return get_or_create(TestCaseClass, params)
 
 def get_or_create_correct_correct_testcase(jobtype, testcaseclass):
+    TestCase = apps.get_model('oilserver', 'TestCase')
     params = {'name': jobtype.name, 'testcaseclass': testcaseclass}
-    return get_or_create(models.TestCase, params)
+    return get_or_create(TestCase, params)
 
 def remove_job_none_test_frameworks(apps, schema_editor):
     """This method finds testcaseinstances that have the build as the name of
