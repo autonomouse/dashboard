@@ -12,18 +12,16 @@ def get_or_create(model, params):
         correct_model.save()
     return correct_model
 
-def get_or_create_correct_test_framework(jobtype):
-    TestFramework = apps.get_model('oilserver', 'TestFramework')
+def get_or_create_correct_test_framework(TestFramework, jobtype):
     params = {'name': jobtype.name, 'version': 'notapplicable'}
     return get_or_create(TestFramework, params)
 
-def get_or_create_correct_correct_testcaseclass(jobtype, test_framework):
-    TestCaseClass = apps.get_model('oilserver', 'TestCaseClass')
+def get_or_create_correct_correct_testcaseclass(TestCaseClass, jobtype,
+                                                test_framework):
     params = {'name': jobtype.name, 'testframework': test_framework}
     return get_or_create(TestCaseClass, params)
 
-def get_or_create_correct_correct_testcase(jobtype, testcaseclass):
-    TestCase = apps.get_model('oilserver', 'TestCase')
+def get_or_create_correct_correct_testcase(TestCase, jobtype, testcaseclass):
     params = {'name': jobtype.name, 'testcaseclass': testcaseclass}
     return get_or_create(TestCase, params)
 
@@ -44,6 +42,9 @@ def remove_job_none_test_frameworks(apps, schema_editor):
     """
 
     TestCaseInstance = apps.get_model('oilserver', 'TestCaseInstance')
+    TestFramework = apps.get_model('oilserver', 'TestFramework')
+    TestCaseClass = apps.get_model('oilserver', 'TestCaseClass')
+    TestCase = apps.get_model('oilserver', 'TestCase')
     params = {'testcase__testcaseclass__testframework__version__isnull': True}
     for old_tci in TestCaseInstance.objects.filter(**params):
         build_id = old_tci.build.build_id
@@ -54,11 +55,12 @@ def remove_job_none_test_frameworks(apps, schema_editor):
         # 'get_build_uuid_from_build_id_job_and_pipeline' fetches:
         returned_build = apps.get_model('oilserver', 'Build').objects.get(
             build_id=build_id, jobtype=jobtype, pipeline=pipeline)
-        correct_test_framework = get_or_create_correct_test_framework(jobtype)
+        correct_test_framework = get_or_create_correct_test_framework(
+            TestFramework, jobtype)
         correct_testcaseclass = get_or_create_correct_correct_testcaseclass(
-            jobtype, correct_test_framework)
+            TestCaseClass, jobtype, correct_test_framework)
         correct_testcase = get_or_create_correct_correct_testcase(
-            jobtype, correct_testcaseclass)
+            TestCase, jobtype, correct_testcaseclass)
         TestCaseInstance.objects.create(build=returned_build,
                                          testcase=correct_testcase,
                                          status=status)
