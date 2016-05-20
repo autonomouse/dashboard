@@ -61,10 +61,12 @@ def remove_job_none_test_frameworks(apps, schema_editor):
             TestCaseClass, jobtype, correct_test_framework)
         correct_testcase = get_or_create_correct_correct_testcase(
             TestCase, jobtype, correct_testcaseclass)
-        TestCaseInstance.objects.create(build=returned_build,
-                                        testcase=correct_testcase,
-                                        testcaseinstancestatus=status)
         old_tci.delete()
+        tci_params = {'build': returned_build,
+                      'testcase': correct_testcase}
+        testcaseinstance = get_or_create(TestCaseInstance, tci_params)
+        testcaseinstance.testcaseinstancestatus = status
+        testcaseinstance.save()
     TestCaseInstance.objects.filter(**params).delete()
 
 
