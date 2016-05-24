@@ -297,7 +297,7 @@ def get_random_machine():
     return models.Machine.objects.get(hostname=machine)
 
 
-def get_random_productundertest():
+def get_random_hw_productundertest():
     product = random.choice(HARDWARE_COMPONENTS)
     return models.ProductUnderTest.objects.get(name=product)
 
@@ -539,7 +539,7 @@ def make_hardware(pipeline):
         machine_configuration.save()
         for _ in range(random.randint(1, 2)):
             machine_configuration.productundertest.add(
-                get_random_productundertest())
+                get_random_hw_productundertest())
             machine_configuration.save()
         for service in get_services():
             if service.name not in services:
