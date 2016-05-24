@@ -685,7 +685,7 @@ class TestCaseClass(TimeStampedBaseModel):
         return self.name
 
 
-class TestCaseInstanceStatus(models.Model):
+class TestCaseInstanceStatus(TimeStampedBaseModel):
     """Potential states that the build may be in following being run on the CI
     server (Jenkins; e.g. success, failure, aborted, unknown).
     """
