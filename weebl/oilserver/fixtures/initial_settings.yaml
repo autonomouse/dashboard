@@ -1,3 +1,14 @@
+- model: sites.site
+  pk: 1
+  fields:
+    domain: weebl
+    name: weebl
+
+- model: oilserver.weeblsetting
+  pk: 1
+  fields:
+    site: 1
+
 - model: oilserver.servicestatus
   pk: 1
   fields:

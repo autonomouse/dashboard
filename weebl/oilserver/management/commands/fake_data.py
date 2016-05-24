@@ -4,6 +4,7 @@ from django.core.management.base import BaseCommand
 from django.db.utils import IntegrityError
 from oilserver import models
 from collections import OrderedDict
+from oilserver.management.commands.set_up_site import Command as set_up_site
 
 TEMPEST_TESTS = [
     ('tempest',
@@ -134,10 +135,12 @@ COMPONENT_NAME = [
     'keystone',
 ]
 
+
 TARGET_FILES = [
     'console.txt',
     'juju_debug_log.txt'
 ]
+
 
 HARDWARE_COMPONENTS = [
     'hp-proliant-DL360E-G8',
@@ -146,6 +149,7 @@ HARDWARE_COMPONENTS = [
     'sm15k',
     'cisco-b260-m4'
 ]
+
 
 SERVICES = [
     'keystone',
@@ -158,6 +162,7 @@ SERVICES = [
     'neutron-gateway',
     'bird',
 ]
+
 
 MACHINE_NAMES = [
     'codliver.oil',
@@ -569,6 +574,8 @@ def populate_data(num_bugs, num_pipelines):
 
 class Command(BaseCommand):
     help = 'Create fake application data'
+    setup = set_up_site()
+    setup.handle("http://localhost:8000/", "Local Weebl")
 
     def handle(self, *args, **options):
         self.stdout.write('Creating fake application data!')

@@ -13,6 +13,7 @@ from django.http import HttpResponse
 from django.db.models import Q
 from oilserver import models, utils
 from oilserver.exceptions import NonUserEditableError
+from django.contrib.sites.models import Site
 
 
 def fixup_set_filters(model_names, applicable_filters):
@@ -169,6 +170,20 @@ class EnvironmentResource(CommonResource):
                 job_history = bundle.obj.get_job_history()
             bundle.data['job_history'] = job_history
         return bundle
+
+
+class WeeblSettingResource(CommonResource):
+    """API Resource for 'WeeblSetting' model. """
+
+    class Meta:
+        current_site = Site.objects.get_current().id
+        queryset = models.WeeblSetting.objects.filter(pk=current_site)
+        list_allowed_methods = ['get']  # all items
+        detail_allowed_methods = []  # individual
+        fields = ['default_environment']
+        authorization = DjangoAuthorization()
+        authentication = ApiKeyAuthentication()
+        always_return_data = True
 
 
 class ServiceStatusResource(CommonResource):

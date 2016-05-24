@@ -1,6 +1,8 @@
 import textwrap
 from oilserver import utils
 from django.db import connection, models
+from django.contrib.sites.models import Site
+from weebl.__init__ import __api_version__
 
 
 class TimeStampedBaseModel(models.Model):
@@ -71,6 +73,10 @@ class Environment(TimeStampedBaseModel):
     def __str__(self):
         return "{} ({})".format(self.name, self.uuid)
 
+    def get_site_settings(self):
+        current_site = Site.objects.get_current().id
+        return WeeblSetting.objects.get(pk=current_site)
+
     def get_job_history(self, start_date=None):
         """Return the number of time each run config has been run in this
         environment.
@@ -128,6 +134,33 @@ class Environment(TimeStampedBaseModel):
             results.append((row_results, row[-1],))
 
         return results
+
+
+class WeeblSetting(models.Model):
+    """Settings for Weebl."""
+    site = models.OneToOneField(
+        Site,
+        unique=True,
+        null=False,
+        blank=False,
+        help_text="To make sure there is only ever one instance per website.")
+    default_environment = models.ForeignKey(
+        Environment,
+        null=True,
+        blank=True,
+        default=None,
+        help_text="The default environment to display. If none, displays all.")
+
+    def __str__(self):
+        return str(self.site)
+
+    @property
+    def weebl_version(self):
+        return utils.get_weebl_version()
+
+    @property
+    def api_version(self):
+        return __api_version__
 
 
 class ServiceStatus(models.Model):

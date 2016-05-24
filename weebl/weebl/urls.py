@@ -42,6 +42,7 @@ v_api.register(resources.TestCaseClassResource())
 v_api.register(resources.TestCaseInstanceStatusResource())
 v_api.register(resources.TestCaseInstanceResource())
 v_api.register(resources.TestCaseResource())
+v_api.register(resources.WeeblSettingResource())
 
 
 urlpatterns = patterns(
