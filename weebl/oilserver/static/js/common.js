@@ -17,17 +17,12 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
             'testcaseinstancestatus': 'testcaseinstance__testcaseinstancestatus__name__in',
             'machine': 'machineconfiguration__machine__hostname__in',
             'productundertest': 'machineconfiguration__productundertest__name__in',
-            'failedjobs': 'build__jobtype__name__in',
+            'failedjobs': 'failed_jobtype',
         };
 
         // Some model fields are actually called something else in the DB, add them here:
         var original_model_names = {
             'failedjobs': 'jobtype',
-        };
-
-        // Some fields may be linked to specific instances of other fields, add here:
-        var linked_fields = {
-            'failedjobs': ['build__testcaseinstances__testcaseinstancestatus__name__in', 'failure'],
         };
 
         // add the path from the origin model to the fields needed:
@@ -40,7 +35,7 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
             'machine': 'machineconfiguration__pipeline__',
         };
 
-        return [model_fields, prefixtures, original_model_names, linked_fields]
+        return [model_fields, prefixtures, original_model_names]
     };
 
     function initialise($scope) {
@@ -166,7 +161,6 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
 
     function generateActiveFilters(scope, origin, exclude_dates) {
         angular.isUndefined(exclude_dates) ? exclude_dates=false : exclude_dates=exclude_dates
-        linked_fields = filterConfig()[3];
         var active_filters = {};
         var field_to_filter = generateFilterPaths(origin);
 
@@ -183,9 +177,6 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
             query_field = getQueryFieldName(enum_field);
             if (enum_field != query_field){
                 active_filters[field_to_filter[enum_field]] = enum_values;
-                for (var key in linked_fields) {
-                    active_filters[linked_fields[key][0]] = linked_fields[key][1]
-                };
             } else {
                 active_filters[field_to_filter[query_field]] = enum_values;
             };

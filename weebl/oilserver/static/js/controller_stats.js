@@ -34,19 +34,18 @@ app.controller('successRateController', [
             return $scope.data;
         };
 
-        function fetchDataForEachStatus(model, filter_set, jobname, graphValues) {
-            filter_set['meta_only'] = true;
-            filter_set['limit'] = 1;
-            filter_set['max_limit'] = 1;
+        function fetchDataForEachStatus(jobname, graphValues) {
+            var model = 'pipeline';
+            var local_filters = Common.generateActiveFilters($scope, model);
+            local_filters['meta_only'] = true;
+            local_filters['limit'] = 1;
+            local_filters['max_limit'] = 1;
             if(jobname === null) {
-                delete filter_set['build__jobtype__name'];
-                graphValues.total = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(filter_set);
+                graphValues.total = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(local_filters);
             } else {
-                filter_set['jobtype__name'] = jobname;
-                delete filter_set['testcaseinstances__testcaseinstancestatus__name__in']
-                graphValues.jobtotal = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(filter_set);
-                filter_set['testcaseinstances__testcaseinstancestatus__name__in'] = 'success';
-                graphValues.pass = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(filter_set);
+                local_filters['successful_jobtype'] = jobname;
+                graphValues.jobtotal = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(local_filters);
+                graphValues.pass = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(local_filters);
             };
         };
 
@@ -58,12 +57,10 @@ app.controller('successRateController', [
             $scope.data.graphValues.prepare = {}
             $scope.data.graphValues.test_cloud_image = {}
 
-            var pipeline_filters = Common.generateActiveFilters($scope, 'pipeline');
-            fetchDataForEachStatus('pipeline', pipeline_filters, null, $scope.data.graphValues);
-            var build_filters = Common.generateActiveFilters($scope, 'build');
-            fetchDataForEachStatus('build', build_filters, 'pipeline_deploy', $scope.data.graphValues.deploy);
-            fetchDataForEachStatus('build', build_filters, 'pipeline_prepare', $scope.data.graphValues.prepare);
-            fetchDataForEachStatus('build', build_filters, 'test_cloud_image', $scope.data.graphValues.test_cloud_image);
+            fetchDataForEachStatus(null, $scope.data.graphValues);
+            fetchDataForEachStatus('pipeline_deploy', $scope.data.graphValues.deploy);
+            fetchDataForEachStatus('pipeline_prepare', $scope.data.graphValues.prepare);
+            fetchDataForEachStatus('test_cloud_image', $scope.data.graphValues.test_cloud_image);
 
             $scope.data.fetching_data = false;
 
