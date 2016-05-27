@@ -152,7 +152,6 @@ app.controller('successRateController', [
 
         function updateFromServer() {
             $scope.data.bugs = update('bug');
-            $scope.data.jobtypes = update('jobtype');
             $scope.data.testRuns = update('pipeline');
             updateGraphValues();
         }
