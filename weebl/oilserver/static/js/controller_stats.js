@@ -44,8 +44,10 @@ app.controller('successRateController', [
                 graphValues.total = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(local_filters);
             } else {
                 local_filters['successful_jobtype'] = jobname;
-                graphValues.jobtotal = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(local_filters);
                 graphValues.pass = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(local_filters);
+                delete local_filters['successful_jobtype'];
+                local_filters['build__jobtype__name'] = jobname;
+                graphValues.jobtotal = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(local_filters);
             };
         };
 
@@ -79,13 +81,14 @@ app.controller('successRateController', [
                 $scope.data.graphValues.test_cloud_image.jobtotal.$promise
             ]).then(function() {
                 if ($scope.data.graphValues.total.$resolved) {
-                    /*console.log('total test runs = ' + $scope.data.graphValues.total.meta.total_count);
+                    console.log('total test runs = ' + $scope.data.graphValues.total.meta.total_count);
                     console.log('deploy passes = ' + $scope.data.graphValues.deploy.pass.meta.total_count);
                     console.log('total deploy builds = ' + $scope.data.graphValues.deploy.jobtotal.meta.total_count);
                     console.log('prepare passes = ' + $scope.data.graphValues.prepare.pass.meta.total_count);
                     console.log('total prepare builds = ' + $scope.data.graphValues.prepare.jobtotal.meta.total_count);
                     console.log('cloud_image passes = ' + $scope.data.graphValues.test_cloud_image.pass.meta.total_count);
-                    console.log('total cloud_image builds = ' + $scope.data.graphValues.test_cloud_image.jobtotal.meta.total_count);*/
+                    console.log('total cloud_image builds = ' + $scope.data.graphValues.test_cloud_image.jobtotal.meta.total_count);
+                    console.log('----------------------------');
 
                     graphFactory.plot_stats_graph(binding, $scope.data.graphValues);
                     $scope.data.plot_data_loading = false;
