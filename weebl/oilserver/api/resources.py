@@ -572,16 +572,17 @@ class PipelineResource(CommonResource):
         if 'failed_jobtype' in filters:
             custom['failed_jobtype'] = filters.getlist('failed_jobtype')
         if 'successful_jobtype' in filters:
-            custom['successful_jobtype'] = filters.getlist('successful_jobtype')
+            custom['successful_jobtype'] =\
+                filters.getlist('successful_jobtype')
         orm_filters['custom'] = custom
 
         return orm_filters
 
     def apply_filters(self, request, applicable_filters):
         if 'custom' in applicable_filters:
-           custom = applicable_filters.pop('custom')
+            custom = applicable_filters.pop('custom')
         else:
-           custom = None
+            custom = None
 
         fixup_set_filters(['build'], applicable_filters)
         semi_filtered = super(PipelineResource, self).apply_filters(
@@ -592,13 +593,13 @@ class PipelineResource(CommonResource):
                 failed_q = Q(
                     build__jobtype__name__in=custom['failed_jobtype'],
                     build__testcaseinstance__testcaseinstancestatus__name=
-                        'failure')
+                    'failure')
                 semi_filtered = semi_filtered.filter(failed_q)
             if 'successful_jobtype' in custom:
                 success_q = Q(
                     build__jobtype__name__in=custom['successful_jobtype'],
                     build__testcaseinstance__testcaseinstancestatus__name=
-                        'success')
+                    'success')
                 semi_filtered = semi_filtered.filter(success_q)
 
         return semi_filtered
