@@ -209,7 +209,8 @@ class JenkinsResource(CommonResource):
         servicestatus: Foreign key to the ServiceStatus resource.
     """
 
-    environment = fields.ForeignKey(EnvironmentResource, 'environment')
+    environment = fields.ForeignKey(
+        EnvironmentResource, 'environment', full=True)
     servicestatus = fields.ForeignKey(ServiceStatusResource, 'servicestatus')
 
     class Meta:
@@ -242,7 +243,7 @@ class BuildExecutorResource(CommonResource):
         jenkins: Foreign key to the Jenkins resource.
     """
 
-    jenkins = fields.ForeignKey(JenkinsResource, 'jenkins')
+    jenkins = fields.ForeignKey(JenkinsResource, 'jenkins', full=True)
 
     class Meta:
         queryset = models.BuildExecutor.objects.all()
@@ -513,7 +514,8 @@ class PipelineResource(CommonResource):
 
     ubuntuversion = fields.ForeignKey(
         UbuntuVersionResource, 'ubuntuversion', full=True, null=True)
-    buildexecutor = fields.ForeignKey(BuildExecutorResource, 'buildexecutor')
+    buildexecutor = fields.ForeignKey(
+        BuildExecutorResource, 'buildexecutor', full=True)
     openstackversion = fields.ForeignKey(
         OpenstackVersionResource, 'openstackversion', full=True, null=True)
     sdn = fields.ForeignKey(SDNResource, 'sdn', full=True, null=True)
