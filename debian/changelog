@@ -1,3 +1,27 @@
+weebl (1.1.5) trusty; urgency=medium
+
+  * Fix for bug #1571738 ('Filtering by failed jobs shows that job passing in the testrun page')
+  * Fix for bug #1571734 ('Test runs show multiple versions of the same build').
+  * Added an anchor link to the image so can click on it for an enlarged view.
+  * Added some logging.
+  * Improvements to assist deployment of weebl on django 1.8 (on xenial) 
+  * Shrink and reposition juju svg graphic.
+  * Admin tweaks
+  * Add logging to catch bad section case.
+  * Also, don't crash when we get a bad section.
+  * Replaced the variety of is undefined checks with the standard one from angular
+  * Removed any reference to StatusChecker for now
+  * Changed fake_data so that all services are used, and are not dupliacted.
+  * Added create_single_object to fake_data - useful in weebl_settings branch.
+  * Added weebl/oilserver/static/img/bundles/ to gitignore file
+  * Added migration to fix integration database
+  * Updated tools/release_package.sh with latest PPA information
+  * Brought back the weeblsetting model, only vastly reduced in scope.
+  * Added a management command to set up the site. 
+  * Now uses custom filters to fix filtering by failed job which works fine for test runs and stats, but bugs is still broken.
+
+ -- Darren Hoyland <darren.hoyland@canonical.com>  Thu, 09 Jun 2016 17:53:17 +0100
+
 weebl (1.1.4) wily; urgency=medium
 
   * Added the error testcaseinstancestatus and made fakedata use the right default version string.
