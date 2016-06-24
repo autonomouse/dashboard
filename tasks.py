@@ -10,7 +10,7 @@ from invoke import task, run
 from datetime import datetime
 
 application = 'weebl'
-python3_version = '/usr/bin/python3.4'
+python3_version = '/usr/bin/python3.5'
 preamble = "WEEBL_ROOT=`pwd` PYTHONPATH=$PYTHONPATH:`pwd`"
 apps = ['oilserver']
 postgres_user = "postgres"

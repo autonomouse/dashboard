@@ -1,3 +1,9 @@
+weebl (1.1.6) trusty; urgency=medium
+
+  * Fixed arguments for set_up_site for django-admin 
+
+ -- Darren Hoyland <darren.hoyland@canonical.com>  Mon, 20 Jun 2016 11:54:54 +0100
+
 weebl (1.1.5) trusty; urgency=medium
 
   * Fix for bug #1571738 ('Filtering by failed jobs shows that job passing in the testrun page')

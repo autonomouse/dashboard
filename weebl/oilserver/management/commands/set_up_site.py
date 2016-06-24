@@ -42,8 +42,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            siteurl = args[0]
-            displayname = args[1]
+            siteurl = options['siteurl']
+            displayname = options['displayname']
         except IndexError:
             msg = 'Please supply site url and name, '
             msg += 'e.g. set_up_site "http://10.245.0.14/" "Weebl"'
@@ -56,3 +56,8 @@ class Command(BaseCommand):
             self.feedback('Weeblsetting instance created.')
         else:
             self.feedback('Weeblsetting instance already exists.')
+
+    def add_arguments(self, parser):
+        # Positional arguments
+        parser.add_argument('siteurl', type=str)
+        parser.add_argument('displayname', type=str)
