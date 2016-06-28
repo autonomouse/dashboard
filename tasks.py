@@ -12,7 +12,7 @@ from datetime import datetime
 application = 'weebl'
 local_manage_cmd = "{}/manage.py".format(application)
 packaged_manage_cmd = "/usr/bin/django-admin"
-manage_cmd = packaged_manage_cmd
+manage_cmd = local_manage_cmd
 python3_version = '/usr/bin/python3.5'
 preamble = "WEEBL_ROOT=`pwd` PYTHONPATH=$PYTHONPATH:`pwd`"
 apps = ['oilserver']
@@ -140,8 +140,8 @@ def fake_data():
 @task(help={'filetype': "Format of output file (defaults to .png)"})
 def schema(filetype="png"):
     """Generates an image depicting the current database schema. """
-    run('{0} graph_models -X TimeStampedBaseModel -a > {0}.dot'
-        .format(manage_cmd))
+    run('{} graph_models -X TimeStampedBaseModel -a > {}.dot'
+        .format(manage_cmd, application))
     run('dot -T{1} {0}.dot -o {0}_schema.{1}'.format(application, filetype))
     run('rm {}.dot'.format(application))
     print("Schema generated at {0}_schema.{1}".format(application, filetype))
