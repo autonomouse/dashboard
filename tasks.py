@@ -10,6 +10,9 @@ from invoke import task, run
 from datetime import datetime
 
 application = 'weebl'
+local_manage_cmd = "{}/manage.py".format(application)
+packaged_manage_cmd = "/usr/bin/django-admin"
+manage_cmd = packaged_manage_cmd
 python3_version = '/usr/bin/python3.5'
 preamble = "WEEBL_ROOT=`pwd` PYTHONPATH=$PYTHONPATH:`pwd`"
 apps = ['oilserver']
@@ -42,10 +45,15 @@ def list():
         'port': "Port to run server on. Defaults to 8000.", })
 def go(database, server="runserver", ip_addr="127.0.0.1", port=8000):
     """Set up and run weebl using either a test or a production database."""
+    init(database)
+    deploy(ip_addr, port, server)
+
+@task(help={'database': "Type test or production", })
+def init(database):
+    """Set up and run weebl using either a test or a production database."""
     manage_static_files()
     initialise_database(database)
     set_permissions('.')
-    deploy(ip_addr, port, server)
 
 @task
 def run_tests():
@@ -103,8 +111,8 @@ def backup_database(database, force=False):
     timestamp = datetime.now().strftime("%Y_%m_%d__%H_%M_%S")
     backup_to = "Database_backup__{}__{}.json".format(database, timestamp)
     try:
-        run("{} {}/manage.py dumpdata > {}".format(
-            python3_version, application, backup_to))
+        run("{} {} dumpdata > {}".format(
+            python3_version, manage_cmd, backup_to))
     except:
         msg = "Could not back up {0} database{1}."
         if force is True:
@@ -119,21 +127,21 @@ def load_fixtures(fixture="initial_settings.yaml"):
     """Loads up data from a fixtures file (defaults to initial_settings.yaml).
     """
     print("Adding data from {} into database".format(fixture))
-    run('{} {}/manage.py loaddata "{}"'.format(
-        python3_version, application, fixture))
+    run('{} {} loaddata "{}"'.format(
+        python3_version, manage_cmd, fixture))
 
 @task()
 def fake_data():
     """Generates fake data for development/debugging."""
     initialise_database("production")
     print("Creating fake data...")
-    run('{} {}/manage.py fake_data'.format(python3_version, application))
+    run('{} {} fake_data'.format(python3_version, manage_cmd))
 
 @task(help={'filetype': "Format of output file (defaults to .png)"})
 def schema(filetype="png"):
     """Generates an image depicting the current database schema. """
-    run('{0}/manage.py graph_models -X TimeStampedBaseModel -a > {0}.dot'
-        .format(application))
+    run('{0} graph_models -X TimeStampedBaseModel -a > {0}.dot'
+        .format(manage_cmd))
     run('dot -T{1} {0}.dot -o {0}_schema.{1}'.format(application, filetype))
     run('rm {}.dot'.format(application))
     print("Schema generated at {0}_schema.{1}".format(application, filetype))
@@ -184,9 +192,9 @@ def initialise_database(database):
 
 def migrate():
     """Make migrations and migrate."""
-    run("{} {}/manage.py makemigrations".format(python3_version, application),
+    run("{} {} makemigrations".format(python3_version, manage_cmd),
         pty=True)
-    run("{} {}/manage.py migrate".format(python3_version, application),
+    run("{} {} migrate".format(python3_version, manage_cmd),
         pty=True)
 
 def create_production_db():
@@ -196,9 +204,9 @@ def create_test_db():
     create_db_and_user(test_db_name, test_user, test_pwd)
 
 def migrate_individual_app(application, app):
-    run('{} {}/manage.py makemigrations {}'.format(
-        python3_version, application, app))
-    run('{} {}/manage.py migrate {}'.format(python3_version, application, app))
+    run('{} {} makemigrations {}'.format(
+        python3_version, manage_cmd, app))
+    run('{} {} migrate {}'.format(python3_version, manage_cmd, app))
 
 def destroy_test_data(force):
     rusure = "Are you sure you want to drop the test database and user?! (y/N)"
@@ -350,12 +358,12 @@ def run_unit_tests(app=None):
     try:
         if app is None:
             print("Running unit tests")
-            run("{} {}/manage.py test".format(python3_version, application),
+            run("{} {} test".format(python3_version, manage_cmd),
                 pty=True)
         else:
             print("Running functional and unit tests for {}...".format(app))
-            run("{} {}/manage.py test {}".format(
-                python3_version, application, app), pty=True)
+            run("{} {} test {}".format(
+                python3_version, manage_cmd, app), pty=True)
         print('OK')
     except Exception as e:
         print("Some tests failed")
@@ -396,8 +404,8 @@ def deploy(ipaddr=None, port=None, server="runserver"):
         deploy_with_runserver(ipaddr, port)
 
 def deploy_with_runserver(ipaddr, port):
-    result = run('{} {} {}/manage.py runserver {}:{}'.format(
-        preamble, python3_version, application, ipaddr, port), pty=True)
+    result = run('{} {} {} runserver {}:{}'.format(
+        preamble, python3_version, manage_cmd, ipaddr, port), pty=True)
 
 def mkdir(directory):
     """ Make a directory, check and throw an error if failed. """
@@ -413,8 +421,8 @@ def manage_static_files():
     script) and copies them to local folder (which is in the gitignore file).
     This obviously assumes that install_deps has been run first.
     """
-    run('{} {} {}/manage.py collectstatic --noinput'.format(
-        preamble, python3_version, application))
+    run('{} {} {} collectstatic --noinput'.format(
+        preamble, python3_version, manage_cmd))
 
 def set_permissions(folder):
     """Walk through the weebl folder and change the owner of any files or
