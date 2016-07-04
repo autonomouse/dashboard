@@ -39,9 +39,6 @@ apt -y --no-upgrade install \
 
 # export https_proxy=http://91.189.89.33:3128
 
-echo "Installing packages via pip3"
-python3 -m pip install django-tastypie-swagger django-extensions
-
 echo "Installing packages via npm"
 jslibs_dir="weebl/oilserver/static"
 mkdir -p $jslibs_dir

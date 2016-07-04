@@ -41,7 +41,6 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'oilserver',
     'tastypie',
-    'tastypie_swagger',
     'django_extensions',
     'social.apps.django_app.default',
 )
