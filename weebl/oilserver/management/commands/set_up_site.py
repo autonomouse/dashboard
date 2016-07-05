@@ -3,15 +3,15 @@ from oilserver import models
 from django.contrib.sites.models import Site
 
 
-def main(siteurl, displayname):
-    this_site = get_or_create_site(siteurl, displayname)
+def main(sitename):
+    this_site = get_or_create_site(sitename)
     return get_or_create_settings(this_site)
 
 
-def get_or_create_site(domainname, displayname):
-    if Site.objects.filter(domain=domainname, name=displayname).exists():
-        return Site.objects.get(domain=domainname, name=displayname)
-    this_site = Site(domain=domainname, name=displayname)
+def get_or_create_site(name):
+    if Site.objects.filter(domain=name, name=name).exists():
+        return Site.objects.get(domain=name, name=name)
+    this_site = Site(domain=name, name=name)
     this_site.save()
     return this_site
 
@@ -42,15 +42,14 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            siteurl = options['siteurl']
-            displayname = options['displayname']
+            sitename = options['sitename']
         except IndexError:
             msg = 'Please supply site url and name, '
-            msg += 'e.g. set_up_site "http://10.245.0.14/" "Weebl"'
+            msg += 'e.g. set_up_site "ProductionWeebl"'
             self.feedback(msg)
             return
 
-        output = main(siteurl=siteurl, displayname=displayname)
+        output = main(sitename=sitename)
         self.feedback('Set up complete.')
         if output:
             self.feedback('Weeblsetting instance created.')
@@ -59,5 +58,4 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         # Positional arguments
-        parser.add_argument('siteurl', type=str)
-        parser.add_argument('displayname', type=str)
+        parser.add_argument('sitename', type=str)
