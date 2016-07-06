@@ -1,3 +1,4 @@
+import itertools
 import random
 from datetime import datetime, timedelta, timezone
 from django.core.management.base import BaseCommand
@@ -75,7 +76,13 @@ OPENSTACK_VERSIONS = [
 ]
 
 
-SDNS = [
+UBUNTU_VERSIONS = [
+    ('precise', '12.04'),
+    ('trusty', '14.04'),
+]
+
+
+SDN_CHOICES = [
     'nova-network-flatdhcp',
     'neutron-openvswitch',
     'neutron-contrail',
@@ -86,13 +93,7 @@ SDNS = [
 ]
 
 
-UBUNTU_VERSIONS = [
-    ('precise', '12.04'),
-    ('trusty', '14.04'),
-]
-
-
-COMPUTES = [
+COMPUTE_CHOICES = [
     'nova-kvm',
     'nova-hyperv',
     'nova-vmware',
@@ -100,7 +101,7 @@ COMPUTES = [
 ]
 
 
-BLOCK_STORAGES = [
+BLOCK_STORAGE_CHOICES = [
     'cinder-iscsi',
     'cinder-ceph',
     'cinder-vmware',
@@ -108,17 +109,56 @@ BLOCK_STORAGES = [
 ]
 
 
-IMAGE_STORAGES = [
+IMAGE_STORAGE_CHOICES = [
     'glance-swift',
     'glance-ceph',
 ]
 
 
-DATABASES = [
+DATABASE_CHOICES = [
     'mysql',
     'galera-cluster',
 ]
 
+SDNS = {choice: ['neutron-api', 'bird', 'neutron-gateway']
+        for choice in SDN_CHOICES}
+IMAGE_STORAGES = {choice: ['swift', 'glance']
+                  for choice in IMAGE_STORAGE_CHOICES}
+DATABASES = {choice: ['mysql', 'galera'] for choice in DATABASE_CHOICES}
+BLOCK_STORAGES = {choice: ['cinder-vnx', 'cinder']
+                  for choice in BLOCK_STORAGE_CHOICES}
+COMPUTES = {choice: ['nova-cloud-controller', 'nova-compute']
+            for choice in COMPUTE_CHOICES}
+
+PRODUCT_TYPES = {
+    'sdn': SDNS,
+    'imagestorage': IMAGE_STORAGES,
+    'database': DATABASES,
+    'compute': COMPUTES,
+    'blockstorage': BLOCK_STORAGES
+}
+
+
+SW_PRODUCTS = set(itertools.chain.from_iterable(
+    [choices.keys() for choices in PRODUCT_TYPES.values()]))
+
+EXTRA_SERVICES = ['keystone', 'rabbitmq-server']
+
+SERVICES = [
+    'keystone',
+    'mysql',
+    'galera',
+    'nova-cloud-controller',
+    'rabbitmq-server',
+    'nova-compute',
+    'neutron-gateway',
+    'neutron-api',
+    'bird',
+    'swift',
+    'glance',
+    'cinder-vnx',
+    'cinder',
+]
 
 COMPONENT_NAME = [
     'neutron',
@@ -151,17 +191,14 @@ HARDWARE_COMPONENTS = [
 ]
 
 
-SERVICES = [
-    'keystone',
-    'mysql',
-    'nova-cloud-controller',
-    'glance',
-    'cinder',
-    'rabbitmq-server',
-    'nova-compute',
-    'neutron-gateway',
-    'bird',
-]
+VENDORS = {
+    'hp-proliant-DL360E-G8': 'HP',
+    'dell-poweredge-R720XD': 'Dell',
+    'cisco-c240-m3': 'Cisco', 'cisco-b260-m4': 'Cisco',
+    'sm15k': 'SeaMicro',
+    'nova-hyperv': 'HyperV',
+    'neutron-nvp': 'VMware', 'neutron-nsx': 'VMware',
+}
 
 
 MACHINE_NAMES = [
@@ -172,22 +209,28 @@ MACHINE_NAMES = [
     'crude.oil'
 ]
 
+CHARMS = [
+    'cs:trusty/charmedimsure-001',
+    'cs:trusty/princecharming-156',
+    'cs:trusty/smallornamentwornonanecklace-020',
+    'cs:trusty/bad90stvaboutwitches-666',
+]
 
 ENUM_MAPPINGS = [
     (models.JobType, JOB_TYPES, 'name'),
     (models.TestCaseInstanceStatus, BUILD_STATUSES, 'name'),
     (models.ServiceStatus, SERVICE_STATUSES, 'name'),
     (models.OpenstackVersion, OPENSTACK_VERSIONS, 'name'),
-    (models.SDN, SDNS, 'name'),
-    (models.Compute, COMPUTES, 'name'),
-    (models.BlockStorage, BLOCK_STORAGES, 'name'),
-    (models.ImageStorage, IMAGE_STORAGES, 'name'),
-    (models.Database, DATABASES, 'name'),
     (models.Project, COMPONENT_NAME, 'name'),
     (models.TargetFileGlob, TARGET_FILES, 'glob_pattern'),
     (models.ProductUnderTest, HARDWARE_COMPONENTS, 'name'),
+    (models.ProductUnderTest, SW_PRODUCTS, 'name'),
+    (models.Vendor, set(VENDORS.values()), 'name'),
+    (models.Report, set(VENDORS.values()), 'name'),
     (models.Machine, MACHINE_NAMES, 'hostname'),
     (models.JujuService, SERVICES, 'name'),
+    (models.ProductType, PRODUCT_TYPES.keys(), 'name'),
+    (models.Charm, CHARMS, 'charm_source_url'),
 ]
 
 
@@ -235,6 +278,25 @@ def populate_enum_object(enum_class, enum_list, key='name'):
 def populate_enum_objects():
     for enum_class, enum_list, key in ENUM_MAPPINGS:
         populate_enum_object(enum_class, enum_list, key)
+
+
+def populate_vendors():
+    for productundertest in models.ProductUnderTest.objects.all():
+        if productundertest.name in VENDORS:
+            productundertest.vendor = models.Vendor.objects.get(
+                name=VENDORS[productundertest.name])
+            productundertest.save()
+
+
+def populate_producttypes():
+    for producttype in models.ProductType.objects.all():
+        producttype.toplevel = True
+        producttype.save()
+        for productundertest in PRODUCT_TYPES[producttype.name].keys():
+            product = get_or_create(models.ProductUnderTest,
+                                    name=productundertest)
+            product.producttype = producttype
+            product.save()
 
 
 def make_environment():
@@ -302,9 +364,43 @@ def get_random_hw_productundertest():
     return models.ProductUnderTest.objects.get(name=product)
 
 
-def get_services():
-    for service in SERVICES:
-        yield models.JujuService.objects.get(name=service)
+def make_pipeline_sw_choices():
+    return {product_type: random.choice(list(products.keys()))
+            for product_type, products in PRODUCT_TYPES.items()}
+
+
+def get_services(sw_choices):
+    for product_type, choice in sw_choices.items():
+        possible_services = PRODUCT_TYPES[product_type][choice]
+        chosen_services = random.sample(
+            possible_services, random.randint(1, len(possible_services)))
+        for service in chosen_services:
+            jujuservice = models.JujuService.objects.get(name=service)
+            productundertest = models.ProductUnderTest.objects.get(name=choice)
+            yield (jujuservice, productundertest)
+    # also give out other non-toplevel services
+    extra_services = random.sample(
+        EXTRA_SERVICES, random.randint(1, len(EXTRA_SERVICES)))
+    for extra_service in extra_services:
+        yield (models.JujuService.objects.get(name=extra_service), None)
+
+
+
+def get_random_charm():
+    charm = random.choice(CHARMS)
+    return models.Charm.objects.get(charm_source_url=charm)
+
+
+def get_or_create(model, **kwargs):
+    return model.objects.get_or_create(**kwargs)[0]
+
+
+def get_random_versionconfiguration():
+    args = {
+        'openstackversion': random_enum(models.OpenstackVersion),
+        'ubuntuversion': random_enum(models.UbuntuVersion)
+    }
+    return get_or_create(models.VersionConfiguration, **args)
 
 
 def make_bug():
@@ -375,16 +471,11 @@ def make_pipeline():
     completed_at = random_date(
         datetime(2015, 1, 1, tzinfo=timezone.utc),
         datetime.now(timezone.utc))
+
     pipeline = models.Pipeline(
         completed_at=completed_at,
         buildexecutor=models.BuildExecutor.objects.first(),
-        openstackversion=random_enum(models.OpenstackVersion),
-        ubuntuversion=random_enum(models.UbuntuVersion),
-        sdn=random_enum(models.SDN),
-        compute=random_enum(models.Compute),
-        blockstorage=random_enum(models.BlockStorage),
-        imagestorage=random_enum(models.ImageStorage),
-        database=random_enum(models.Database),
+        versionconfiguration=get_random_versionconfiguration(),
     )
     pipeline.save()
     return pipeline
@@ -405,7 +496,7 @@ def make_bug_occurrence(testcaseinstance):
     regex = random.choice(regexes)
     bug_occurrence = models.BugOccurrence(
         testcaseinstance=testcaseinstance,
-        regex=regex)
+        knownbugregex=regex)
     bug_occurrence.save()
 
 
@@ -524,52 +615,65 @@ def make_independent_builds(pipeline):
 def make_builds(pipeline):
     if not make_dependent_builds(pipeline):
         return
-
     make_independent_builds(pipeline)
 
 
-def make_hardware(pipeline):
-    services = {}
-    unit_count = 0
-    for _ in range(random.randint(1, 5)):
-        pl = models.Pipeline.objects.get(uuid=pipeline)
-        machine_configuration = models.MachineConfiguration(
-            pipeline=pl,
-            machine=get_random_machine())
-        machine_configuration.save()
-        for _ in range(random.randint(1, 2)):
-            machine_configuration.productundertest.add(
-                get_random_hw_productundertest())
-            machine_configuration.save()
-        for service in get_services():
-            if service.name not in services:
-                deployment = models.JujuServiceDeployment(jujuservice=service)
-                deployment.save()
-                services[service.name] = deployment
-            else:
-                deployment = services[service.name]
-            unit = models.Unit(
-                number=unit_count,
-                machineconfiguration=machine_configuration,
-                jujuservicedeployment=deployment)
+def get_random_machineconfig():
+    machine = get_random_machine()
+    return models.MachineConfiguration.objects.get(machine=machine)
+
+
+def deploy_services(pipeline_uuid, machineconfigs):
+    pipeline = models.Pipeline.objects.get(uuid=pipeline_uuid)
+    pipeline_sw_choices = make_pipeline_sw_choices()
+    for service, sw_product in get_services(pipeline_sw_choices):
+        # Pick a random charm to go with it - not entirely realistic though...
+        charm = get_random_charm()
+        jujuservicedeployment = models.JujuServiceDeployment(
+            charm=charm,
+            jujuservice=service,
+            productundertest=sw_product,
+            pipeline=pipeline)
+        jujuservicedeployment.save()
+
+        for unit_number in range(0, random.randint(1, 3)):
+            machineconfiguration = get_random_machineconfig()
+            unit = models.Unit(number=unit_number,
+                               jujuservicedeployment=jujuservicedeployment,
+                               machineconfiguration=machineconfiguration)
             unit.save()
-            unit_count += 1
 
 
-def make_pipelines(num_pipelines):
+def configure_machines():
+    machineconfigs = []
+    for machine in models.Machine.objects.all():
+        hardware = get_random_hw_productundertest()
+        machineconfiguration = models.MachineConfiguration(
+            machine=machine)
+        machineconfiguration.save()
+        machineconfiguration.productundertests.add(hardware)
+        machineconfiguration.save()
+        machineconfigs.append(machineconfiguration)
+    return machineconfigs
+
+
+def make_pipelines(num_pipelines, machineconfigs):
     current_count = models.Pipeline.objects.count()
     for i in range(current_count, num_pipelines):
         pipeline = make_pipeline()
         make_builds(pipeline)
-        make_hardware(pipeline)
+        deploy_services(pipeline, machineconfigs)
 
 
 def populate_data(num_bugs, num_pipelines):
     populate_enum_objects()
     populate_ubuntu_versions()
+    populate_producttypes()
+    populate_vendors()
     make_infrastructure()
     make_bugs(num_bugs)
-    make_pipelines(num_pipelines)
+    machineconfigs = configure_machines()
+    make_pipelines(num_pipelines, machineconfigs)
 
 
 class Command(BaseCommand):

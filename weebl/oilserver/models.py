@@ -32,22 +32,6 @@ class TimeStampedBaseModel(models.Model):
         return super(TimeStampedBaseModel, self).save(*args, **kwargs)
 
 
-def format_partial(format_string, join=" "):
-    db_name = "oilserver"
-    parameters = [
-        'compute',
-        'sdn',
-        'ubuntuversion',
-        'openstackversion',
-        'blockstorage',
-        'imagestorage',
-        'database'
-    ]
-    return join.join([
-        format_string.format(db_name=db_name, field=field)
-        for field in parameters])
-
-
 class Environment(TimeStampedBaseModel):
     """The environment (e.g. Prodstack, Staging)."""
     uuid = models.CharField(
@@ -73,68 +57,6 @@ class Environment(TimeStampedBaseModel):
     def __str__(self):
         return "{} ({})".format(self.name, self.uuid)
 
-    def get_site_settings(self):
-        current_site = Site.objects.get_current().id
-        return WeeblSetting.objects.get(pk=current_site)
-
-    def get_job_history(self, start_date=None):
-        """Return the number of time each run config has been run in this
-        environment.
-
-        A list of tuples in the form of (run_config, count) is returned,
-        where run_config is a dictionary of component->choice names and
-        count is the number of times that combination of components has
-        been run.
-        """
-        selections = format_partial(
-            "{db_name}_{field}.name as {field}", join=", ")
-        table_fields = format_partial(
-            "{db_name}_{field}", join=", ")
-        id_joins = format_partial(
-            "AND {db_name}_pipeline.{field}_id = {db_name}_{field}.id")
-        group_bys = format_partial("{db_name}_{field}.name", join=", ")
-
-        if start_date is None:
-            start_date_clause = ""
-        else:
-            start_date_clause = \
-                "AND {db_name}_pipeline.created_at >= '{start_date}'".format(
-                    db_name="oilserver",
-                    start_date=start_date.isoformat())
-
-        query = textwrap.dedent("""
-            SELECT
-            {selections},
-            COUNT({db_name}_pipeline.id)
-            FROM {db_name}_pipeline, {db_name}_buildexecutor,
-            {db_name}_jenkins,
-            {table_fields}
-            WHERE
-            {db_name}_pipeline.buildexecutor_id = {db_name}_buildexecutor.id
-            {start_date_clause}
-            AND {db_name}_buildexecutor.jenkins_id = {db_name}_jenkins.id
-            AND {db_name}_jenkins.environment_id = {environment_id}
-            {id_joins}
-            GROUP BY {group_bys}
-            ORDER BY COUNT ASC;""").format(db_name="oilserver",
-                                           selections=selections,
-                                           table_fields=table_fields,
-                                           environment_id=self.id,
-                                           id_joins=id_joins,
-                                           group_bys=group_bys,
-                                           start_date_clause=start_date_clause)
-        cursor = connection.cursor()
-        cursor.execute(query)
-        description = cursor.description
-        results = []
-        for row in cursor.fetchall():
-            row_results = {
-                description[i].name: value for i, value in enumerate(row[:-1])
-            }
-            results.append((row_results, row[-1],))
-
-        return results
-
 
 class WeeblSetting(models.Model):
     """Settings for Weebl."""
@@ -144,7 +66,7 @@ class WeeblSetting(models.Model):
         null=False,
         blank=False,
         help_text="To make sure there is only ever one instance per website.")
-    default_environment = models.ForeignKey(
+    default_environment = models.OneToOneField(
         Environment,
         null=True,
         blank=True,
@@ -192,7 +114,7 @@ class Jenkins(TimeStampedBaseModel):
         blank=False,
         null=False,
         help_text="UUID of the jenkins instance.")
-    servicestatus = models.ForeignKey(ServiceStatus)
+    servicestatus = models.ForeignKey(ServiceStatus, related_name='jenkinses')
     external_access_url = models.URLField(
         unique=True,
         help_text="A URL for external access to this server.")
@@ -223,7 +145,7 @@ class BuildExecutor(TimeStampedBaseModel):
     name = models.CharField(
         max_length=255,
         help_text="Name of the jenkins build executor.")
-    jenkins = models.ForeignKey(Jenkins)
+    jenkins = models.ForeignKey(Jenkins, related_name='buildexecutors')
 
     class Meta:
         # Jenkins will default to naming the build_executers the same thing
@@ -352,6 +274,27 @@ class Report(TimeStampedBaseModel):
         return self.uuid
 
 
+class ProductType(TimeStampedBaseModel):
+    """The type of product under test."""
+    name = models.CharField(
+        max_length=255,
+        unique=True,
+        help_text="The type of product.")
+    uuid = models.CharField(
+        max_length=36,
+        default=utils.generate_uuid,
+        unique=True,
+        blank=False,
+        null=False,
+        help_text="UUID of this type of product.")
+    toplevel = models.BooleanField(
+        default=False,
+        help_text="If this is a top-level config option to a pipeline.")
+
+    def __str__(self):
+        return self.uuid
+
+
 class ProductUnderTest(TimeStampedBaseModel):
     """The product that is undergoing testing, such as a piece of hardware
     sold by a vendor.
@@ -367,12 +310,23 @@ class ProductUnderTest(TimeStampedBaseModel):
         blank=False,
         null=False,
         help_text="UUID of this product.")
-    project = models.ForeignKey(Project, null=True, blank=True, default=None)
-    vendor = models.ForeignKey(Vendor, null=True, blank=True, default=None)
+    project = models.ForeignKey(
+        Project, null=True, blank=True, default=None,
+        related_name='productundertests')
+    vendor = models.ForeignKey(
+        Vendor, null=True, blank=True, default=None,
+        related_name='productundertests')
     internalcontact = models.ForeignKey(
         InternalContact, null=True, blank=True, default=None)
-    report = models.ManyToManyField(
-        Report, null=True, blank=True, default=None)
+    producttype = models.ForeignKey(
+        ProductType, null=True, blank=True, default=None,
+        related_name='productundertests')
+    reports = models.ManyToManyField(
+        Report, null=True, blank=True, default=None,
+        related_name='productundertests')
+
+    class Meta:
+        unique_together = (('name', 'vendor'),)
 
     def __str__(self):
         return self.uuid
@@ -390,64 +344,27 @@ class OpenstackVersion(models.Model):
         return self.name
 
 
-class SDN(models.Model):
-    """The type of SDN being used in a pipeline."""
-    name = models.CharField(
-        max_length=255,
+class VersionConfiguration(TimeStampedBaseModel):
+    """The versions used for a pipeline."""
+    uuid = models.CharField(
+        max_length=36,
+        default=utils.generate_uuid,
         unique=True,
-        default="unknown",
-        help_text="The name of the software defined network.")
+        blank=False,
+        null=False,
+        help_text="UUID of this VersionConfiguration.")
+    ubuntuversion = models.ForeignKey(
+        UbuntuVersion, null=True, blank=True, default=None,
+        related_name='versionconfigurations')
+    openstackversion = models.ForeignKey(
+        OpenstackVersion, null=True, blank=True, default=None,
+        related_name='versionconfigurations')
+
+    class Meta:
+        unique_together = (('ubuntuversion', 'openstackversion'),)
 
     def __str__(self):
-        return self.name
-
-
-class Compute(models.Model):
-    """The type of Compute being used in a pipeline."""
-    name = models.CharField(
-        max_length=255,
-        unique=True,
-        default="unknown",
-        help_text="The name of the Compute type.")
-
-    def __str__(self):
-        return self.name
-
-
-class BlockStorage(models.Model):
-    """The type of Block Storage being used in a pipeline."""
-    name = models.CharField(
-        max_length=255,
-        unique=True,
-        default="unknown",
-        help_text="The name of the Block Storage type.")
-
-    def __str__(self):
-        return self.name
-
-
-class ImageStorage(models.Model):
-    """The type of Image Storage being used in a pipeline."""
-    name = models.CharField(
-        max_length=255,
-        unique=True,
-        default="unknown",
-        help_text="The name of the Image Storage type.")
-
-    def __str__(self):
-        return self.name
-
-
-class Database(models.Model):
-    """The type of Database being used in a pipeline."""
-    name = models.CharField(
-        max_length=255,
-        unique=True,
-        default="unknown",
-        help_text="The name of the Database type.")
-
-    def __str__(self):
-        return self.name
+        return self.uuid
 
 
 class Pipeline(TimeStampedBaseModel):
@@ -465,18 +382,10 @@ class Pipeline(TimeStampedBaseModel):
         default=None,
         auto_now_add=False,
         help_text="DateTime the pipeline was completed.")
-    ubuntuversion = models.ForeignKey(
-        UbuntuVersion, null=True, blank=True, default=None)
-    openstackversion = models.ForeignKey(
-        OpenstackVersion, null=True, blank=True, default=None)
-    sdn = models.ForeignKey(SDN, null=True, blank=True, default=None)
-    compute = models.ForeignKey(Compute, null=True, blank=True, default=None)
-    blockstorage = models.ForeignKey(BlockStorage, null=True, blank=True,
-                                     default=None)
-    imagestorage = models.ForeignKey(ImageStorage, null=True, blank=True,
-                                     default=None)
-    database = models.ForeignKey(Database, null=True, blank=True, default=None)
-    buildexecutor = models.ForeignKey(BuildExecutor)
+    versionconfiguration = models.ForeignKey(
+        VersionConfiguration, null=True, blank=True, default=None,
+        related_name='pipelines')
+    buildexecutor = models.ForeignKey(BuildExecutor, related_name='pipelines')
 
     def __str__(self):
         return self.uuid
@@ -493,10 +402,33 @@ class MachineConfiguration(TimeStampedBaseModel):
         blank=False,
         null=False,
         help_text="UUID of this machine.")
-    machine = models.ForeignKey(Machine, null=True, blank=True, default=None)
-    pipeline = models.ForeignKey(Pipeline, null=True, blank=True, default=None)
-    productundertest = models.ManyToManyField(
-        ProductUnderTest, null=True, blank=True, default=None)
+    machine = models.ForeignKey(
+        Machine, null=True, blank=True, default=None,
+        related_name='machineconfigurations')
+    productundertests = models.ManyToManyField(
+        ProductUnderTest, null=True, blank=True, default=None,
+        related_name='machineconfigurations')
+
+    def __str__(self):
+        return self.uuid
+
+
+class Charm(TimeStampedBaseModel):
+    """The Juju charm used."""
+    uuid = models.CharField(
+        max_length=36,
+        default=utils.generate_uuid,
+        unique=True,
+        blank=False,
+        null=False,
+        help_text="UUID of this Juju charm.")
+    name = models.CharField(
+        max_length=255,
+        default="unknown",
+        help_text="The name of the Juju charm.")
+    charm_source_url = models.URLField(
+        null=False,
+        help_text="The source of this charm.")
 
     def __str__(self):
         return self.uuid
@@ -516,50 +448,6 @@ class JujuService(TimeStampedBaseModel):
         unique=True,
         default="unknown",
         help_text="The name of the Juju service.")
-    productundertest = models.ForeignKey(
-        ProductUnderTest, null=True, blank=True, default=None)
-
-    def __str__(self):
-        return self.uuid
-
-
-class JujuServiceDeployment(TimeStampedBaseModel):
-    """The instance of the deployed Juju service."""
-    uuid = models.CharField(
-        max_length=36,
-        default=utils.generate_uuid,
-        unique=True,
-        blank=False,
-        null=False,
-        help_text="UUID of this juju service deployment.")
-    jujuservice = models.ForeignKey(
-        JujuService, null=True, blank=True, default=None)
-
-    def __str__(self):
-        return self.uuid
-
-
-class Unit(TimeStampedBaseModel):
-    """The unit, as defined by Juju."""
-    uuid = models.CharField(
-        max_length=36,
-        default=utils.generate_uuid,
-        unique=True,
-        blank=False,
-        null=False,
-        help_text="UUID of this unit.")
-    number = models.IntegerField(
-        default=0,
-        blank=False,
-        null=False,
-        help_text="Number of this unit (unit is: service_name/unit_number).")
-    machineconfiguration = models.ForeignKey(
-        MachineConfiguration, null=True, blank=True, default=None)
-    jujuservicedeployment = models.ForeignKey(
-        JujuServiceDeployment, null=True, blank=True, default=None)
-
-    class Meta:
-        unique_together = (('number', 'jujuservicedeployment'),)
 
     def __str__(self):
         return self.uuid
@@ -611,8 +499,8 @@ class Build(TimeStampedBaseModel):
         blank=True,
         null=True,
         help_text="DateTime build analysed by weebl, or None if unanalysed.")
-    pipeline = models.ForeignKey(Pipeline)
-    jobtype = models.ForeignKey(JobType)
+    pipeline = models.ForeignKey(Pipeline, related_name='builds')
+    jobtype = models.ForeignKey(JobType, related_name='builds')
 
     class Meta:
         unique_together = (('pipeline', 'jobtype'),)
@@ -625,6 +513,59 @@ class Build(TimeStampedBaseModel):
         url = self.pipeline.buildexecutor.jenkins.external_access_url
         return "{}/job/{}/{}/".format(
             url.rstrip('/'), self.jobtype.name, self.build_id)
+
+
+class JujuServiceDeployment(TimeStampedBaseModel):
+    """The instance of the deployed Juju service."""
+    uuid = models.CharField(
+        max_length=36,
+        default=utils.generate_uuid,
+        unique=True,
+        blank=False,
+        null=False,
+        help_text="UUID of this juju service deployment.")
+    pipeline = models.ForeignKey(
+        Pipeline, null=True, related_name='jujuservicedeployments')
+    jujuservice = models.ForeignKey(
+        JujuService, null=True, blank=True, default=None,
+        related_name='jujuservicedeployments')
+    productundertest = models.ForeignKey(
+        ProductUnderTest, null=True, related_name='jujuservicedeployments')
+    charm = models.ForeignKey(
+        Charm, null=True, related_name='jujuservicedeployments')
+
+    class Meta:
+        unique_together = (('pipeline', 'charm', 'jujuservice'),)
+
+    def __str__(self):
+        return self.uuid
+
+
+class Unit(TimeStampedBaseModel):
+    """The unit, as defined by Juju."""
+    uuid = models.CharField(
+        max_length=36,
+        default=utils.generate_uuid,
+        unique=True,
+        blank=False,
+        null=False,
+        help_text="UUID of this unit.")
+    number = models.IntegerField(
+        default=0,
+        blank=False,
+        null=False,
+        help_text="Number of this unit (unit is: service_name/unit_number).")
+    machineconfiguration = models.ForeignKey(
+        MachineConfiguration, null=True, blank=True, default=None,
+        related_name='units')
+    jujuservicedeployment = models.ForeignKey(
+        JujuServiceDeployment, null=True, related_name='units')
+
+    class Meta:
+        unique_together = (('number', 'jujuservicedeployment'),)
+
+    def __str__(self):
+        return self.uuid
 
 
 class TestFramework(TimeStampedBaseModel):
@@ -669,7 +610,7 @@ class TestCaseClass(TimeStampedBaseModel):
         null=False,
         help_text="Name of this individual test case.")
     testframework = models.ForeignKey(
-        TestFramework, null=True, blank=True, default=None)
+        TestFramework, null=True, related_name='testcaseclasses')
     uuid = models.CharField(
         max_length=36,
         default=utils.generate_uuid,
@@ -714,7 +655,7 @@ class TestCase(TimeStampedBaseModel):
         null=False,
         help_text="Name of this individual test case.")
     testcaseclass = models.ForeignKey(
-        TestCaseClass, null=True, blank=True, default=None)
+        TestCaseClass, null=True, related_name='testcases')
     uuid = models.CharField(
         max_length=36,
         default=utils.generate_uuid,
@@ -735,7 +676,8 @@ class TestCaseInstance(TimeStampedBaseModel):
     server (Jenkins; e.g. success, failure, aborted, unknown).
     """
     testcaseinstancestatus = models.ForeignKey(
-        TestCaseInstanceStatus, null=True, blank=True, default=None)
+        TestCaseInstanceStatus, null=True, blank=True, default=None,
+        related_name='testcaseinstances')
     uuid = models.CharField(
         max_length=36,
         default=utils.generate_uuid,
@@ -743,8 +685,10 @@ class TestCaseInstance(TimeStampedBaseModel):
         blank=False,
         null=False,
         help_text="UUID of this TestCase.")
-    build = models.ForeignKey(Build, default=None)
-    testcase = models.ForeignKey(TestCase, default=None)
+    build = models.ForeignKey(
+        Build, default=None, related_name='testcaseinstances')
+    testcase = models.ForeignKey(
+        TestCase, default=None, related_name='testcaseinstances')
 
     class Meta:
         unique_together = (('testcase', 'build'),)
@@ -759,7 +703,8 @@ class TargetFileGlob(TimeStampedBaseModel):
         unique=True,
         help_text="Glob pattern used to match one or more target files.")
     jobtypes = models.ManyToManyField(
-        JobType, null=True, blank=True, default=None)
+        JobType, null=True, blank=True, default=None,
+        related_name='targetfileglobs')
 
     def __str__(self):
         return self.glob_pattern
@@ -781,7 +726,9 @@ class BugTrackerBug(TimeStampedBaseModel):
         blank=False,
         null=False,
         help_text="UUID of this bug.")
-    project = models.ForeignKey(Project, null=True, blank=True, default=None)
+    project = models.ForeignKey(
+        Project, null=True, blank=True, default=None,
+        related_name='bugtrackerbugs')
 
     def __str__(self):
         return self.uuid
@@ -811,6 +758,7 @@ class Bug(TimeStampedBaseModel):
     bugtrackerbug = models.OneToOneField(
         BugTrackerBug,
         help_text="Bug tracker bug associated with this bug.",
+        unique=True,
         blank=True,
         null=True,
         default=None)
@@ -821,7 +769,9 @@ class Bug(TimeStampedBaseModel):
 
 class KnownBugRegex(TimeStampedBaseModel):
     """The regex used to identify a bug."""
-    bug = models.ForeignKey(Bug, null=True, blank=True, default=None)
+    bug = models.ForeignKey(
+        Bug, null=True, blank=True, default=None,
+        related_name='knownbugregexes')
     uuid = models.CharField(
         max_length=36,
         default=utils.generate_uuid,
@@ -849,12 +799,14 @@ class BugOccurrence(TimeStampedBaseModel):
         null=False,
         help_text="UUID of this bug occurrence.")
     testcaseinstance = models.ForeignKey(
-        TestCaseInstance, null=True, blank=True, default=None)
-    regex = models.ForeignKey(KnownBugRegex)
+        TestCaseInstance, null=True, blank=True, default=None,
+        related_name='bugoccurrences')
+    knownbugregex = models.ForeignKey(
+        KnownBugRegex, related_name='bugoccurrences')
 
     class Meta:
         # Only create one BugOccurrence instance per build/regex combo:
-        unique_together = (('testcaseinstance', 'regex'),)
+        unique_together = (('testcaseinstance', 'knownbugregex'),)
 
     def __str__(self):
         return self.uuid
@@ -903,8 +855,58 @@ class ReportInstance(TimeStampedBaseModel):
         blank=True,
         null=True,
         help_text="Summary text for specific report.")
-    report = models.ForeignKey(Report)
-    report_period = models.ForeignKey(ReportPeriod)
+    report = models.ForeignKey(Report, related_name='reportinstances')
+    reportperiod = models.ForeignKey(
+        ReportPeriod, related_name='reportinstances')
+
+    class Meta:
+        unique_together = (('report', 'reportperiod'),)
 
     def __str__(self):
         return self.uuid
+
+
+class ConfigurationChoices(models.Model):
+    """View of configuration choices made for pipelines."""
+    pipeline = models.OneToOneField(Pipeline)
+    openstackversion = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="The openstackversion choice.")
+    ubuntuversion = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="The ubuntuversion choice.")
+    blockstorage = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="The blockstorage choice.")
+    compute = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="The compute choice.")
+    database = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="The database choice.")
+    imagestorage = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="The imagestorage choice.")
+    sdn = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="The sdn choice.")
+
+    class Meta:
+        managed = False
+
+    def __str__(self):
+        return self.pipeline.uuid

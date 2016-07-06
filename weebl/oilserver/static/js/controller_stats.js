@@ -30,7 +30,22 @@ app.controller('successRateController', [
                 query_field = Common.getQueryFieldName(field);
                 $scope.data.metadata[field] = DataService.refresh(
                     query_field, $scope.data.user, $scope.data.apikey).query({});
-                }
+            }
+
+            var configurationchoices = [
+                'sdn',
+                'compute',
+                'blockstorage',
+                'imagestorage',
+                'database',
+            ];
+            for (var i in configurationchoices) {
+                field = configurationchoices[i];
+                $scope.data.metadata[field] = DataService.refresh(
+                    'productundertest', $scope.data.user, $scope.data.apikey).query({'producttype__name': field});
+            }
+
+
             return $scope.data;
         };
 
@@ -46,7 +61,7 @@ app.controller('successRateController', [
                 local_filters['successful_jobtype'] = jobname;
                 graphValues.pass = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(local_filters);
                 delete local_filters['successful_jobtype'];
-                local_filters['build__jobtype__name'] = jobname;
+                local_filters['builds__jobtype__name'] = jobname;
                 graphValues.jobtotal = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(local_filters);
             };
         };
@@ -185,8 +200,12 @@ app.controller('successRateController', [
 
         // Sorts the table by predicate.
         $scope.data.sortTable = function(predicate, tab) {
+            if (predicate === $scope.data.tabs[tab].predicate) {
+                $scope.data.tabs[tab].reverse = !$scope.data.tabs[tab].reverse;
+            } else {
+                $scope.data.tabs[tab].reverse = true;
+            }
             $scope.data.tabs[tab].predicate = predicate;
-            $scope.data.tabs[tab].reverse = !$scope.data.tabs[tab].reverse;
         };
 
         $scope.data.jobtypeLookup = function(jobname) {
@@ -194,7 +213,6 @@ app.controller('successRateController', [
         };
 
         $scope.data = getMetadata($scope);
-        $scope.data.sortTable('occurrence_count', 'bugs');
         $scope.data.subfilter_plot_form.type = 'cumulative';
         $scope.data.testRuns = update('pipeline');
         updateGraphValues();

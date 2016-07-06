@@ -1,7 +1,87 @@
 
-<div id="content" class="nine-col last-col">
-        <p>
-            <label>Overview Report to be shown here dynamically</label>
-        </p>
-    </div>
+<div id="content" class="nine-col last-col report">
+        <section class="row report-intro">
+            <div class="twelve-col">
+                <h1>{$ data.reports.overview.reportGroup $} - {$ data.reports.overview.reportPeriod $}</h1>
+                <h2>{$ data.reports.overview.testcasesPeriod $}+ tests this month</h2>
+                <h2>{$ data.reports.overview.testcasesTotal $}+ tests since partnership started in April 2015</h2>
+            </div>
+        </section>
+        <section class="info-graphic row no-border-bottom">
+            <div class="six-col align-center">
+                <img src="/static/img/reports/openstack-cloud.png" alt="" length="134">
+                <h3>Over {$ data.reports.overview.pipelinesTotal $} OpenStack clouds deployed overall and over {$ data.reports.overview.pipelinesPeriod $} this month.</h3>
+
+            </div>
+            <div class="six-col last-col align-center border-left">
+                <img src="/static/img/reports/picto-server-orange.png" alt="" length="134">
+                <h3>Using {$ data.reports.overview.hardwareProducts $} different configurations, including amd64, ppc64el and arm64 hardware from {$ data.reports.overview.hardwareVendors $} vendors.</h3>
+            </div>
+            <div class="six-col align-center border-left">
+                <img src="/static/img/reports/charms.png" alt="" length="134">
+                <h3>Tests covered {$ data.reports.overview.cloudConfigs $} combination of OpenStack services.</h3>
+            </div>
+            <div class="six-col last-col align-center border-left">
+                <img src="/static/img/reports/operating-systems.png" alt="" length="134">
+                <h3>Running Ubuntu 12.04 and 14.04, Redhat 7.1 and Oracle guest OSes.</h3>
+            </div>
+        </section>
+        <section class="versions-tested row no-border-bottom">
+            <h2>Platforms tested on:</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                    <th data-ng-repeat="ubuntuversion in data.reports.overview.ubuntuCrossOpenstack.axes.ubuntuversion">
+                        {$ ubuntuversion $}
+                    </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-ng-repeat="openstackversion in data.reports.overview.ubuntuCrossOpenstack.axes.openstackversion">
+                    <th>{$ openstackversion $}</th>
+                    <td data-ng-repeat="ubuntuversion in data.reports.overview.ubuntuCrossOpenstack.axes.ubuntuversion">
+                    <img src="/static/img/reports/icon-success.svg" width="16" length="16" alt="" data-ng-show="data.reports.overview.ubuntuCrossOpenstack.items[openstackversion+ubuntuversion]">
+                    <div data-ng-hide="data.reports.overview.ubuntuCrossOpenstack.items[openstackversion+ubuntuversion]">-</div>
+                    </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+	<section class="services-tested row no-border-bottom">
+	    <div class="twleve-col">
+		<h2>Services tested:</h2>
+                <div class="fith-col align-center" data-ng-show="data.reports.overview.productTypes.indexOf('compute') != -1">
+                    <img src="/static/img/reports/openstack-nova.svg" alt="">
+                    <h3>Nova</h3>
+                </div>
+                <div class="fith-col align-center" data-ng-show="data.reports.overview.productTypes.indexOf('sdn') != -1">
+                    <img src="/static/img/reports/openstack-neutron.svg" alt="">
+                    <h3>Neutron</h3>
+                </div>
+                <div class="fith-col align-center" data-ng-show="data.reports.overview.productTypes.indexOf('blockstorage') != -1">
+                    <img src="/static/img/reports/openstack-cinder.svg" alt="">
+                    <h3>Cinder</h3>
+                </div>
+                <div class="fith-col align-center" data-ng-show="data.reports.overview.testedSwift">
+                    <img src="/static/img/reports/openstack-swift.svg" alt="">
+                    <h3>Swift</h3>
+                </div>
+                <div class="fith-col align-center" data-ng-show="data.reports.overview.productTypes.indexOf('imagestorage') != -1">
+                    <img src="/static/img/reports/openstack-glance.svg" alt="">
+                    <h3>Glance</h3>
+                </div>
+	    </div>
+	    <section class="row no-border-bottom no-padding-bottom no-padding-left" data-ng-show="data.reports.overview.servicesTested">
+		<div>
+		    <p>As well as: {$ data.reports.overview.servicesTested $}</p>
+		</div>
+	    </section>
+        </section>
+	<section class="models row">
+	    <div class="twelve-col">
+                <h2>{$ data.reports.overview.reportGroup $} models in OIL:</h2>
+                <p>{$ data.reports.overview.productsUnderTest $}</p>
+	    </div>
+	</section>
 </div>

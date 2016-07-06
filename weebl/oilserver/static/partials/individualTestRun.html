@@ -1,8 +1,8 @@
 <div class="row">
     <div class="four-col">
         <p>Test run ID: {$ data.testRunId $}</p>
-        <p>Test run completed at: {$ data.humaniseDate(data.individual_testRun.objects[0].completed_at) $}</p>
-        <p>Environment: {$ data.individual_testRun.objects[0].buildexecutor.jenkins.environment.name $}</p>
+        <p>Test run completed at: {$ data.humaniseDate(data.individual_testRun.completed_at) $}</p>
+        <p>Environment: {$ data.individual_testRun.buildexecutor.jenkins.environment.name $}</p>
     </div>
     <div id="content" class="five-col last-col">
         <a ng-href="{$ data.image $}">
@@ -26,50 +26,10 @@
             <tbody>
                 <tr class="table-listing__row">
                     <td class="table-listing__cell">
-                        Block Storage
+                        OpenStack Version
                     </td>
                     <td class="table-listing__cell">
-                        {$ data.individual_testRun.objects[0].blockstorage.name $}
-                    </td>
-                </tr>
-                <tr class="table-listing__row">
-                    <td class="table-listing__cell">
-                        Compute
-                    </td>
-                    <td class="table-listing__cell">
-                        {$ data.individual_testRun.objects[0].compute.name $}
-                    </td>
-                </tr>
-                <tr class="table-listing__row">
-                    <td class="table-listing__cell">
-                        Database
-                    </td>
-                    <td class="table-listing__cell">
-                        {$ data.individual_testRun.objects[0].database.name $}
-                    </td>
-                </tr>
-                <tr class="table-listing__row">
-                    <td class="table-listing__cell">
-                        Image Storage
-                    </td>
-                    <td class="table-listing__cell">
-                        {$ data.individual_testRun.objects[0].imagestorage.name $}
-                    </td>
-                </tr>
-                <tr class="table-listing__row">
-                    <td class="table-listing__cell">
-                        Openstack Version
-                    </td>
-                    <td class="table-listing__cell">
-                        {$ data.individual_testRun.objects[0].openstackversion.name $}
-                    </td>
-                </tr>
-                <tr class="table-listing__row">
-                    <td class="table-listing__cell">
-                        SDN
-                    </td>
-                    <td class="table-listing__cell">
-                        {$ data.individual_testRun.objects[0].sdn.name $}
+                        {$ data.individual_testRun.configurationchoices.openstackversion $}
                     </td>
                 </tr>
                 <tr class="table-listing__row">
@@ -77,7 +37,47 @@
                         Ubuntu Version
                     </td>
                     <td class="table-listing__cell">
-                        {$ data.individual_testRun.objects[0].ubuntuversion.name $}
+                        {$ data.individual_testRun.configurationchoices.ubuntuversion $}
+                    </td>
+                </tr>
+                <tr class="table-listing__row">
+                    <td class="table-listing__cell">
+                        Block Storage
+                    </td>
+                    <td class="table-listing__cell">
+                        {$ data.individual_testRun.configurationchoices.blockstorage $}
+                    </td>
+                </tr>
+                <tr class="table-listing__row">
+                    <td class="table-listing__cell">
+                        Compute
+                    </td>
+                    <td class="table-listing__cell">
+                        {$ data.individual_testRun.configurationchoices.compute $}
+                    </td>
+                </tr>
+                <tr class="table-listing__row">
+                    <td class="table-listing__cell">
+                        Database
+                    </td>
+                    <td class="table-listing__cell">
+                        {$ data.individual_testRun.configurationchoices.database $}
+                    </td>
+                </tr>
+                <tr class="table-listing__row">
+                    <td class="table-listing__cell">
+                        Image Storage
+                    </td>
+                    <td class="table-listing__cell">
+                        {$ data.individual_testRun.configurationchoices.imagestorage $}
+                    </td>
+                </tr>
+                <tr class="table-listing__row">
+                    <td class="table-listing__cell">
+                        SDN
+                    </td>
+                    <td class="table-listing__cell">
+                        {$ data.individual_testRun.configurationchoices.sdn $}
                     </td>
                 </tr>
             </tbody>
@@ -102,13 +102,13 @@
                 <tbody>
                     <tr class="table-listing__row" data-ng-repeat="pl_testcase in data.pipeline_testcaseinstance.objects  | filter:filterFn" >
                         <td class="table-listing__cell">
-                            {$ data.jobtypeLookup((pl_testcase.build['jobtype']).slice(16,-1)); $}
+                            {$ data.jobtypeLookup(pl_testcase.build.jobtype.name); $}
                         </td>
                         <td class="table-listing__cell">
                             <a href="{$ pl_testcase.build['jenkins_build_url']; $}" class="external">{$ pl_testcase.build['build_id']; $}</a>
                         </td>
                         <td class="table-listing__cell">
-                            {$ pl_testcase['testcaseinstancestatus']['name']; $}
+                            {$ pl_testcase.testcaseinstancestatus.name; $}
                         </td>
                     </tr>
                 </tbody>

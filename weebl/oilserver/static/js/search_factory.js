@@ -34,7 +34,7 @@ app.factory('SearchFactory', [function() {
             angular.forEach(this.defaultFilters, function(value, key) {
                 if(angular.isUndefined(this.filters[key])) {
                     //defaults are assumed to be exact for now
-                    this.toggleFilter(key, value, true);
+                    this.toggleFilter(key, value, true, false);
                 }
             }, this);
         };
@@ -195,8 +195,9 @@ app.factory('SearchFactory', [function() {
         };
 
         // Toggles a filter on or off based on key and value.
-        this.toggleFilter = function(key, value, exact) {
+        this.toggleFilter = function(key, value, exact, runUpdate) {
             console.log('toggling: ' + key + ' ' + value);
+            angular.isUndefined(runUpdate) ? runUpdate=true : runUpdate=runUpdate;
             if(angular.isUndefined(this.filters[key])) {
                 this.filters[key] = [];
             }
@@ -219,7 +220,9 @@ app.factory('SearchFactory', [function() {
                 }
             }
             this._filtersToString();
-            this.update();
+            if(runUpdate) {
+                this.update();
+            }
         };
     };
     return {

@@ -2,6 +2,7 @@ import re
 import pytz
 import string
 import random
+from copy import copy
 from datetime import datetime, timedelta
 from dateutil import parser
 from django.utils import timezone
@@ -97,3 +98,51 @@ def pop(dictionary, fields):
         except KeyError:
             pass
     return dictionary
+
+
+def object_to_dict(model):
+    """Turns a model object into a dict."""
+    return {k: getattr(model, k)
+            for k in model._meta.get_all_field_names() if hasattr(model, k)}
+
+
+def get_value(dict_, key):
+    """Get either exact values from dict_ or if key is a tuple, return a tuple
+    in the same order of values"""
+    if not isinstance(key, tuple):
+        return dict_[key]
+    return tuple([dict_[k] for k in key])
+
+
+def get_or_create_new_model(model, key, get_params_dict, new_params_dict=None):
+    if new_params_dict is None:
+        new_params_dict = get_params_dict
+    model_key_values = set()
+    for model_object in model.objects.all():
+        model_key_values.add(get_value(object_to_dict(model_object), key))
+    if get_value(get_params_dict, key) not in model_key_values:
+        new_model = model(**new_params_dict)
+        new_model.save()
+    return model.objects.get(**get_params_dict)
+
+
+def update_copy(original, new):
+    """Return a copy of a dict with overridden values"""
+    returns = copy(original)
+    returns.update(new)
+    return returns
+
+
+def override_defaults(function, default_kwargs):
+    """Return a function that is the same as the given one, just with different
+    default kwargs. Does not run given function till the returned one is
+    called.
+    Example:
+        def one(thing=4):
+            print (thing)
+        two = override_defaults(one, {'thing': 5})
+        one() # prints 4
+        two() # prints 5
+    """
+    return lambda *args, **kwargs: function(
+        *args, **update_copy(default_kwargs, kwargs))

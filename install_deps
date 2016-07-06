@@ -35,6 +35,7 @@ apt -y --no-upgrade install \
     python3-bs4 \
     nginx-full \
     gunicorn3 \
+    postgresql-contrib \
     --fix-missing
 
 # export https_proxy=http://91.189.89.33:3128

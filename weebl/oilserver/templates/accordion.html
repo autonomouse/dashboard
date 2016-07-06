@@ -141,8 +141,8 @@
                                         <h4 class="accordion__tab-title maas-accordion-tab">Environment</h4>
                                         <div class="accordion__tab-content">
                                             <ul class="accordion__tab-list">
-                                                <li class="accordion__tab-item" data-ng-repeat="env in data.reports.metadata.environments | orderBy:['name']"  data-ng-class="{ active: data.reports.search.isFilterActive('environment', env.name, true) }">
-                                                    <a class="accordion__tab-link" href="" data-ng-click="data.reports.search.toggleFilter('environment', env.name, true)">{$ env.name $}</a>
+                                                <li class="accordion__tab-item" data-ng-repeat="env in data.reports.metadata.environments | orderBy:['name']"  data-ng-class="{ active: data.reports.search.isFilterActive('environment', env.name, false) }">
+                                                    <a class="accordion__tab-link" href="" data-ng-click="data.reports.search.toggleFilter('environment', env.name, false)">{$ env.name $}</a>
                                                 </li>
                                             </ul>
                                         </div>

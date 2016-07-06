@@ -6,17 +6,17 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
         var model_fields = {
             'completed_at__gte': 'completed_at__gte',
             'completed_at__lte': 'completed_at__lte',
-            'openstackversion': 'openstackversion__name__in',
-            'ubuntuversion': 'ubuntuversion__name__in',
-            'sdn': 'sdn__name__in',
-            'compute': 'compute__name__in',
-            'blockstorage': 'blockstorage__name__in',
-            'imagestorage': 'imagestorage__name__in',
-            'database': 'database__name__in',
+            'openstackversion': 'configurationchoices__openstackversion__in',
+            'ubuntuversion': 'configurationchoices__ubuntuversion__in',
+            'sdn': 'configurationchoices__sdn__in',
+            'compute': 'configurationchoices__compute__in',
+            'blockstorage': 'configurationchoices__blockstorage__in',
+            'imagestorage': 'configurationchoices__imagestorage__in',
+            'database': 'configurationchoices__database__in',
             'environment': 'buildexecutor__jenkins__environment__name__in',
-            'testcaseinstancestatus': 'testcaseinstance__testcaseinstancestatus__name__in',
-            'machine': 'machineconfiguration__machine__hostname__in',
-            'productundertest': 'machineconfiguration__productundertest__name__in',
+            'testcaseinstancestatus': 'testcaseinstances__testcaseinstancestatus__name__in',
+            'machine': 'jujuservicedeployments__units__machineconfiguration__machine__hostname__in',
+            'productundertest': 'jujuservicedeployments__units__machineconfiguration__productundertests__name__in|jujuservicedeployments__productundertest__name__in',
             'failedjobs': 'failed_jobtype',
         };
 
@@ -27,12 +27,12 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
 
         // add the path from the origin model to the fields needed:
         var prefixtures = {
-            'bug': 'knownbugregex__bugoccurrences__testcaseinstance__build__pipeline__',
+            'bug': 'knownbugregexes__bugoccurrences__testcaseinstance__build__pipeline__',
             'build': 'pipeline__',
             'knownbugregex': 'bugoccurrences__testcaseinstance__build__pipeline__',
             'pipeline': '',
-            'testcaseinstancestatus': 'build__pipeline__',
-            'machine': 'machineconfiguration__pipeline__',
+            'testcaseinstancestatus': 'testcaseinstances__build__pipeline__',
+            'machine': 'machineconfigurations__units__jujuservicedeployment__pipeline__',
         };
 
         return [model_fields, prefixtures, original_model_names]
@@ -64,7 +64,7 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
             $scope.data.tabs.testRuns.reverse = true;
             $scope.data.tabs.bugs = {};
             $scope.data.tabs.bugs.pagetitle = "Bugs";
-            $scope.data.tabs.bugs.predicate = "occurrences";
+            $scope.data.tabs.bugs.predicate = "occurrence_count";
             $scope.data.tabs.bugs.reverse = true;
             $scope.data.tabs.overview = {};
             $scope.data.tabs.overview.pagetitle = "Overview";
@@ -193,17 +193,31 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
 
     function prefixPathToFields(fields, path) {
         for (var field in fields) {
-            fields[field] = path + fields[field];
+            expandedFieldParts = [];
+            fieldParts = fields[field].split("|");
+            for (index in fieldParts) {
+                expandedFieldParts.push(path + fieldParts[index]);
+            }
+            fields[field] = expandedFieldParts.join("|");
         }
         return fields;
     };
 
     function getFilterModels() {
         var enum_fields = Object.keys(generateFilterPaths());
-        index = enum_fields.indexOf("completed_at__gte");
-        enum_fields.splice(index, 1);
-        index = enum_fields.indexOf("completed_at__lte");
-        enum_fields.splice(index, 1);
+        var ignores = [
+            'completed_at__gte',
+            'completed_at__lte',
+            'sdn',
+            'compute',
+            'blockstorage',
+            'imagestorage',
+            'database',
+        ];
+        for (var i in ignores) {
+            index = enum_fields.indexOf(ignores[i]);
+            enum_fields.splice(index, 1);
+        }
         return enum_fields;
     };
 
