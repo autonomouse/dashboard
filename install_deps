@@ -43,7 +43,7 @@ apt -y --no-upgrade install \
 echo "Installing packages via npm"
 jslibs_dir="weebl/oilserver/static"
 mkdir -p $jslibs_dir
-npm install --prefix $jslibs_dir d3 nvd3 angular-nvd3
+npm install --prefix $jslibs_dir d3@^3.4.4 nvd3 angular-nvd3
 chown -R $SUDO_ID:$SUDO_GID $jslibs_dir
 
 echo "Done"
