@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
         ('oilserver', '0026_auto_20160527_1405'),
     ]
 
-    sql = """CREATE EXTENSION tablefunc;
+    sql = """CREATE EXTENSION IF NOT EXISTS tablefunc;
     create view oilserver_configurationchoices as select row_number() over() as id, pipeline_id, openstackversion, ubuntuversion, blockstorage, compute, database, imagestorage, sdn
 from crosstab(
         $$select distinct
