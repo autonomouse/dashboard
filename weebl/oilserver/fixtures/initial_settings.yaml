@@ -63,6 +63,12 @@
     name: error
     description: The build or test was in error.
 
+- model: oilserver.testcaseinstancestatus
+  pk: 6
+  fields:
+    name: skipped
+    description: The build or test was skipped.
+
 - model: oilserver.jobtype
   pk: 1
   fields:
