@@ -15,7 +15,7 @@ def add_skipped_testcaseinstancestatus(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('oilserver', '0021_auto_20160525_1439'),
+        ('oilserver', '0029_auto_20160614_1636'),
     ]
     operations = [
         migrations.RunPython(
