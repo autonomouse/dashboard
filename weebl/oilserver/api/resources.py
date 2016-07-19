@@ -89,7 +89,7 @@ class CommonResource(ModelResource):
         # the existing one.
         return None
 
-    def build_filters(self, filters=None):
+    def build_filters(self, filters=None, ignore_bad_filters=True):
         def build_Q_from_query(query_dict):
             return Q(**super(CommonResource, self).build_filters(query_dict))
 
@@ -103,7 +103,8 @@ class CommonResource(ModelResource):
                                   for query in filter_.split('|')]
                 custom_filters[filter_] = reduce(operator.or_, custom_queries)
                 del filters[filter_]
-        orm_filters = super(CommonResource, self).build_filters(filters)
+        orm_filters = super(CommonResource, self).build_filters(
+            filters, ignore_bad_filters)
         orm_filters.update(custom_filters)
         return orm_filters
 
