@@ -140,8 +140,8 @@ def fake_data():
 @task(help={'filetype': "Format of output file (defaults to .png)"})
 def schema(filetype="png"):
     """Generates an image depicting the current database schema. """
-    run('{0}/manage.py graph_models -X TimeStampedBaseModel -E -a > {0}.dot'
-        .format(application))
+    run('{} graph_models -X TimeStampedBaseModel -E -a > {}.dot'
+        .format(manage_cmd, application))
     run('dot -T{1} {0}.dot -o {0}_schema.{1}'.format(application, filetype))
     run('rm {}.dot'.format(application))
     print("Schema generated at {0}_schema.{1}".format(application, filetype))

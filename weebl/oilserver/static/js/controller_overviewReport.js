@@ -242,7 +242,6 @@ app.controller('overviewReportController', [
         }
 
         function resolveOverviewData(data) {
-            console.log('data');
             console.log(data);
             $scope.data.reports.overview.productsUnderTest = getProperties(data.productsUnderTest.objects, "name").join(", ");
             $scope.data.reports.overview.servicesTested = getProperties(data.servicesTested.objects, "name").join(", ");

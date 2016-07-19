@@ -176,7 +176,7 @@ class BugAdmin(admin.ModelAdmin):
         except AttributeError:
             return obj.bugtrackerbug.project
 
-    search_fields = ['summary']
+    search_fields = ['summary', 'uuid']
     ordering = ['summary']
     form = BugForm
 

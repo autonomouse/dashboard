@@ -1,4 +1,3 @@
-import textwrap
 from oilserver import utils
 from django.db import connection, models
 from django.contrib.sites.models import Site

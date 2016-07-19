@@ -7,16 +7,14 @@
             <input type = "radio"
                 name = "plotType"
                 id = "typeCumulative"
-                value = "cumulative"
-                data-ng-model="data.subfilter_plot_form.type"
+                data-ng-model="data.subfilterPlotForm.type"
                 value="cumulative" />
             <label for="typeCumulative">Cumulative</label>
 
             <input type = "radio"
                 name = "plotType"
                 id = "typeIndividual"
-                value = "individual"
-                data-ng-model="data.subfilter_plot_form.type"
+                data-ng-model="data.subfilterPlotForm.type"
                 value="individual" />
             <label for="typeIndividual">Individual</label>
         </p>
@@ -26,14 +24,14 @@
 <!------------------------------------------------>
 
 
-    <div class="nine-col last-col" data-ng-if="data.subfilter_plot_form.type == 'individual'">
+    <div class="nine-col last-col" data-ng-if="data.subfilterPlotForm.type == 'individual'">
         <nvd3 options="successRate.individual_stack_bar_options"
             data="successRate.stack_bar_data"
             config="successRate.stack_bar_config"
             ></nvd3>
     </div>
 
-    <div class="nine-col last-col" data-ng-if="data.subfilter_plot_form.type == 'cumulative'">
+    <div class="nine-col last-col" data-ng-if="data.subfilterPlotForm.type == 'cumulative'">
         <nvd3 options="successRate.cumulative_stack_bar_options"
             data="successRate.stack_bar_data"
             config="successRate.stack_bar_config"

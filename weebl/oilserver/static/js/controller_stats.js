@@ -213,7 +213,7 @@ app.controller('successRateController', [
         };
 
         $scope.data = getMetadata($scope);
-        $scope.data.subfilter_plot_form.type = 'cumulative';
+        $scope.data.subfilterPlotForm.type = 'cumulative';
         $scope.data.testRuns = update('pipeline');
         updateGraphValues();
         plotStatsGraph();

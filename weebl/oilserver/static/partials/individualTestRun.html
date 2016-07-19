@@ -139,7 +139,11 @@
                 </thead>
                 <tbody>
                     <tr class="table-listing__row" ng-repeat="bug_fx_pl in data.bugs_affecting_pipeline.objects | orderBy:data.tabs.bugs.predicate:data.tabs.bugs.reverse">
-                        <td class="table-listing__cell"><a href="https://bugs.launchpad.net/bugs/{$ bug_fx_pl.bugtrackerbug.bug_number $}/" class="external">{$ bug_fx_pl.bugtrackerbug.bug_number $}</a></td>
+                        <td class="table-listing__cell">
+                            <a href="#/results/bug/{$ bug_fx_pl.bugtrackerbug.bug_number $}" title="{$ bug_fx_pl.bugtrackerbug.bug_number $}">
+                                {$ bug_fx_pl.bugtrackerbug.bug_number $}
+                            </a>
+                        </td>
                         <td class="table-listing__cell">{$ bug_fx_pl.bugtrackerbug.project.name $}</td>
                         <td class="table-listing__cell">
                             {$ bug_fx_pl.summary $}

@@ -69,8 +69,8 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
             $scope.data.tabs.overview = {};
             $scope.data.tabs.overview.pagetitle = "Overview";
         };
-        if (angular.isUndefined($scope.data.subfilter_plot_form)) {
-            $scope.data.subfilter_plot_form = {};
+        if (angular.isUndefined($scope.data.subfilterPlotForm)) {
+            $scope.data.subfilterPlotForm = {};
         };
         if (angular.isUndefined($scope.data.results)) $scope.data.results = {};
         if (angular.isUndefined($scope.data.reports)) $scope.data.reports = {};

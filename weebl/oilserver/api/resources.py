@@ -14,6 +14,7 @@ from django.conf.urls import url
 from django.conf import settings
 from django.http import HttpResponse
 from django.db.models import Q, Count
+from django.db.models.aggregates import Count as AggCount
 from oilserver import models, utils
 from oilserver.exceptions import NonUserEditableError
 from django.contrib.sites.models import Site
@@ -692,6 +693,9 @@ class TestCaseInstanceResource(CommonResource):
     testcaseinstancestatus = ForeignKey(
         TestCaseInstanceStatusResource, 'testcaseinstancestatus',
         full_list=True)
+    bugoccurrences = ReverseManyField(
+        'oilserver.api.resources.BugOccurrenceResource',
+        'bugoccurrences')
 
     class Meta(CommonMeta):
         queryset = models.TestCaseInstance.objects.select_related(
@@ -701,6 +705,7 @@ class TestCaseInstanceResource(CommonResource):
             'build': ALL_WITH_RELATIONS,
             'testcaseinstancestatus': ALL_WITH_RELATIONS,
             'testcase': ALL_WITH_RELATIONS,
+            'bugoccurrences': ALL_WITH_RELATIONS,
         }
 
 
@@ -726,6 +731,7 @@ class BugTrackerBugResource(CommonResource):
         queryset = models.BugTrackerBug.objects.select_related('project').all()
         excludes = ['id']
         filtering = {'bug_number': ALL, }
+        detail_uri_name = 'bug_number'
 
 
 class BugResource(CommonResource):
@@ -736,6 +742,8 @@ class BugResource(CommonResource):
         full=True)
     knownbugregexes = ReverseManyField(
         'oilserver.api.resources.KnownBugRegexResource', 'knownbugregexes')
+    historical_bugoccurrences = fields.ListField('historical_bugoccurrences',
+                                                 readonly=True, null=True)
 
     class Meta(CommonMeta):
         queryset = models.Bug.objects.select_related('bugtrackerbug').all()
@@ -749,6 +757,27 @@ class BugResource(CommonResource):
         bugoccurrence = BugOccurrenceResource().occurrences_for_bug_filters(
             bundle)
         bundle.data['occurrence_count'] = bugoccurrence.count()
+
+        bug_history_req = bundle.request.GET.get(
+            'historical_bugoccurrences_grouping')
+        try:
+            bugno = bundle.data['bugtrackerbug'].data['bug_number']
+        except (KeyError, AttributeError):
+            bugno = None
+        if bug_history_req in ['day', 'month', 'year'] and bugno:
+            bugoccurrences_history = models.BugOccurrence.objects.filter(
+                knownbugregex__bug__bugtrackerbug__bug_number=bugno)
+            stmnt = "date_trunc('%s', oilserver_bugoccurrence.created_at)" % \
+                bug_history_req
+            timeframe = bugoccurrences_history.extra({"date": stmnt})
+            bugocc_data = []
+            if timeframe:
+                period = timeframe.values("date").order_by("date")
+                bugocc_data = list(period.annotate(count=AggCount("id")))
+            bundle.data["historical_bugoccurrences"] = bugocc_data
+        else:
+            del bundle.data['historical_bugoccurrences']
+
         if bugoccurrence.exists():
             try:
                 last_seen = bugoccurrence.latest(

@@ -1,0 +1,89 @@
+<h2 ng-show="data.individualBug.regex.objects[0].bug.uuid">
+    Bug details for "{$ data.individualBug.regex.objects[0].bug.summary $}"
+    <a href="/admin/oilserver/bug/?q={$ data.individualBug.regex.objects[0].bug.uuid $}"> (edit)</a>
+</h2>
+
+<p>Launchpad bug number: <a href="https://bugs.launchpad.net/bugs/{$ data.individualBug.bugId $} /" class="external">
+    {$ data.individualBug.bugId $}</a>
+</p>
+<p><span data-ng-show="data.individualBug.regex.objects[0].bug.bugtrackerbug.project.name">Project: {$ data.individualBug.regex.objects[0].bug.bugtrackerbug.project.name $}</span></p>
+<p><span data-ng-show="data.individualBug.regex.objects[0].bug.bugtrackerbug.created_at">Weebl aware of this bug since: {$ data.humaniseDate(data.individualBug.regex.objects[0].bug.bugtrackerbug.created_at) $}</span></p>
+
+<!------------------------------------------------>
+
+<div id="content" class="nine-col last-col">
+    <div id="subfilter-bar" class="search">
+        <p>
+            <label>Data to plot (group by):</label>
+
+            <input type = "radio"
+                name = "timeframe"
+                id = "day"
+                data-ng-model="data.subfilterPlotForm.grouping"
+                value="day" />
+            <label for="typeCumulative">Day</label>
+
+            <input type = "radio"
+                name = "timeframe"
+                id = "month"
+                data-ng-model="data.subfilterPlotForm.grouping"
+                value="month" />
+            <label for="typeIndividual">Month</label>
+        </p>
+    </div>
+</div>
+
+<div class="nine-col last-col">
+    <nvd3 options="bug.LineChart_options"
+        data="bug.LineChart_data"
+        config="bug.LineChart_config"
+        ></nvd3>
+</div>
+
+<!------------------------------------------------>
+
+
+<div class="nine-col last-col">
+    <p><ng-pluralize count="data.individualBug.regex.meta.total_count" when="{
+        '0': 'There are no regular expressions currently used to identify this bug.',
+        '1': 'The following regular expression was used to identify this bug:',
+        '2': 'The following regular expressions were used to identify this bug:'}">
+    </ng-pluralize></p>
+    <div class="row" ng-repeat="regex in data.individualBug.regex.objects">
+        <h2>"{$ regex.regex $}"</h2>
+        <p>This regular expression has been matched on {$ data.individualBug.regex.objects[0].bug.occurrence_count $}<ng-pluralize count="data.individualBug.regex.objects[0].bug.occurrence_count" when="{
+            '0': ' occasions.',
+            '1': ' occasion ',
+            'other': ' occasions, most recently '}">
+        </ng-pluralize><span data-ng-show="data.individualBug.regex.objects[0].bug.last_seen">on {$ data.humaniseDate(data.individualBug.regex.objects[0].bug.last_seen) $}.</span></p></p>
+        <p>Targeted files: <span ng-repeat="targetfileglob in regex.targetfileglobs">{$ $first ? '' : $last ? ' and ' : ', ' $}{$ targetfileglob.glob_pattern $}</span></p>
+    </div>
+</div>
+
+<!------------------------------------------------>
+
+<div id="content" class="nine-col last-col">
+    <ng-pluralize count="data.individualBug.testRuns.meta.total_count" when="{
+        '0': 'There have been no test runs that have been recorded as having encountered this bug.',
+        'other': 'Recent test runs that encountered this bug:'}">
+    </ng-pluralize>
+
+    <table class="table-listing" data-ng-show="data.individualBug.testRuns.meta.total_count">
+        <thead>
+            <tr class="table-listing__row">
+                <th class="table-listing__header">Test Run ID</th>
+                <th class="table-listing__header">Completed At</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="table-listing__row" ng-repeat="testRun in data.individualBug.testRuns.objects | orderBy:data.tabs.testRuns.predicate:data.tabs.testRuns.reverse">
+                <td class="table-listing__cell">
+                    <a href="#/results/testRun/{$ testRun.uuid $}" title="{$ testRun.uuid $}">
+                        {$ data.abbreviateUUID(testRun.uuid) $}
+                    </a>
+                </td>
+                <td class="table-listing__cell">{$ data.humaniseDate(testRun.completed_at) $}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

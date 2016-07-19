@@ -22,7 +22,11 @@
         </thead>
         <tbody>
             <tr class="table-listing__row" ng-repeat="bug in data.bugs.objects | orderBy:data.tabs.bugs.predicate:data.tabs.bugs.reverse">
-                <td class="table-listing__cell"><a href="https://bugs.launchpad.net/bugs/{$ bug.bugtrackerbug.bug_number $}/" class="external">{$ bug.bugtrackerbug.bug_number $}</a></td>
+                <td class="table-listing__cell">
+                    <a href="#/results/bug/{$ bug.bugtrackerbug.bug_number $}" title="{$ bug.bugtrackerbug.bug_number $}">
+                        {$ bug.bugtrackerbug.bug_number $}
+                    </a>
+                </td>
                 <td class="table-listing__cell">{$ bug.bugtrackerbug.project.name $}</td>
                 <td class="table-listing__cell">{$ bug.summary $}</td>
                 <td class="table-listing__cell">{$ bug.occurrence_count $}</td>

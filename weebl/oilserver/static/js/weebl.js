@@ -12,6 +12,11 @@ app.config(function ($routeProvider) {
             controller: 'successRateController',
             controllerAs:'successRate'
         })
+        .when('/results/bug/:bugId', {
+            templateUrl: '/static/partials/individualBug.html',
+            controller: 'bugController',
+            controllerAs:'bug'
+        })
         .when('/results/testRuns', {
             templateUrl: '/static/partials/testRuns.html',
             controller: 'successRateController',
@@ -43,12 +48,12 @@ app.config(function ($routeProvider) {
 
 app.directive('onErrorSrc', function() {
     return {
-	link: function(scope, element, attrs) {
-	    element.bind('error', function() {
-		if (attrs.src != attrs.onErrorSrc) {
-		    attrs.$set('src', attrs.onErrorSrc);
-		}
-	    });
-	}
+        link: function(scope, element, attrs) {
+            element.bind('error', function() {
+            if (attrs.src != attrs.onErrorSrc) {
+                attrs.$set('src', attrs.onErrorSrc);
+            }
+            });
+        }
     }
 });

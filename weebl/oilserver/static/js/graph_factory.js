@@ -123,10 +123,110 @@ var plot_stats_graph = function(scope, graphValues) {
         graphValues.test_cloud_image.pass.meta.total_count,
         graphValues.test_cloud_image.jobtotal.meta.total_count
     )
+};
+
+var plotBugHistoryGraph = function(scope, graphValues) {
+    function updateBugChartData(title, subtitle, bugnumber, description, values, maxNum, minDate) {
+        var LineChart_config = {
+            visible: true,
+            extended: false,
+            disabled: false,
+            autorefresh: true,
+            refreshDataOnly: false,
+            debounce: 10
+        };
+        scope.LineChart_config = LineChart_config;
+
+        var LineChart_options = {
+            chart: {
+                type: 'lineChart',
+                height: 450,
+                margin : {
+                    top: 20,
+                    right: 20,
+                    bottom: 40,
+                    left: 55
+                },
+                x: function(d){ return new Date(d.date).getTime(); },
+                y: function(d){ return d.count; },
+                useInteractiveGuideline: true,
+                dispatch: {
+                    stateChange: function(e){ console.log("stateChange"); },
+                    changeState: function(e){ console.log("changeState"); },
+                    tooltipShow: function(e){ console.log("tooltipShow"); },
+                    tooltipHide: function(e){ console.log("tooltipHide"); }
+                },
+                xAxis: {
+                    axisLabel: 'Date',
+                    tickFormat: function(d) {
+                        return d3.time.format('%d-%B-%y')(new Date(d))
+                    },
+                    showMaxMin: false,
+                    staggerLabels: false
+                },
+                yAxis: {
+                    axisLabel: 'Number of Occurrences',
+                    axisLabelDistance: -10
+                },
+                xDomain: [minDate, new Date().getTime()],
+                yDomain: [0, maxNum],
+                callback: function(chart){
+                    console.log("Plotting " + title);
+                }
+            },
+            title: {
+                enable: true,
+                text: title,
+                css: {
+                    'font-weight': 'bold'
+                }
+            },
+            subtitle: {
+                enable: true,
+                text: subtitle,
+                css: {
+                    'text-align': 'center',
+                    'margin': '10px 13px 0px 7px',
+                    'font-size': '75%'
+                }
+            },
+            caption: {
+                enable: false,
+                html: "",
+                css: {
+                    'text-align': 'justify',
+                    'margin': '10px 13px 0px 7px'
+                }
+            }
+        };
+        scope.LineChart_options = LineChart_options;
+
+        var LineChart_data = [
+            {
+                key: "Bug #" + bugnumber,
+                values: values,
+                area: true,
+                color: "#411934"
+            }
+        ];
+        scope.LineChart_data = LineChart_data;
+    };
+
+    updateBugChartData(
+        graphValues.title,
+        graphValues.subtitle,
+        graphValues.bugnumber,
+        graphValues.description,
+        graphValues.data,
+        graphValues.maxNum + 5,
+        graphValues.minDate
+    )
   };
+
 
   return {
     plot_stats_graph: plot_stats_graph,
+    plotBugHistoryGraph: plotBugHistoryGraph,
     calcPercentage: calcPercentage,
   };
 }]);
