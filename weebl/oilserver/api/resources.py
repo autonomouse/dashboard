@@ -713,7 +713,7 @@ class TargetFileGlobResource(CommonResource):
     """API Resource for 'TargetFileGlob' model. """
 
     jobtypes = ToManyField(
-        'oilserver.api.resources.JobTypeResource', 'jobtypes', full_list=True)
+        'oilserver.api.resources.JobTypeResource', 'jobtypes', full=True)
 
     class Meta(CommonMeta):
         queryset = models.TargetFileGlob.objects.all()
