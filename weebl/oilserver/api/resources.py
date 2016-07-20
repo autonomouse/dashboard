@@ -712,7 +712,7 @@ class TestCaseInstanceResource(CommonResource):
 class TargetFileGlobResource(CommonResource):
     """API Resource for 'TargetFileGlob' model. """
 
-    jobtypes = ToManyField(
+    jobtypes = ReverseManyField(
         'oilserver.api.resources.JobTypeResource', 'jobtypes', full=True)
 
     class Meta(CommonMeta):
