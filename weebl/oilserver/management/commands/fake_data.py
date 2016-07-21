@@ -679,7 +679,7 @@ def populate_data(num_bugs, num_pipelines):
 class Command(BaseCommand):
     help = 'Create fake application data'
     setup = set_up_site()
-    setup.handle("http://localhost:8000/", "Local Weebl")
+    setup.handle(sitename="Local Weebl")
 
     def handle(self, *args, **options):
         self.stdout.write('Creating fake application data!')
