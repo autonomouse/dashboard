@@ -6,7 +6,6 @@ from collections import namedtuple
 from functools import reduce
 from tastypie import fields
 from tastypie.resources import ModelResource, ALL, ALL_WITH_RELATIONS
-from tastypie.authorization import DjangoAuthorization
 from tastypie.authentication import ApiKeyAuthentication
 from tastypie.http import HttpBadRequest, HttpCreated, HttpApplicationError
 from tastypie.utils import trailing_slash
@@ -18,6 +17,7 @@ from django.db.models.aggregates import Count as AggCount
 from oilserver import models, utils
 from oilserver.exceptions import NonUserEditableError
 from django.contrib.sites.models import Site
+from oilserver.api.authorization import WorldReadableDjangoAuthorization
 
 # default to not populating reverse relations ('use_in') for speed and 'maximum
 # recursion depth' exceeded wormhole
@@ -60,8 +60,8 @@ class CommonMeta(object):
     list_allowed_methods = ['get', 'post', 'delete']  # all items
     detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
     include_resource_uri = False
-    authorization = DjangoAuthorization()
     authentication = ApiKeyAuthentication()
+    authorization = WorldReadableDjangoAuthorization()
     always_return_data = True
     detail_uri_name = 'uuid'
 
