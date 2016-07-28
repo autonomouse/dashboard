@@ -459,6 +459,7 @@ class ConfigurationChoicesResource(CommonResource):
 
     pipeline = ToOneField(PipelineResource, 'pipeline')
     runs = fields.IntegerField('runs', null=True)
+    config = fields.DictField('config', null=True)
 
     class Meta(CommonMeta):
         queryset = models.ConfigurationChoices.objects.all()
@@ -504,6 +505,7 @@ class ConfigurationChoicesResource(CommonResource):
         bundle = super(ConfigurationChoicesResource, self).dehydrate(bundle)
         runs = bundle.data['runs']
         del bundle.data['runs']
+        del bundle.data['config']
         if 'count_runs' in bundle.request.GET.keys():
             del bundle.data['pipeline']
             bundle.data = {'config': bundle.data, 'runs': runs}
