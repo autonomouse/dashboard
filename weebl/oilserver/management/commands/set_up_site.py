@@ -43,8 +43,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         try:
             sitename = options['sitename']
-        except IndexError:
-            msg = 'Please supply site url and name, '
+        except KeyError:
+            msg = 'Please supply site name, '
             msg += 'e.g. set_up_site "ProductionWeebl"'
             self.feedback(msg)
             return
