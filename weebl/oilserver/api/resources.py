@@ -353,7 +353,7 @@ class PipelineResource(CommonResource):
         'configurationchoices',
         readonly=True, full=True, use_in='detail')
     builds = ReverseManyField(
-        'oilserver.api.resources.BuildResource', 'builds')
+        'oilserver.api.resources.BuildResource', 'builds', use_in='detail')
     jujuservicedeployments = ReverseManyField(
         'oilserver.api.resources.JujuServiceDeploymentResource',
         'jujuservicedeployments')
