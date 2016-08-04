@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from social.apps.django_app.default.models import UserSocialAuth
 from tastypie.models import ApiKey
 
-def create_oilcibot_user(username, email):
+def create_admin_user(username, email):
     if User.objects.filter(username=username).exists():
         return User.objects.get(username=username)
     user = User(username=username, email=email)
@@ -67,8 +67,7 @@ class Command(BaseCommand):
             msg += '"oil-ci-bot@canonical.com" "ubuntu" "oil-ci-bot" '
             msg += '"xxxxxxxxxxxxxxxxxxxxxxxxxxxx"'
             self.feedback(msg)
-            return False
-        user = create_oilcibot_user(username, email)
+            raise
+        user = create_admin_user(username, email)
         socialuser = create_social_user(user, provider, uid)
         apikey = create_apikey(user, apikey)
-        return True
