@@ -21,13 +21,14 @@ def create_social_user(user, provider, uid):
     socialuser.save()
     return socialuser
 
-def create_apikey(user, apikey):
+def create_apikey(user, newkey):
     if ApiKey.objects.filter(user=user).exists():
         apikey = ApiKey.objects.get(user=user)
     else:
         apikey = ApiKey(user=user)
         apikey.id = apikey.user_id
-    apikey.key = key
+    import ipdb; ipdb.set_trace()
+    apikey.key = newkey
     apikey.save()
     return apikey
 
@@ -45,6 +46,13 @@ class Command(BaseCommand):
             print(msg)
         except Exception:
             pass
+
+    def add_arguments(self, parser):
+        parser.add_argument('username')
+        parser.add_argument('email')
+        parser.add_argument('provider')
+        parser.add_argument('uid')
+        parser.add_argument('apikey')
 
     def handle(self, *args, **options):
         try:
