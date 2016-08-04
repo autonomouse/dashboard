@@ -27,7 +27,6 @@ def create_apikey(user, newkey):
     else:
         apikey = ApiKey(user=user)
         apikey.id = apikey.user_id
-    import ipdb; ipdb.set_trace()
     apikey.key = newkey
     apikey.save()
     return apikey
