@@ -32,29 +32,6 @@ ToManyField = utils.override_defaults(fields.ToManyField, {'null': True})
 ToOneField = utils.override_defaults(fields.ToOneField, {'null': True})
 
 
-def raise_error_if_in_bundle(bundle, error_if_fields):
-    """Raise error if any of the given fields are in the bundle.
-
-    Raises a NonUserEditableError if any of the fields given in error_if_fields
-    are present in bundle.data.
-
-    Args:
-        bundle: The tastypie bundle.
-        error_if_fields (list): A list of field names (e.g. ['created_at',
-            'updated_at']).
-
-        Raises:
-            NonUserEditableError: Raises an exception.
-    """
-    bad_fields = []
-    for field in error_if_fields:
-        if field in bundle.data:
-            bad_fields.append(field)
-    if bad_fields:
-        msg = "Cannot edit field(s): {}".format(", ".join(bad_fields))
-        raise NonUserEditableError(msg)
-
-
 class CommonMeta(object):
     excludes = ['id', 'created_at', 'updated_at']
     list_allowed_methods = ['get', 'post', 'delete']  # all items
@@ -71,12 +48,6 @@ class CommonResource(ModelResource):
 
     Provides common methods and overrides for tastypie's default methods.
     """
-
-    def hydrate(self, bundle):
-        # Timestamp data should be generated interanlly and not editable:
-        error_if_fields = ['created_at', 'updated_at']
-        raise_error_if_in_bundle(bundle, error_if_fields)
-        return bundle
 
     def alter_list_data_to_serialize(self, request, data):
         if request.GET.get('meta_only'):
@@ -457,9 +428,9 @@ class PipelineResource(CommonResource):
 class ConfigurationChoicesResource(CommonResource):
     """API Resource for 'ConfigurationChoices' model. """
 
-    pipeline = ToOneField(PipelineResource, 'pipeline')
-    runs = fields.IntegerField('runs', null=True)
-    config = fields.DictField('config', null=True)
+    pipeline = ToOneField(PipelineResource, 'pipeline', readonly=True)
+    runs = fields.IntegerField('runs', readonly=True, null=True)
+    config = fields.DictField('config', readonly=True, null=True)
 
     class Meta(CommonMeta):
         queryset = models.ConfigurationChoices.objects.all()
@@ -576,6 +547,8 @@ class BuildResource(CommonResource):
     testcaseinstances = ReverseManyField(
         'oilserver.api.resources.TestCaseInstanceResource',
         'testcaseinstances')
+    jenkins_build_url = fields.CharField('jenkins_build_url', null=True,
+                                         readonly=True)
 
     class Meta(CommonMeta):
         queryset = models.Build.objects.all()
@@ -728,6 +701,8 @@ class BugTrackerBugResource(CommonResource):
     """API Resource for 'BugTrackerBug' model. """
 
     project = ForeignKey(ProjectResource, 'project', full_list=True)
+    created_at = fields.DateTimeField('created_at', readonly=True)
+    updated_at = fields.DateTimeField('updated_at', readonly=True)
 
     class Meta(CommonMeta):
         queryset = models.BugTrackerBug.objects.select_related('project').all()
@@ -746,6 +721,9 @@ class BugResource(CommonResource):
         'oilserver.api.resources.KnownBugRegexResource', 'knownbugregexes')
     historical_bugoccurrences = fields.ListField('historical_bugoccurrences',
                                                  readonly=True, null=True)
+    occurrence_count = fields.IntegerField('occurrence_count', readonly=True,
+                                           null=True)
+    last_seen = fields.DateTimeField('last_seen', readonly=True, null=True)
 
     class Meta(CommonMeta):
         queryset = models.Bug.objects.select_related('bugtrackerbug').all()
@@ -815,6 +793,8 @@ class BugOccurrenceResource(CommonResource):
 
     knownbugregex = ForeignKey(KnownBugRegexResource, 'knownbugregex')
     testcaseinstance = ForeignKey(TestCaseInstanceResource, 'testcaseinstance')
+    created_at = fields.DateTimeField('created_at', readonly=True)
+    updated_at = fields.DateTimeField('updated_at', readonly=True)
 
     class Meta(CommonMeta):
         queryset = models.BugOccurrence.objects.all()
