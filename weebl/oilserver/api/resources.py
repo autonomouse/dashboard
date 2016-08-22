@@ -19,19 +19,12 @@ from oilserver.exceptions import NonUserEditableError
 from django.contrib.sites.models import Site
 from oilserver.api.authorization import WorldReadableDjangoAuthorization
 
-
-def alwaysFalse(_):
-    return False
-
 # default to not populating reverse relations ('use_in') for speed and 'maximum
 # recursion depth' exceeded wormhole
 # (see http://django-tastypie.readthedocs.io/en/latest/fields.html#use-in)
 ReverseManyField = utils.override_defaults(
     fields.ToManyField,
-    {'readonly': True, 'null': True, 'use_in': alwaysFalse})
-ReverseManyPopulatedField = utils.override_defaults(
-    fields.ToManyField,
-    {'readonly': True, 'null': True, 'full': False})
+    {'readonly': True, 'null': True, 'use_in': lambda _: False})
 ForeignKey = utils.override_defaults(
     fields.ForeignKey,
     {'null': True, 'full': True, 'full_list': False})
@@ -724,7 +717,7 @@ class BugResource(CommonResource):
     bugtrackerbug = ToOneField(
         'oilserver.api.resources.BugTrackerBugResource', 'bugtrackerbug',
         full=True)
-    knownbugregexes = ReverseManyPopulatedField(
+    knownbugregexes = ReverseManyField(
         'oilserver.api.resources.KnownBugRegexResource', 'knownbugregexes')
     historical_bugoccurrences = fields.ListField('historical_bugoccurrences',
                                                  readonly=True, null=True)
