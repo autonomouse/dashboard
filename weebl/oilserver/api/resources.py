@@ -736,6 +736,7 @@ class BugResource(CommonResource):
         queryset = models.Bug.objects.select_related('bugtrackerbug').all()
         filtering = {'summary': ('contains', 'exact'),
                      'uuid': ('exact'),
+                     'description': ('exact'),
                      'knownbugregexes': ALL_WITH_RELATIONS,
                      'bugtrackerbug': ALL_WITH_RELATIONS, }
 
