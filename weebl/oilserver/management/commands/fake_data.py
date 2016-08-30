@@ -510,11 +510,12 @@ def make_testcaseinstance(testcase, build, success_rate):
     return testcaseinstance, test_case_instance_status
 
 
-def make_build(pipeline, jobtype, testcases, success_rate):
+def make_build(pipeline, jobtype, testcases, success_rate, started_at=None):
     build = models.Build(
         pipeline=pipeline,
         jobtype=jobtype,
-        build_id=random.randint(100000, 3000000))
+        build_id=random.randint(100000, 3000000),
+        build_started_at=started_at)
     build.save()
 
     for testcase in testcases:
@@ -578,6 +579,8 @@ def make_target_file_globs(glob_pattern):
 
 
 def make_dependent_builds(pipeline):
+    # For more realistic fake data, the 2 hour offset could be variable.
+    job_start_time = pipeline.completed_at - timedelta(hours=2) 
     for jobtype_name, tests in DEPENDENT_JOBS.items():
         testcases = []
         for _test in tests:
@@ -589,10 +592,15 @@ def make_dependent_builds(pipeline):
             pipeline=pipeline,
             jobtype=models.JobType.objects.get(name=jobtype_name),
             testcases=testcases,
-            success_rate=0.9)
+            success_rate=0.9,
+            started_at=job_start_time)
 
         if test_case_instance_status.name == 'failure':
             return False
+
+        # For more realistic fake data, the 15 minute offset between
+        # job start times could be variable.
+        job_start_time = job_start_time + timedelta(minutes=15)
 
     return True
 
