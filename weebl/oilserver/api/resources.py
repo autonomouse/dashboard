@@ -22,6 +22,9 @@ from oilserver.api.authorization import WorldReadableDjangoAuthorization
 # default to not populating reverse relations ('use_in') for speed and 'maximum
 # recursion depth' exceeded wormhole
 # (see http://django-tastypie.readthedocs.io/en/latest/fields.html#use-in)
+ReverseOneField = utils.override_defaults(
+    fields.ToOneField,
+    {'readonly': True, 'null': True, 'use_in': lambda _: False})
 ReverseManyField = utils.override_defaults(
     fields.ToManyField,
     {'readonly': True, 'null': True, 'use_in': lambda _: False})
@@ -700,6 +703,7 @@ class TargetFileGlobResource(CommonResource):
 class BugTrackerBugResource(CommonResource):
     """API Resource for 'BugTrackerBug' model. """
 
+    bug = ReverseOneField('oilserver.api.resources.BugResource', 'bug')
     project = ForeignKey(ProjectResource, 'project', full_list=True)
     created_at = fields.DateTimeField('created_at', readonly=True)
     updated_at = fields.DateTimeField('updated_at', readonly=True)
@@ -707,7 +711,9 @@ class BugTrackerBugResource(CommonResource):
     class Meta(CommonMeta):
         queryset = models.BugTrackerBug.objects.select_related('project').all()
         excludes = ['id']
-        filtering = {'bug_number': ALL, }
+        filtering = {
+            'bug_number': ALL,
+            'bug': ALL}
         detail_uri_name = 'bug_number'
 
 
