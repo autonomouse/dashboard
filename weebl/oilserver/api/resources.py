@@ -557,9 +557,11 @@ class BuildResource(CommonResource):
         queryset = models.Build.objects.all()
         filtering = {'uuid': ALL,
                      'build_id': ALL,
+                     'build_started_at': ALL,
                      'jobtype': ALL_WITH_RELATIONS,
                      'pipeline': ALL_WITH_RELATIONS,
                      'testcaseinstances': ALL_WITH_RELATIONS, }
+        ordering = ['build_started_at']
 
     def dehydrate(self, bundle):
         bundle = super(BuildResource, self).dehydrate(bundle)

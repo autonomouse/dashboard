@@ -41,6 +41,14 @@ app.config(function ($routeProvider) {
         .when('/triage', {
             redirectTo: '/triage/triage'
         })
+        .when('/throughput/scheduler', {
+            templateUrl: '/static/partials/scheduler.html',
+            controller: 'schedulerController',
+            controllerAs:'scheduler'
+        })
+        .when('/throughput', {
+            redirectTo: '/throughput/scheduler'
+        })
         .otherwise({
             redirectTo: '/results/successRate'
         });

@@ -10,3 +10,7 @@
                                     <a href="#/reports/overview" data-ng-class="{ active: data.currentpage === 'overview' }" data-ng-click="data.highlightTab('overview'); data.highlightSection('reports')">Overview</a>
                                     {% include 'spinner.html' %}
 </div>
+<div data-ng-show="data.currentsection === 'throughput'">
+                                    <a href="#/throughput/scheduler" data-ng-class="{ active: data.currentpage === 'scheduler' }" data-ng-click="data.highlightTab('scheduler'); data.highlightSection('throughput')">Scheduler</a>
+                                    {% include 'spinner.html' %}
+</div>

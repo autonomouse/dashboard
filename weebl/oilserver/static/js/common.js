@@ -53,6 +53,9 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
             $scope.data.sections.reports = {};
             $scope.data.sections.reports.pagetitle = "Reports";
             $scope.data.sections.reports.primaryTab = "overview";
+            $scope.data.sections.throughput = {};
+            $scope.data.sections.throughput.pagetitle = "Throughput";
+            $scope.data.sections.throughput.primaryTab = "scheduler";
         };
         if (angular.isUndefined($scope.data.tabs)) {
             $scope.data.tabs = {};
@@ -68,6 +71,8 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
             $scope.data.tabs.bugs.reverse = true;
             $scope.data.tabs.overview = {};
             $scope.data.tabs.overview.pagetitle = "Overview";
+            $scope.data.tabs.scheduler = {};
+            $scope.data.tabs.scheduler.pagetitle = "Scheduler";
         };
         if (angular.isUndefined($scope.data.subfilterPlotForm)) {
             $scope.data.subfilterPlotForm = {};
