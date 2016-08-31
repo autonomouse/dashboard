@@ -1,4 +1,6 @@
 <div id="content" class="nine-col last-col">
     <h1>Average time between job starts</h1>
-    <p>All time: {$ data.throughput.scheduler.job_starts.all_time $} minutes</p>
+    <p>All time: {$ data.throughput.scheduler.job_starts.all_time $}</p>
+    <p>Previous thirty days: {$ data.throughput.scheduler.job_starts.last_thirty_days $}</p>
+    <p>Previous four hours: {$ data.throughput.scheduler.job_starts.last_four_hours $}</p>
 </div>
