@@ -717,7 +717,7 @@ class BugTrackerBugResource(CommonResource):
         excludes = ['id']
         filtering = {
             'bug_number': ALL,
-            'bug': ALL}
+            'bug': ALL_WITH_RELATIONS, }
         detail_uri_name = 'bug_number'
 
 
