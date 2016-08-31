@@ -782,7 +782,8 @@ class KnownBugRegex(TimeStampedBaseModel):
     regex = models.TextField(
         unique=True,
         help_text="The regular expression used to identify a bug occurrence.")
-    targetfileglobs = models.ManyToManyField(TargetFileGlob)
+    targetfileglobs = models.ManyToManyField(
+        TargetFileGlob, related_name='knownbugregexes')
 
     def __str__(self):
         return self.uuid

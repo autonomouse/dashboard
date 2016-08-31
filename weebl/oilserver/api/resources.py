@@ -692,11 +692,15 @@ class TargetFileGlobResource(CommonResource):
 
     jobtypes = ToManyField(
         'oilserver.api.resources.JobTypeResource', 'jobtypes', full=True)
+    knownbugregexes = ReverseManyField(
+        'oilserver.api.resources.KnownBugRegexResource', 'knownbugregexes')
+
 
     class Meta(CommonMeta):
         queryset = models.TargetFileGlob.objects.all()
         filtering = {'glob_pattern': ALL,
-                     'jobtypes': ALL_WITH_RELATIONS, }
+                     'jobtypes': ALL_WITH_RELATIONS,
+                     'knownbugregexes': ALL_WITH_RELATIONS, }
         detail_uri_name = 'glob_pattern'
 
 
