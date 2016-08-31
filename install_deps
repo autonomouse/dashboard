@@ -11,6 +11,7 @@ apt -y --no-upgrade install \
     python3-postgresql \
     python3-django \
     python3-django-tastypie \
+    python3-django-extensions \
     python3-yaml \
     python3-mimeparse \
     python3-dateutil \
@@ -36,6 +37,7 @@ apt -y --no-upgrade install \
     nginx-full \
     gunicorn3 \
     postgresql-contrib \
+    python-setuptools \
     --fix-missing
 
 # export https_proxy=http://91.189.89.33:3128
