@@ -49,6 +49,21 @@ app.controller('successRateController', [
             return $scope.data;
         };
 
+        function fetchTestDataForJobname(jobname, graphValues) {
+            var model = 'testcaseinstance';
+            var local_filters = Common.generateActiveFilters($scope, model);
+            local_filters['meta_only'] = true;
+            local_filters['limit'] = 1;
+            local_filters['max_limit'] = 1;
+            local_filters['successful_jobtype'] = jobname;
+            local_filters['build__jobtype__name'] = jobname;
+            local_filters['testcaseinstancestatus__name'] = 'success';
+            graphValues.pass = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(local_filters);
+            delete local_filters['successful_jobtype'];
+            delete local_filters['testcaseinstancestatus__name'];
+            graphValues.jobtotal = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(local_filters);
+        };
+
         function fetchDataForEachStatus(jobname, graphValues) {
             var model = 'pipeline';
             var local_filters = Common.generateActiveFilters($scope, model);
@@ -66,18 +81,20 @@ app.controller('successRateController', [
             };
         };
 
-        function updateGraphValues(total, pass_deploy_count, pass_prepare_count, pass_test_cloud_image_count) {
+        function updateGraphValues(total, pass_deploy_count, pass_prepare_count, pass_test_cloud_image_count, pass_test_bundletests_count) {
             $scope.data.fetching_data = true;
             $scope.data.graphValues = {};
-            $scope.data.graphValues.total = {}
-            $scope.data.graphValues.deploy = {}
-            $scope.data.graphValues.prepare = {}
-            $scope.data.graphValues.test_cloud_image = {}
+            $scope.data.graphValues.total = {};
+            $scope.data.graphValues.deploy = {};
+            $scope.data.graphValues.prepare = {};
+            $scope.data.graphValues.test_cloud_image = {};
+            $scope.data.graphValues.test_bundletests = {};
 
             fetchDataForEachStatus(null, $scope.data.graphValues);
             fetchDataForEachStatus('pipeline_deploy', $scope.data.graphValues.deploy);
             fetchDataForEachStatus('pipeline_prepare', $scope.data.graphValues.prepare);
             fetchDataForEachStatus('test_cloud_image', $scope.data.graphValues.test_cloud_image);
+            fetchTestDataForJobname('test_bundletests', $scope.data.graphValues.test_bundletests);
 
             $scope.data.fetching_data = false;
 
@@ -93,7 +110,9 @@ app.controller('successRateController', [
                 $scope.data.graphValues.prepare.pass.$promise,
                 $scope.data.graphValues.prepare.jobtotal.$promise,
                 $scope.data.graphValues.test_cloud_image.pass.$promise,
-                $scope.data.graphValues.test_cloud_image.jobtotal.$promise
+                $scope.data.graphValues.test_cloud_image.jobtotal.$promise,
+                $scope.data.graphValues.test_bundletests.pass.$promise,
+                $scope.data.graphValues.test_bundletests.jobtotal.$promise
             ]).then(function() {
                 if ($scope.data.graphValues.total.$resolved) {
                     console.log('total test runs = ' + $scope.data.graphValues.total.meta.total_count);
@@ -103,6 +122,14 @@ app.controller('successRateController', [
                     console.log('total prepare builds = ' + $scope.data.graphValues.prepare.jobtotal.meta.total_count);
                     console.log('cloud_image passes = ' + $scope.data.graphValues.test_cloud_image.pass.meta.total_count);
                     console.log('total cloud_image builds = ' + $scope.data.graphValues.test_cloud_image.jobtotal.meta.total_count);
+                    console.log('bundletests testcases passes = ' + $scope.data.graphValues.test_bundletests.pass.meta.total_count);
+
+                    $scope.data.graphValues.test_bundletests.pass.meta.total_count =
+                        $scope.data.graphValues.test_bundletests.pass.meta.total_count *
+                        $scope.data.graphValues.total.meta.total_count / $scope.data.graphValues.test_bundletests.jobtotal.meta.total_count;
+
+                    console.log('bundletests passes (scaled) = ' + $scope.data.graphValues.test_bundletests.pass.meta.total_count);
+                    console.log('total bundletests testcases = ' + $scope.data.graphValues.test_bundletests.jobtotal.meta.total_count);
                     console.log('----------------------------');
 
                     graphFactory.plot_stats_graph(binding, $scope.data.graphValues);

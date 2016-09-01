@@ -11,7 +11,8 @@ var calcPercentage = function calcPercentage(value, number_of_test_runs) {
 
 var plot_stats_graph = function(scope, graphValues) {
 
-    function updateChartData(number_of_test_runs, pass_deploy_count, total_deploy_count, pass_prepare_count, total_prepare_count, pass_test_cloud_image_count, total_test_cloud_image_count) {
+    function updateChartData(number_of_test_runs, pass_deploy_count, total_deploy_count, pass_prepare_count, total_prepare_count,
+                             pass_test_cloud_image_count, total_test_cloud_image_count, pass_test_bundletests_count, total_test_bundletests_count) {
         var stack_bar_config = {
             visible: true,
             extended: false,
@@ -107,6 +108,12 @@ var plot_stats_graph = function(scope, graphValues) {
                         "value" : pass_test_cloud_image_count,
                         "individualPercentage" : calcPercentage(pass_test_cloud_image_count, total_test_cloud_image_count),
                         "color" : "#411934"
+                    },
+                    {
+                        "label" : "Tempest tests",
+                        "value" : pass_test_bundletests_count,
+                        "individualPercentage" : calcPercentage(pass_test_bundletests_count, total_test_bundletests_count),
+                        "color" : "#314984"
                     }
                 ]
             }
@@ -121,7 +128,9 @@ var plot_stats_graph = function(scope, graphValues) {
         graphValues.prepare.pass.meta.total_count,
         graphValues.prepare.jobtotal.meta.total_count,
         graphValues.test_cloud_image.pass.meta.total_count,
-        graphValues.test_cloud_image.jobtotal.meta.total_count
+        graphValues.test_cloud_image.jobtotal.meta.total_count,
+        graphValues.test_bundletests.pass.meta.total_count,
+        graphValues.test_bundletests.jobtotal.meta.total_count
     )
 };
 
