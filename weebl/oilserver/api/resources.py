@@ -1,6 +1,5 @@
 # pylint: disable=C0103
 # (ignore invalid naming convention)
-import dateutil
 import operator
 from collections import namedtuple
 from functools import reduce
@@ -8,14 +7,12 @@ from tastypie import fields
 from tastypie.resources import ModelResource, ALL, ALL_WITH_RELATIONS
 from tastypie.authentication import ApiKeyAuthentication
 from tastypie.http import HttpBadRequest, HttpCreated, HttpApplicationError
-from tastypie.utils import trailing_slash
 from django.conf.urls import url
 from django.conf import settings
 from django.http import HttpResponse
 from django.db.models import Q, Count
 from django.db.models.aggregates import Count as AggCount
 from oilserver import models, utils
-from oilserver.exceptions import NonUserEditableError
 from django.contrib.sites.models import Site
 from oilserver.api.authorization import WorldReadableDjangoAuthorization
 
@@ -370,18 +367,16 @@ class PipelineResource(CommonResource):
             if 'failed_jobtype' in custom:
                 failed_q = Q(
                     builds__jobtype__name__in=custom['failed_jobtype'],
-                    builds__testcaseinstances__testcase__name__in=
-                        custom['failed_jobtype'],
-                    builds__testcaseinstances__testcaseinstancestatus__name=
-                        'failure')
+                    builds__testcaseinstances__testcase__name__in=custom[
+                        'failed_jobtype'],
+                    builds__testcaseinstances__testcaseinstancestatus__name='failure')  # noqa: E501
                 semi_filtered = semi_filtered.filter(failed_q)
             if 'successful_jobtype' in custom:
                 success_q = Q(
                     builds__jobtype__name__in=custom['successful_jobtype'],
-                    builds__testcaseinstances__testcase__name__in=
-                        custom['successful_jobtype'],
-                    builds__testcaseinstances__testcaseinstancestatus__name=
-                        'success')
+                    builds__testcaseinstances__testcase__name__in=custom[
+                        'successful_jobtype'],
+                    builds__testcaseinstances__testcaseinstancestatus__name='success')  # noqa: E501
                 semi_filtered = semi_filtered.filter(success_q)
 
         return semi_filtered
@@ -696,7 +691,6 @@ class TargetFileGlobResource(CommonResource):
         'oilserver.api.resources.JobTypeResource', 'jobtypes', full=True)
     knownbugregexes = ReverseManyField(
         'oilserver.api.resources.KnownBugRegexResource', 'knownbugregexes')
-
 
     class Meta(CommonMeta):
         queryset = models.TargetFileGlob.objects.all()

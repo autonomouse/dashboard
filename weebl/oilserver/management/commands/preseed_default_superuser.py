@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from social.apps.django_app.default.models import UserSocialAuth
 from tastypie.models import ApiKey
 
+
 def create_admin_user(username, email):
     if User.objects.filter(username=username).exists():
         return User.objects.get(username=username)
@@ -11,6 +12,7 @@ def create_admin_user(username, email):
     user.is_superuser = True
     user.save()
     return user
+
 
 def create_social_user(user, provider, uid):
     if UserSocialAuth.objects.filter(user=user).exists():
@@ -21,6 +23,7 @@ def create_social_user(user, provider, uid):
     socialuser.save()
     return socialuser
 
+
 def create_apikey(user, newkey):
     if ApiKey.objects.filter(user=user).exists():
         apikey = ApiKey.objects.get(user=user)
@@ -30,6 +33,7 @@ def create_apikey(user, newkey):
     apikey.key = newkey
     apikey.save()
     return apikey
+
 
 class Command(BaseCommand):
     help = 'Sets up the initial superuser.'
@@ -71,3 +75,5 @@ class Command(BaseCommand):
         user = create_admin_user(username, email)
         socialuser = create_social_user(user, provider, uid)
         apikey = create_apikey(user, apikey)
+        socialuser
+        apikey

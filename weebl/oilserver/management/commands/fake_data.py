@@ -385,7 +385,6 @@ def get_services(sw_choices):
         yield (models.JujuService.objects.get(name=extra_service), None)
 
 
-
 def get_random_charm():
     charm = random.choice(CHARMS)
     return models.Charm.objects.get(charm_source_url=charm)
@@ -580,7 +579,7 @@ def make_target_file_globs(glob_pattern):
 
 def make_dependent_builds(pipeline):
     # For more realistic fake data, the 2 hour offset could be variable.
-    job_start_time = pipeline.completed_at - timedelta(hours=2) 
+    job_start_time = pipeline.completed_at - timedelta(hours=2)
     for jobtype_name, tests in DEPENDENT_JOBS.items():
         testcases = []
         for _test in tests:

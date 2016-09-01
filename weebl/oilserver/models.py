@@ -1,5 +1,5 @@
 from oilserver import utils
-from django.db import connection, models
+from django.db import models
 from django.contrib.sites.models import Site
 from weebl.__init__ import __api_version__
 
