@@ -16,6 +16,15 @@ def add_related_field_wrapper(form, col_name):
     form.fields[col_name].widget = RelatedFieldWidgetWrapper(
         form.fields[col_name].widget, rel, admin.site, can_add_related=True)
 
+def get_obj_attribute(obj, field, *args):
+    attr = None
+    for arg in args:
+        try:
+            attr = getattr(obj, arg)
+            if arg == args[-1]:
+                return getattr(attr, field)
+        except AttributeError:
+            return attr
 
 class CustomModelChoiceField_Name(forms.ModelChoiceField):
     def label_from_instance(self, obj):
@@ -60,10 +69,7 @@ class PipelineAdmin(admin.ModelAdmin):
     list_display = ['uuid', 'completed_at', 'buildexecutor_name']
 
     def buildexecutor_name(self, obj):
-        try:
-            return obj.buildexecutor.name
-        except AttributeError:
-            return obj.buildexecutor
+        return get_obj_attribute(obj, 'name', 'buildexecutor')
 
     search_fields = ['uuid']
     ordering = ['completed_at']
@@ -84,16 +90,10 @@ class ProductUnderTestAdmin(admin.ModelAdmin):
     list_display = ['name', 'vendor_name', 'project_name']
 
     def vendor_name(self, obj):
-        try:
-            return obj.vendor.name
-        except AttributeError:
-            return obj.vendor
+        return get_obj_attribute(obj, 'name', 'vendor')
 
     def project_name(self, obj):
-        try:
-            return obj.project.name
-        except AttributeError:
-            return obj.project
+        return get_obj_attribute(obj, 'name', 'project')
 
     search_fields = ['name']
     ordering = ['name']
@@ -118,10 +118,7 @@ class BugTrackerBugAdmin(admin.ModelAdmin):
     list_display = ['bug_number', 'project_name']
 
     def project_name(self, obj):
-        try:
-            return obj.project.name
-        except AttributeError:
-            return obj.project
+        return get_obj_attribute(obj, 'name', 'project')
 
     search_fields = ['bug_number']
     ordering = ['bug_number']
@@ -165,16 +162,11 @@ class BugAdmin(admin.ModelAdmin):
     inlines = [KnownBugRegexInline]
 
     def bugtrackerbug_number(self, obj):
-        try:
-            return obj.bugtrackerbug.bug_number
-        except AttributeError:
-            return obj.bugtrackerbug
+        return get_obj_attribute(obj, 'bug_number', 'bugtrackerbug')
 
     def project_name(self, obj):
-        try:
-            return obj.bugtrackerbug.project.name
-        except AttributeError:
-            return obj.bugtrackerbug.project
+        return get_obj_attribute(obj, 'name', 'bugtrackerbug', 'project')
+
 
     search_fields = ['summary', 'uuid']
     ordering = ['summary']
