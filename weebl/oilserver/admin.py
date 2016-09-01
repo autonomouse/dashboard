@@ -16,6 +16,7 @@ def add_related_field_wrapper(form, col_name):
     form.fields[col_name].widget = RelatedFieldWidgetWrapper(
         form.fields[col_name].widget, rel, admin.site, can_add_related=True)
 
+
 def get_obj_attribute(obj, field, *args):
     attr = None
     for arg in args:
@@ -25,6 +26,7 @@ def get_obj_attribute(obj, field, *args):
                 return getattr(attr, field)
         except AttributeError:
             return attr
+
 
 class CustomModelChoiceField_Name(forms.ModelChoiceField):
     def label_from_instance(self, obj):
@@ -166,7 +168,6 @@ class BugAdmin(admin.ModelAdmin):
 
     def project_name(self, obj):
         return get_obj_attribute(obj, 'name', 'bugtrackerbug', 'project')
-
 
     search_fields = ['summary', 'uuid']
     ordering = ['summary']
