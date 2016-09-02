@@ -62,25 +62,25 @@ var plot_stats_graph = function(scope, graphValues) {
                         "label" : "Deploy Openstack" ,
                         "value" : pass_deploy_count,
                         "individualPercentage" : calcPercentage(pass_deploy_count, total_deploy_count),
-                        "color" : "#77216F"
+                        "color" : "#56334b"
                     } ,
                     {
                         "label" : "Configure Openstack for test" ,
                         "value" : pass_prepare_count,
                         "individualPercentage" : calcPercentage(pass_prepare_count, total_prepare_count),
-                        "color" : "#6E3C61"
+                        "color" : "#7e5273"
                     } ,
                     {
                         "label" : "SSH to guest instance",
                         "value" : pass_test_cloud_image_count,
                         "individualPercentage" : calcPercentage(pass_test_cloud_image_count, total_test_cloud_image_count),
-                        "color" : "#411934"
+                        "color" : "#ad79a8"
                     },
                     {
                         "label" : "Tempest tests",
                         "value" : pass_test_bundletests_count,
                         "individualPercentage" : calcPercentage(pass_test_bundletests_count, total_test_bundletests_count),
-                        "color" : "#314984"
+                        "color" : "#c8a6c5"
                     }
                 ]
             }
