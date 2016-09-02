@@ -1,39 +1,12 @@
 
 <div id="content" class="nine-col last-col" data-ng-show="data.results.show_search">
-    <div id="subfilter-bar" class="search">
-        <p>
-            <label>Data to plot:</label>
-
-            <input type = "radio"
-                name = "plotType"
-                id = "typeCumulative"
-                data-ng-model="data.subfilterPlotForm.type"
-                value="cumulative" />
-            <label for="typeCumulative">Cumulative</label>
-
-            <input type = "radio"
-                name = "plotType"
-                id = "typeIndividual"
-                data-ng-model="data.subfilterPlotForm.type"
-                value="individual" />
-            <label for="typeIndividual">Individual</label>
-        </p>
-    </div>
 </div>
 
 <!------------------------------------------------>
 
-
-    <div class="nine-col last-col" data-ng-if="data.subfilterPlotForm.type == 'individual'">
-        <nvd3 options="successRate.individual_stack_bar_options"
-            data="successRate.stack_bar_data"
-            config="successRate.stack_bar_config"
-            ></nvd3>
-    </div>
-
-    <div class="nine-col last-col" data-ng-if="data.subfilterPlotForm.type == 'cumulative'">
-        <nvd3 options="successRate.cumulative_stack_bar_options"
-            data="successRate.stack_bar_data"
-            config="successRate.stack_bar_config"
-            ></nvd3>
-    </div>
+<div class="nine-col last-col">
+    <nvd3 options="successRate.individual_stack_bar_options"
+          data="successRate.stack_bar_data"
+          config="successRate.stack_bar_config"
+    ></nvd3>
+</div>

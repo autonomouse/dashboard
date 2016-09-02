@@ -45,7 +45,7 @@ var plot_stats_graph = function(scope, graphValues) {
             },
             title: {
                 enable: true,
-                text: "Showing individual job percentage success rates.",
+                text: "Percentage Success Rates",
                 css: {
                     width: "nullpx",
                     textAlign: "center"
@@ -53,39 +53,6 @@ var plot_stats_graph = function(scope, graphValues) {
             }
         };
         scope.individual_stack_bar_options = individual_stack_bar_options;
-
-        var cumulative_stack_bar_options = {
-            chart: {
-                type: 'discreteBarChart',
-                height: 450,
-                x: function(d){return d.label;},
-                y: function(d){return d.value;},
-                showValues: true,
-                valueFormat: function(d){
-                    return calcPercentage(d, number_of_test_runs) + "%"
-                },
-                transitionDuration: 500,
-                xAxis: {
-                    axisLabel: 'Job Name'
-                },
-                yAxis: {
-                    axisLabel: 'Test Run Count',
-                    tickFormat: function(d) {
-                        return d3.format(',d')(d);
-                    }
-                },
-                yDomain: [0, number_of_test_runs]
-            },
-            title: {
-                enable: true,
-                text: "Showing cumulative success rates of " + number_of_test_runs + " matching test runs.",
-                css: {
-                    width: "nullpx",
-                    textAlign: "center"
-                }
-            }
-        };
-        scope.cumulative_stack_bar_options = cumulative_stack_bar_options;
 
         var stack_bar_data = [
             {

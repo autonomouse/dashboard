@@ -55,11 +55,9 @@ app.controller('successRateController', [
             local_filters['meta_only'] = true;
             local_filters['limit'] = 1;
             local_filters['max_limit'] = 1;
-            local_filters['successful_jobtype'] = jobname;
             local_filters['build__jobtype__name'] = jobname;
             local_filters['testcaseinstancestatus__name'] = 'success';
             graphValues.pass = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(local_filters);
-            delete local_filters['successful_jobtype'];
             delete local_filters['testcaseinstancestatus__name'];
             graphValues.jobtotal = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(local_filters);
         };
@@ -123,12 +121,6 @@ app.controller('successRateController', [
                     console.log('cloud_image passes = ' + $scope.data.graphValues.test_cloud_image.pass.meta.total_count);
                     console.log('total cloud_image builds = ' + $scope.data.graphValues.test_cloud_image.jobtotal.meta.total_count);
                     console.log('bundletests testcases passes = ' + $scope.data.graphValues.test_bundletests.pass.meta.total_count);
-
-                    $scope.data.graphValues.test_bundletests.pass.meta.total_count =
-                        $scope.data.graphValues.test_bundletests.pass.meta.total_count *
-                        $scope.data.graphValues.total.meta.total_count / $scope.data.graphValues.test_bundletests.jobtotal.meta.total_count;
-
-                    console.log('bundletests passes (scaled) = ' + $scope.data.graphValues.test_bundletests.pass.meta.total_count);
                     console.log('total bundletests testcases = ' + $scope.data.graphValues.test_bundletests.jobtotal.meta.total_count);
                     console.log('----------------------------');
 
@@ -240,7 +232,6 @@ app.controller('successRateController', [
         };
 
         $scope.data = getMetadata($scope);
-        $scope.data.subfilterPlotForm.type = 'cumulative';
         $scope.data.testRuns = update('pipeline');
         updateGraphValues();
         plotStatsGraph();
