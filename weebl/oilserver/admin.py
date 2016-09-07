@@ -34,15 +34,6 @@ def add_related_field_wrapper(form, col_name):
     form.fields[col_name].widget = RelatedFieldWidgetWrapper(
         form.fields[col_name].widget, rel, admin.site, can_add_related=True)
 
-def get_obj_attribute(obj, field, *args):
-    attr = None
-    for arg in args:
-        try:
-            attr = getattr(obj, arg)
-            if arg == args[-1]:
-                return getattr(attr, field)
-        except AttributeError:
-            return attr
 
 def get_obj_attribute(obj, field, *args):
     attr = None

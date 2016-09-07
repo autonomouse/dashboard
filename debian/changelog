@@ -1,3 +1,50 @@
+
+weebl (1.2.0) xenial; urgency=medium
+
+  * Added migration and collectstatic commands to debian and postinst.
+  * Fix for weebl schema generation. 
+  * Removed pip installation of swagger and django extensions. Django extensions are still needed for schema generation, but have now added the package from yakkety to our PPA.
+  * set_up_site changed to only take in a single argument for name, so url is no longer required.
+  * Overview Reports
+  * Added python3-django-extensions to debian/control file
+  * only create the extension if it does not exist so that it can work with or without charm help
+  * Makes failing migrations fail the deployment.
+  * submit xml tempest results to weebl
+  * Fixed dodgy migration
+  * fix for bad_filters
+  * Added a bug details page
+  * fix for jobtypes not showing in TargetFileGlobResource
+  * TargetFileGlobResource should definately use full not full_list
+  * Fake data fix
+  * Make tastypie endpoints world readable to already authenticated users.
+  * Fix get_run_config by setting config to be a valid field
+  * Django management command to preseed a default superuser with a given apikey, etc.
+  * Added pipeline_start to fixtures.
+  * use_in for builds in pipeline
+  * Fix for preseed default user
+  * Fix for charm fallover bug 162352. Tested and working.
+  * change default release_package to xenial
+  * Add python3-tz as a dep.
+  * Fix missing fields and add readonly to fields that are supposed to be readonly.
+  * Filter for description on BugResource.
+  * Include build_started_at number for most builds.
+  * Added ReverseOneField and used to show bug in for bugtrackerbug in client.
+  * add missing deps
+  * Use this period instead of hardcoded this month
+  * Added ReverseMany to KnownBugRegex in TargetFileGlob. 
+  * Fix bugtrackerbug bug relation filter.
+  * Add a throughput page with first scheduler stat.
+  * fix all lint errors
+  * display tempest test pass rate
+  * Add some more scheduler time ranges.
+  * Fix for the error where crosstab only expects toplevel entries.
+  * Improve readability in admin page.
+  * remove cumulative graph from success rate
+  * change graph colors
+  * Re-added admin improvements that had previously been reviewed and accepted, but had somehow been missed out of the merge
+
+ -- Darren Hoyland <darren.hoyland@canonical.com>  Wed, 07 Sep 2016 10:59:57 +0100
+
 weebl (1.1.7) trusty; urgency=medium
 
   * Added migration and collectstatic commands to debian/postinst
