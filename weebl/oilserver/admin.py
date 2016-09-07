@@ -10,12 +10,39 @@ from tastypie.admin import ApiKeyInline
 from django.contrib.admin.widgets import RelatedFieldWidgetWrapper
 
 
+class DefaultAdmin(admin.ModelAdmin):
+    list_display = ['name']
+    search_fields = ['name']
+    ordering = ['name']
+
+
+# Register models with default settings:
+admin.site.register(models.Project, DefaultAdmin)
+admin.site.register(models.Vendor, DefaultAdmin)
+admin.site.register(models.BuildExecutor, DefaultAdmin)
+admin.site.register(models.Charm, DefaultAdmin)
+admin.site.register(models.InternalContact, DefaultAdmin)
+admin.site.register(models.JujuService, DefaultAdmin)
+admin.site.register(models.ProductType, DefaultAdmin)
+admin.site.register(models.Report, DefaultAdmin)
+
+
+# Register models with custom settings:
 def add_related_field_wrapper(form, col_name):
     rel_model = form.Meta.model
     rel = rel_model._meta.get_field(col_name).rel
     form.fields[col_name].widget = RelatedFieldWidgetWrapper(
         form.fields[col_name].widget, rel, admin.site, can_add_related=True)
 
+def get_obj_attribute(obj, field, *args):
+    attr = None
+    for arg in args:
+        try:
+            attr = getattr(obj, arg)
+            if arg == args[-1]:
+                return getattr(attr, field)
+        except AttributeError:
+            return attr
 
 def get_obj_attribute(obj, field, *args):
     attr = None
@@ -28,14 +55,19 @@ def get_obj_attribute(obj, field, *args):
             return attr
 
 
-class CustomModelChoiceField_Name(forms.ModelChoiceField):
+class CustomModelChoiceFieldName(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.name
 
 
-class CustomModelChoiceField_BugNumber(forms.ModelChoiceField):
+class CustomModelChoiceFieldBugNumber(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.bug_number
+
+
+class CustomModelChoiceFieldHostname(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.hostname
 
 
 class UserModelAdmin(UserAdmin):
@@ -55,7 +87,7 @@ admin.site.register(ApiKey, ApiKeyAdmin)
 
 
 class PipelineForm(forms.ModelForm):
-    buildexecutor = CustomModelChoiceField_Name(
+    buildexecutor = CustomModelChoiceFieldName(
         queryset=models.BuildExecutor.objects.all())
 
     class Meta:
@@ -88,6 +120,28 @@ class BuildAdmin(admin.ModelAdmin):
 admin.site.register(models.Build, BuildAdmin)
 
 
+class ProductUnderTestForm(forms.ModelForm):
+    project = CustomModelChoiceFieldName(
+        queryset=models.Project.objects.all())
+    vendor = CustomModelChoiceFieldName(
+        queryset=models.Vendor.objects.all())
+    internalcontact = CustomModelChoiceFieldName(
+        queryset=models.InternalContact.objects.all())
+    producttype = CustomModelChoiceFieldName(
+        queryset=models.ProductType.objects.all())
+
+    class Meta:
+        model = models.ProductUnderTest
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super(ProductUnderTestForm, self).__init__(*args, **kwargs)
+        add_related_field_wrapper(self, 'vendor')
+        add_related_field_wrapper(self, 'project')
+        add_related_field_wrapper(self, 'internalcontact')
+        add_related_field_wrapper(self, 'producttype')
+
+
 class ProductUnderTestAdmin(admin.ModelAdmin):
     list_display = ['name', 'vendor_name', 'project_name']
 
@@ -104,7 +158,7 @@ admin.site.register(models.ProductUnderTest, ProductUnderTestAdmin)
 
 
 class BugTrackerBugForm(forms.ModelForm):
-    project = CustomModelChoiceField_Name(
+    project = CustomModelChoiceFieldName(
         queryset=models.Project.objects.all())
 
     class Meta:
@@ -147,7 +201,7 @@ class KnownBugRegexInline(admin.StackedInline):
 
 
 class BugForm(forms.ModelForm):
-    bugtrackerbug = CustomModelChoiceField_BugNumber(
+    bugtrackerbug = CustomModelChoiceFieldBugNumber(
         queryset=models.BugTrackerBug.objects.all())
 
     class Meta:
@@ -176,12 +230,41 @@ class BugAdmin(admin.ModelAdmin):
 admin.site.register(models.Bug, BugAdmin)
 
 
-class ProjectAdmin(admin.ModelAdmin):
-    list_display = ['name']
-    search_fields = ['name']
-    ordering = ['name']
+class MachineAdmin(admin.ModelAdmin):
+    list_display = ['hostname']
+    search_fields = ['hostname']
+    ordering = ['hostname']
 
-admin.site.register(models.Project, ProjectAdmin)
+admin.site.register(models.Machine, MachineAdmin)
+
+
+class MachineConfigurationForm(forms.ModelForm):
+    machine = CustomModelChoiceFieldHostname(
+        queryset=models.Machine.objects.all())
+
+    class Meta:
+        model = models.MachineConfiguration
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super(MachineConfigurationForm, self).__init__(*args, **kwargs)
+        add_related_field_wrapper(self, 'machine')
+
+
+class MachineConfigurationAdmin(admin.ModelAdmin):
+    list_display = ['uuid', 'machine_name']
+
+    def machine_name(self, obj):
+        try:
+            return obj.machine.hostname
+        except AttributeError:
+            return obj.machine
+
+    search_fields = ['uuid']
+    ordering = ['uuid']
+    form = MachineConfigurationForm
+
+admin.site.register(models.MachineConfiguration, MachineConfigurationAdmin)
 
 
 # Register any remaining models that have not been explicitly registered:
