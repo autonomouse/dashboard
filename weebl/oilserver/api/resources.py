@@ -171,7 +171,7 @@ class ProjectResource(CommonResource):
     class Meta(CommonMeta):
         queryset = models.Project.objects.all()
         filtering = {
-            'uuid': ('uuid',),
+            'uuid': ('exact',),
             'name': ('exact',), }
 
 
@@ -185,7 +185,7 @@ class VendorResource(CommonResource):
     class Meta(CommonMeta):
         queryset = models.Vendor.objects.all()
         filtering = {
-            'uuid': ('uuid',),
+            'uuid': ('exact',),
             'name': ('exact',),
             'productundertests': ALL_WITH_RELATIONS, }
 
@@ -196,7 +196,7 @@ class InternalContactResource(CommonResource):
     class Meta(CommonMeta):
         queryset = models.InternalContact.objects.all()
         filtering = {
-            'uuid': ('uuid',),
+            'uuid': ('exact',),
             'name': ALL, }
 
 
@@ -243,7 +243,7 @@ class ProductTypeResource(CommonResource):
         queryset = models.ProductType.objects.all()
         filtering = {
             'toplevel': ('exact',),
-            'uuid': ('uuid',),
+            'uuid': ('exact',),
             'name': ('exact', 'in',),
             'productundertests': ALL_WITH_RELATIONS, }
 
@@ -273,7 +273,7 @@ class ProductUnderTestResource(CommonResource):
             'reports': ALL_WITH_RELATIONS,
             'machineconfigurations': ALL_WITH_RELATIONS,
             'jujuservicedeployments': ALL_WITH_RELATIONS,
-            'uuid': ('uuid',),
+            'uuid': ('exact',),
             'name': ('exact', 'in',),
             'producttype': ALL_WITH_RELATIONS, }
 
