@@ -67,13 +67,34 @@ def run_tests():
         run_unit_tests(app)
     run_functional_tests()
 
+def create_the_right_db(database):
+    if database == "production":
+        db_name = prdctn_db_name
+        db_user = prdctn_user
+        pwd = prdctn_pwd
+    elif database == "test":
+        db_name = test_db_name
+        db_user = test_user
+        pwd = test_pwd
+
+    create_db_and_user(db_name, db_user, pwd)
+
+    return check_if_database_exists(db_name, pwd)
+
 @task(help={'database': "Type test or production"})
 def createdb(database):
     """Set up and run weebl using either a test or a production database."""
-    if database == "production":
-        create_db_and_user(prdctn_db_name, prdctn_user, prdctn_pwd)
-    elif database == "test":
-        create_db_and_user(test_db_name, test_user, test_pwd)
+    exists = create_the_right_db(database)
+    migrate()
+    if exists:
+        print("Database: {} already exists!".format(database))
+        return
+    load_fixtures("initial_settings.yaml")
+
+@task(help={'database': "Type test or production"})
+def create_empty_db(database):
+    """Set up a database with the right permissions but with no tables."""
+    create_the_right_db(database)
 
 @task
 def syncdb():
@@ -104,6 +125,27 @@ def destroy(database, force=False):
         destroy_production_data(force)
     elif database == "test":
         destroy_test_data(force)
+
+
+@task
+def restore_from_dump(database, dump_file_path):
+    """Restore from a dump.
+
+    Blows away the existing database first.
+
+    To create the dump, run this as the postgres user on
+    the postgresql unit:
+
+    pg_dump -x -F t bugs_database > clean_dump
+    """
+    destroy(database, force=True)
+    create_empty_db(database)
+    if database == "production":
+        db_name = prdctn_db_name
+    else:
+        db_name = test_db_name
+    run("sudo -u postgres pg_restore -d bugs_database %s" % (dump_file_path))
+
 
 @task(help={'database': "Type test or production"})
 def backup_database(database, force=False):
@@ -329,11 +371,6 @@ def create_database(database, user, pwd):
     sql_createdb = sql_create_db = "CREATE DATABASE {};".format(database, user)
     sql_user_create_db_privilege = "ALTER USER \"{}\" CREATEDB;"
     sql_grant_user_all_db_priv = "GRANT ALL PRIVILEGES ON DATABASE {} TO {};"
-    exists = check_if_database_exists(database, pwd)
-    if exists:
-        print("Database: {} already exists!".format(database))
-        migrate()
-        return
     db_cxn(sql_user_create_db_privilege, pwd)
     db_cxn(sql_createdb, pwd)
     db_cxn(sql_grant_user_all_db_priv, pwd)
@@ -342,8 +379,6 @@ def create_database(database, user, pwd):
         print("Problem creating database: {}".format(database))
     else:
         print("Database: {} created".format(database))
-    migrate()
-    load_fixtures("initial_settings.yaml")
 
 def prompt(message, default, validate):
     answer = input(message)
