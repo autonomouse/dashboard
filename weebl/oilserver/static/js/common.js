@@ -34,6 +34,9 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
             'testcaseinstancestatus': 'testcaseinstances__build__pipeline__',
             'machine': 'machineconfigurations__units__jujuservicedeployment__pipeline__',
             'testcaseinstance': 'build__pipeline__',
+            'testframework': 'testcaseclasses__testcases__testcaseinstances__build__pipeline__',
+            'testcaseclass': 'testcases__testcaseinstances__build__pipeline__',
+            'testcase': 'testcaseinstances__build__pipeline__'
         };
 
         return [model_fields, prefixtures, original_model_names]

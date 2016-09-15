@@ -56,8 +56,14 @@ app.controller('successRateController', [
             local_filters['limit'] = 1;
             local_filters['max_limit'] = 1;
             local_filters['build__jobtype__name'] = jobname;
+            if(jobname == "test_bundletests")
+                local_filters['testcase__testcaseclass__testframework__name'] = 'bundletests';
+            local_filters['successful_jobtype'] = jobname;
             local_filters['testcaseinstancestatus__name'] = 'success';
             graphValues.pass = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(local_filters);
+            local_filters['testcaseinstancestatus__name'] = 'skipped';
+            graphValues.skip = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(local_filters);
+            delete local_filters['successful_jobtype'];
             delete local_filters['testcaseinstancestatus__name'];
             graphValues.jobtotal = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(local_filters);
         };
@@ -120,8 +126,14 @@ app.controller('successRateController', [
                     console.log('total prepare builds = ' + $scope.data.graphValues.prepare.jobtotal.meta.total_count);
                     console.log('cloud_image passes = ' + $scope.data.graphValues.test_cloud_image.pass.meta.total_count);
                     console.log('total cloud_image builds = ' + $scope.data.graphValues.test_cloud_image.jobtotal.meta.total_count);
+                    if($scope.data.results.search.filters.failedjobs)
+                        $scope.data.graphValues.test_bundletests.pass.meta.total_count = 0;
                     console.log('bundletests testcases passes = ' + $scope.data.graphValues.test_bundletests.pass.meta.total_count);
+                    console.log('bundletests testcases skipped = ' + $scope.data.graphValues.test_bundletests.skip.meta.total_count);
                     console.log('total bundletests testcases = ' + $scope.data.graphValues.test_bundletests.jobtotal.meta.total_count);
+                    $scope.data.graphValues.test_bundletests.jobtotal.meta.total_count = $scope.data.graphValues.test_bundletests.jobtotal.meta.total_count
+                        - $scope.data.graphValues.test_bundletests.skip.meta.total_count;
+                    console.log('non-skipped bundletests testcases = ' + $scope.data.graphValues.test_bundletests.jobtotal.meta.total_count);
                     console.log('----------------------------');
 
                     graphFactory.plot_stats_graph(binding, $scope.data.graphValues);
