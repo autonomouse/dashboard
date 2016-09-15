@@ -162,25 +162,37 @@ app.controller('successRateController', [
         $scope.data.humaniseDate = Common.humaniseDate;
 
         var dateSymbolToDays = {
-            'Last 24 Hours': 1,
-            'Last 7 Days': 7,
-            'Last 30 Days': 30,
-            'Last Year': 365,
-            'All Time': null
+            '24 Hours Ago': 1,
+            '7 Days Ago': 7,
+            '30 Days Ago': 30,
+            'One Year Ago': 365,
+            'Dawn of Time': null
         };
 
-        function updateDates(value) {
-            var days_offset = dateSymbolToDays[value];
-            console.log("Updating to last %d days.", days_offset);
-            if (days_offset === null) {
-                $scope.data.start_date = null;
-                $scope.data.finish_date = null;
+        function updateStartDate(start_date) {
+            if (start_date.includes("Ago") || start_date.includes("Time")) {
+                var days_offset = dateSymbolToDays[start_date];
+                console.log("Updating to last %d days.", days_offset);
+                if (days_offset === null) {
+                    $scope.data.start_date = null;
+                } else {
+                    var today = new Date();
+                    prior_date = new Date(new Date().setDate(today.getDate()-days_offset));
+                    $scope.data.start_date = prior_date.toISOString();
+                }
+            } else {
+                console.log("Taking start date literally.");
+                $scope.data.start_date = start_date;
             }
-            else {
-                today = new Date();
-                prior_date = new Date(new Date().setDate(today.getDate()-days_offset));
-                $scope.data.start_date = prior_date.toISOString();
-                $scope.data.finish_date = today.toISOString();
+        }
+
+        function updateFinishDate(finish_date) {
+            /* update finish_date */
+            if ((finish_date == 'Now') || (finish_date == null)) {
+                $scope.data.finish_date = null;
+            } else {
+                console.log("Taking finish date literally.");
+                $scope.data.finish_date = finish_date;
             }
         }
 
@@ -192,17 +204,37 @@ app.controller('successRateController', [
 
         function updateSearch() {
             // slicing to pull off the prepended '=' for exact searches
-            updateDates($scope.data.results.search.filters["date"][0].slice(1));
+            updateStartDate($scope.data.results.search.filters["start_date"][0].slice(1));
+            updateFinishDate($scope.data.results.search.filters["finish_date"][0].slice(1));
             updateFromServer();
         }
 
-        $scope.data.results.search.defaultFilters = {"date": "All Time"};
-        $scope.data.results.search.individualFilters = ["date"];
+        today = new Date();
+        yesterday = new Date(new Date().setDate(today.getDate() - 1));
+
+        $scope.data.start_dates = [
+            '24 Hours Ago',
+            '7 Days Ago',
+            '30 Days Ago',
+            'One Year Ago',
+            'Dawn of Time'
+        ];
+
+        $scope.data.finish_dates = [
+            'Now'
+        ];
+
+        $scope.data.results.search.defaultFilters = {
+            "start_date": '24 Hours Ago',
+            "finish_date": 'Now',
+        }
+        $scope.data.results.search.individualFilters = ["start_date", "finish_date"];
         $scope.data.results.search.runOnUpdate = updateSearch;
         // set the first search to 24 hours
         // if not doing that run update() instead to apply the above changes
         if($scope.data.results.search.search == "") {
-            $scope.data.results.search.toggleFilter("date", "Last 24 Hours", true);
+            $scope.data.results.search.toggleFilter("start_date", "24 Hours Ago", true);
+            $scope.data.results.search.toggleFilter("finish_date", "Now", true);
         }
 
         $scope.data.abbreviateUUID = function(UUID) {

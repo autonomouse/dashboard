@@ -1,11 +1,21 @@
                             <div class="accordion three-col maas-accordion" data-ng-show="data.results.show_filters">
                                 <h3 class="accordion__title">Filter by</h3>
                                 <div class="ng-hide accordion__tab" data-ng-show="1">
-                                    <h4 class="accordion__tab-title maas-accordion-tab active">Date</h4>
+                                    <h4 class="accordion__tab-title maas-accordion-tab active">Start Date</h4>
                                     <div class="accordion__tab-content">
                                         <ul class="accordion__tab-list">
-                                            <li class="accordion__tab-item" data-ng-repeat="date in ['Last 24 Hours', 'Last 7 Days', 'Last 30 Days', 'Last Year', 'All Time']"  data-ng-class="{ active: data.results.search.isFilterActive('date', date, true) }">
-                                                <a class="accordion__tab-link" href="" data-ng-click="data.results.search.toggleFilter('date', date, true)">{$ date $}</a>
+                                            <li class="accordion__tab-item" data-ng-repeat="date in data.start_dates"  data-ng-class="{ active: data.results.search.isFilterActive('start_date', date, true) }">
+                                                <a class="accordion__tab-link" href="" data-ng-click="data.results.search.toggleFilter('start_date', date, true)">{$ date $}</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="ng-hide accordion__tab" data-ng-show="1">
+                                    <h4 class="accordion__tab-title maas-accordion-tab">Finish Date</h4>
+                                    <div class="accordion__tab-content">
+                                        <ul class="accordion__tab-list">
+                                            <li class="accordion__tab-item" data-ng-repeat="date in data.finish_dates"  data-ng-class="{ active: data.results.search.isFilterActive('finish_date', date, true) }">
+                                                <a class="accordion__tab-link" href="" data-ng-click="data.results.search.toggleFilter('finish_date', date, true)">{$ date $}</a>
                                             </li>
                                         </ul>
                                     </div>
