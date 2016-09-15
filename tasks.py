@@ -127,7 +127,8 @@ def destroy(database, force=False):
         destroy_test_data(force)
 
 
-@task
+@task(help={'database': "Type test or production",
+            'dump_file_path': "Path to dump file"})
 def restore_from_dump(database, dump_file_path):
     """Restore from a dump.
 
