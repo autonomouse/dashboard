@@ -1,3 +1,9 @@
+weebl (1.2.1-0ubuntu1) xenial; urgency=medium
+
+  * Fix for tempest pass rate display 
+
+ -- Nuno Santos <nuno.santos@canonical.com>  Fri, 16 Sep 2016 12:25:02 -0400
+
 
 weebl (1.2.0) xenial; urgency=medium
 
