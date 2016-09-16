@@ -85,7 +85,7 @@ app.controller('successRateController', [
             };
         };
 
-        function updateGraphValues(total, pass_deploy_count, pass_prepare_count, pass_test_cloud_image_count, pass_test_bundletests_count) {
+        function updateGraphValues() {
             $scope.data.fetching_data = true;
             $scope.data.graphValues = {};
             $scope.data.graphValues.total = {};
@@ -131,9 +131,8 @@ app.controller('successRateController', [
                     console.log('bundletests testcases passes = ' + $scope.data.graphValues.test_bundletests.pass.meta.total_count);
                     console.log('bundletests testcases skipped = ' + $scope.data.graphValues.test_bundletests.skip.meta.total_count);
                     console.log('total bundletests testcases = ' + $scope.data.graphValues.test_bundletests.jobtotal.meta.total_count);
-                    $scope.data.graphValues.test_bundletests.jobtotal.meta.total_count = $scope.data.graphValues.test_bundletests.jobtotal.meta.total_count
-                        - $scope.data.graphValues.test_bundletests.skip.meta.total_count;
-                    console.log('non-skipped bundletests testcases = ' + $scope.data.graphValues.test_bundletests.jobtotal.meta.total_count);
+                    console.log('non-skipped bundletests testcases = ' + ($scope.data.graphValues.test_bundletests.jobtotal.meta.total_count -
+                        $scope.data.graphValues.test_bundletests.skip.meta.total_count));
                     console.log('----------------------------');
 
                     graphFactory.plot_stats_graph(binding, $scope.data.graphValues);
