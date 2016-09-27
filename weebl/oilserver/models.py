@@ -115,7 +115,7 @@ class Jenkins(TimeStampedBaseModel):
         help_text="UUID of the jenkins instance.")
     servicestatus = models.ForeignKey(ServiceStatus, related_name='jenkinses')
     external_access_url = models.URLField(
-        unique=True,
+        unique=False,
         help_text="A URL for external access to this server.")
     internal_access_url = models.URLField(
         unique=True,
