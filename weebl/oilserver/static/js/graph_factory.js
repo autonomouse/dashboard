@@ -46,7 +46,7 @@ var plot_stats_graph = function(scope, graphValues) {
             },
             title: {
                 enable: true,
-                text: "Percentage Success Rates",
+                text: "Percentage Success Rates for " + number_of_test_runs + " Matching Runs",
                 css: {
                     width: "nullpx",
                     textAlign: "center"
