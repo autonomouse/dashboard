@@ -49,52 +49,29 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
         if (angular.isUndefined($scope.data.bugs_affecting_pipeline)) $scope.data.bugs_affecting_pipeline = {};
         if (angular.isUndefined($scope.data.testRuns)) $scope.data.testRuns = {};
         if (angular.isUndefined($scope.data.regexes)) $scope.data.regexes = {};
-        if (angular.isUndefined($scope.data.sections)) {
-            $scope.data.sections = {};
-            $scope.data.sections.results = {};
-            $scope.data.sections.results.pagetitle = "Results";
-            $scope.data.sections.results.primaryTab = "successRate";
-            $scope.data.sections.reports = {};
-            $scope.data.sections.reports.pagetitle = "Reports";
-            $scope.data.sections.reports.primaryTab = "overview";
-            $scope.data.sections.throughput = {};
-            $scope.data.sections.throughput.pagetitle = "Throughput";
-            $scope.data.sections.throughput.primaryTab = "scheduler";
-        };
         if (angular.isUndefined($scope.data.tabs)) {
             $scope.data.tabs = {};
-            $scope.data.tabs.successRate = {};
-            $scope.data.tabs.successRate.pagetitle = "Success Rate";
             $scope.data.tabs.testRuns = {};
-            $scope.data.tabs.testRuns.pagetitle = "Test Runs";
             $scope.data.tabs.testRuns.predicate = "completed_at";
             $scope.data.tabs.testRuns.reverse = true;
             $scope.data.tabs.bugs = {};
-            $scope.data.tabs.bugs.pagetitle = "Bugs";
             $scope.data.tabs.bugs.predicate = "occurrence_count";
             $scope.data.tabs.bugs.reverse = true;
-            $scope.data.tabs.overview = {};
-            $scope.data.tabs.overview.pagetitle = "Overview";
-            $scope.data.tabs.scheduler = {};
-            $scope.data.tabs.scheduler.pagetitle = "Scheduler";
         };
         if (angular.isUndefined($scope.data.subfilterPlotForm)) {
             $scope.data.subfilterPlotForm = {};
         };
         if (angular.isUndefined($scope.data.results)) $scope.data.results = {};
         if (angular.isUndefined($scope.data.reports)) $scope.data.reports = {};
-        if (angular.isUndefined($scope.data.currentsection)) {
-            locationParts = $location.path().split('/');
-            //remove all '' from locationParts
-            while (locationParts.indexOf('') !== -1) {
-                locationParts.splice(locationParts.indexOf(''), 1);
-            }
-            console.log($location.path() + " => " + locationParts)
-            if (locationParts.length >= 1) highlightSection($scope, locationParts[0]);
-            if (locationParts.length >= 2) highlightTab($scope, locationParts[1]);
-            if (locationParts.length == 0) highlightSection($scope, 'results');
-        };
         return $scope
+    };
+
+    function arrayToObjectOnProperty(array, property) {
+	var outputObject = {};
+	array.map(function(o) {
+	    outputObject[o[property]] = o;
+	});
+	return outputObject;
     };
 
     function jobtypeLookup(jobname) {
@@ -127,32 +104,6 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
         var minutes = ('0' + date_obj.getUTCMinutes()).slice(-2);
         var seconds = ('0' + date_obj.getUTCSeconds()).slice(-2);
         return (day + "-" + month_name + "-" + year + " at " + hours + ":" + minutes + ":" + seconds);
-    };
-
-    function highlightSection(scope, section) {
-        if (!(section in scope.data.sections)) {
-            console.log("There is no " + section + " section!")
-        } else {
-            console.log("Highlighting section: " + section)
-            $rootScope.section = scope.data.sections[section].pagetitle;
-            if (scope.data.currentsection !== section) {
-                scope.data.currentsection = section;
-                highlightTab(scope, scope.data.sections[section].primaryTab);
-            };
-        };
-    };
-
-    function highlightTab(scope, tab) {
-        if (!(tab in scope.data.tabs)) {
-            console.log("There is no " + tab + " tab!")
-            return
-        } else {
-            console.log("Highlighting tab: " + tab)
-        }
-        if (tab in scope.data.tabs) {
-            $rootScope.title = scope.data.tabs[tab].pagetitle;
-            scope.data.currentpage = tab;
-        };
     };
 
     function generateFilterPaths(origin) {
@@ -236,9 +187,8 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
 
     return {
       initialise: initialise,
+      arrayToObjectOnProperty: arrayToObjectOnProperty,
       humaniseDate: humaniseDate,
-      highlightTab: highlightTab,
-      highlightSection: highlightSection,
       generateActiveFilters: generateActiveFilters,
       generateFilterPaths: generateFilterPaths,
       getFilterModels: getFilterModels,

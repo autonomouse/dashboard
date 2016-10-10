@@ -38,9 +38,6 @@ app.config(function ($routeProvider) {
         .when('/reports', {
             redirectTo: '/reports/overview'
         })
-        .when('/triage', {
-            redirectTo: '/triage/triage'
-        })
         .when('/throughput/scheduler', {
             templateUrl: '/static/partials/scheduler.html',
             controller: 'schedulerController',

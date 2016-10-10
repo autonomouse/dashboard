@@ -1,16 +1,5 @@
-<div data-ng-show="data.currentsection === 'results'">
-                                    <a href="#/results/successRate" data-ng-class="{ active: data.currentpage === 'successRate' }" data-ng-click="data.highlightTab('successRate'); data.highlightSection('results')">Success Rate</a>
-                                    <span class="divide"></span>
-                                    <a href="#/results/bugs" data-ng-class="{ active: data.currentpage === 'bugs' }" data-ng-click="data.highlightTab('bugs'); data.highlightSection('results')">Bugs</a>
-                                    <span class="divide"></span>
-                                    <a href="#/results/testRuns" data-ng-class="{ active: data.currentpage === 'testRuns' }" data-ng-click="data.highlightTab('testRuns'); data.highlightSection('results')">Test Runs</a>
-                                    {% include 'spinner.html' %}
-</div>
-<div data-ng-show="data.currentsection === 'reports'">
-                                    <a href="#/reports/overview" data-ng-class="{ active: data.currentpage === 'overview' }" data-ng-click="data.highlightTab('overview'); data.highlightSection('reports')">Overview</a>
-                                    {% include 'spinner.html' %}
-</div>
-<div data-ng-show="data.currentsection === 'throughput'">
-                                    <a href="#/throughput/scheduler" data-ng-class="{ active: data.currentpage === 'scheduler' }" data-ng-click="data.highlightTab('scheduler'); data.highlightSection('throughput')">Scheduler</a>
-                                    {% include 'spinner.html' %}
-</div>
+<ng-repeat ng-repeat="tab in tabs">
+    <a href="#/{$ activeSection $}/{$ tab.url $}" data-ng-class="{ active: activeTab === tab.url }">{$ tab.name $}</a>
+    <span class="divide" data-ng-if="!$last"></span>
+</ng-repeat>
+{% include 'spinner.html' %}

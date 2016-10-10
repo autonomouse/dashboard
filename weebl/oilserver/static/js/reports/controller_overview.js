@@ -81,14 +81,6 @@ app.controller('overviewReportController', [
             });
         }
 
-        function arrayToObjectOnProperty(array, property) {
-            var outputObject = {};
-            array.map(function(o) {
-                outputObject[o[property]] = o;
-            });
-            return outputObject;
-        }
-
         function waitForResolve(promisedResources, callback) {
             resourceKeys = Object.keys(promisedResources);
             resources = resourceKeys.map(function(key) {return promisedResources[key];});
@@ -130,8 +122,8 @@ app.controller('overviewReportController', [
 
         function getProductsFilter(name) {
             productundertest = {};
-            reports = arrayToObjectOnProperty($scope.data.reports.metadata.reportGroups, 'name');
-            vendors = arrayToObjectOnProperty($scope.data.reports.metadata.vendors, 'name');
+            reports = Common.arrayToObjectOnProperty($scope.data.reports.metadata.reportGroups, 'name');
+            vendors = Common.arrayToObjectOnProperty($scope.data.reports.metadata.vendors, 'name');
             if(!(name in reports)) {
                 return productundertest;
             }
@@ -145,7 +137,7 @@ app.controller('overviewReportController', [
 
         function getDateFilter(period) {
             filter_set = {};
-            periods = arrayToObjectOnProperty($scope.data.reports.metadata.reportPeriods, 'name');
+            periods = Common.arrayToObjectOnProperty($scope.data.reports.metadata.reportPeriods, 'name');
             filter_set.pipeline = {};
             if(period in periods) {
                 filter_set.pipeline.completed_at__gte = periods[period].start_date;

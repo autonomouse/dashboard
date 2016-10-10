@@ -18,7 +18,7 @@
     </head>
 
     <body data-ng-init="data.site = 'OIL'; data.user = '{{ user.username }}'; data.apikey = '{{ user.api_key.key }}'">
-        <div class="wrapper maas-wrapper">
+        <div class="wrapper maas-wrapper" data-ng-controller="sectionController">
             <header class="banner global fixed" role="banner">
                 <nav role="navigation" class="nav-primary nav-right">
                     <div class="logo">
@@ -26,22 +26,7 @@
                         <img width="110" height"10" src="{{ STATIC_URL }}img/logos/logo.svg" alt="OIL" />
                         </a>
                     </div>
-                    <div  data-ng-controller="successRateController as successRate">
-                        <span class="page-header__title--identicator" id="bulk-actions">
-                            <ul id="main-nav" class="nav">
-                                <li>
-                                    <a href="#/results" data-ng-class="{ active: data.currentsection === 'results' }" data-ng-click="data.highlightSection('results')">Results</a>
-                                </li>
-                                <li>
-                                    <a href="#/reports" data-ng-class="{ active: data.currentsection === 'reports' }" data-ng-click="data.highlightSection('reports')">Reports</a>
-                                </li>
-                                <li>
-                                    <a href="#/throughput" data-ng-class="{ active: data.currentsection === 'throughput' }" data-ng-click="data.highlightSection('throughput')">Throughput</a>
-                                </li>
-                            </ul>
-                        </span>
-                    </div>
-
+                    {% include 'section-picker.html' %}
                     <ul id="right-nav" class="nav">
                         <!-- User Menu -->
                         <li id="user-link">
