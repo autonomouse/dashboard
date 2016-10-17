@@ -1,0 +1,32 @@
+@media print {
+  @page {
+    margin: 1cm !important;
+  }
+  h1 {
+    padding-top: 10px;
+    font-size: 18pt;
+  }
+
+  h2 {
+    font-size: 12pt;
+  }
+
+  h3 {
+    font-size: 10pt;
+  }
+
+  p {
+    font-size: 8pt;
+  }
+
+  body {
+    font-family: "Ubuntu" !important;
+  }
+
+  .info-graphic .six-col {
+    float: left;
+    width: 50%;
+    box-sizing: border-box;
+  }
+
+}

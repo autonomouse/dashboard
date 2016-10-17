@@ -41,8 +41,8 @@
                     <tr data-ng-repeat="openstackversion in data.reports.overview.ubuntuCrossOpenstack.axes.openstackversion">
                     <th>{$ openstackversion $}</th>
                     <td data-ng-repeat="ubuntuversion in data.reports.overview.ubuntuCrossOpenstack.axes.ubuntuversion">
-                    <img src="/static/img/reports/icon-success.svg" width="16" length="16" alt="" data-ng-show="data.reports.overview.ubuntuCrossOpenstack.items[openstackversion+ubuntuversion]">
-                    <div data-ng-hide="data.reports.overview.ubuntuCrossOpenstack.items[openstackversion+ubuntuversion]">-</div>
+                    <img src="/static/img/reports/icon-success.svg" width="16" length="16" alt="" data-ng-if="data.reports.overview.ubuntuCrossOpenstack.items[openstackversion+ubuntuversion]">
+                    <div data-ng-if="!data.reports.overview.ubuntuCrossOpenstack.items[openstackversion+ubuntuversion]">-</div>
                     </td>
                     </tr>
                 </tbody>
@@ -51,34 +51,34 @@
 	<section class="services-tested row no-border-bottom">
 	    <div class="twleve-col">
 		<h2>Services tested:</h2>
-                <div class="fith-col align-center" data-ng-show="data.reports.overview.productTypes.indexOf('compute') != -1">
+                <div class="fith-col align-center" data-ng-if="data.reports.overview.productTypes.indexOf('compute') != -1">
                     <img src="/static/img/reports/openstack-nova.svg" alt="">
                     <h3>Nova</h3>
                 </div>
-                <div class="fith-col align-center" data-ng-show="data.reports.overview.productTypes.indexOf('sdn') != -1">
+                <div class="fith-col align-center" data-ng-if="data.reports.overview.productTypes.indexOf('sdn') != -1">
                     <img src="/static/img/reports/openstack-neutron.svg" alt="">
                     <h3>Neutron</h3>
                 </div>
-                <div class="fith-col align-center" data-ng-show="data.reports.overview.productTypes.indexOf('blockstorage') != -1">
+                <div class="fith-col align-center" data-ng-if="data.reports.overview.productTypes.indexOf('blockstorage') != -1">
                     <img src="/static/img/reports/openstack-cinder.svg" alt="">
                     <h3>Cinder</h3>
                 </div>
-                <div class="fith-col align-center" data-ng-show="data.reports.overview.testedSwift">
+                <div class="fith-col align-center" data-ng-if="data.reports.overview.testedSwift">
                     <img src="/static/img/reports/openstack-swift.svg" alt="">
                     <h3>Swift</h3>
                 </div>
-                <div class="fith-col align-center" data-ng-show="data.reports.overview.productTypes.indexOf('imagestorage') != -1">
+                <div class="fith-col align-center" data-ng-if="data.reports.overview.productTypes.indexOf('imagestorage') != -1">
                     <img src="/static/img/reports/openstack-glance.svg" alt="">
                     <h3>Glance</h3>
                 </div>
 	    </div>
-	    <section class="row no-border-bottom no-padding-bottom no-padding-left" data-ng-show="data.reports.overview.servicesTested">
+	    <section class="row no-border-bottom no-padding-bottom no-padding-left" data-ng-if="data.reports.overview.servicesTested">
 		<div>
 		    <p>As well as: {$ data.reports.overview.servicesTested $}</p>
 		</div>
 	    </section>
         </section>
-	<section class="models row">
+	<section class="models fake-row">
 	    <div class="twelve-col">
                 <h2>{$ data.reports.overview.reportGroup $} models in OIL:</h2>
                 <p>{$ data.reports.overview.productsUnderTest $}</p>

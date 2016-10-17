@@ -73,6 +73,16 @@
                                     {% include 'page-picker.html' %}
                                 </span>
                             </h1>
+                            <div class="page-header__actions" data-ng-show="data.currentsection === 'reports'">
+                                <form class="right" action="pdf" method="post">
+                                      <input type="hidden" name="template" value="report-summary.html"/>
+                                      <input type="text" name="content" data-ng-model="data.pdf_content" style="display: none;"/>
+                                      <input type="hidden" name="force-one-page" value="True"/>
+                                      <input type="hidden" name="filename" value="filename.pdf"/>
+                                      <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                                      <input type="submit" name="submit" value="Save to PDF"/>
+                                </form>
+                            </div>
                         </div>
                     </header>
 
@@ -93,7 +103,7 @@
                                 <!------------------------------------------------>
                                 {% include 'search-bar.html' %}
                                 <!------------------------------------------------>
-                                <div data-ng-view></div>
+                                <div id="content-view" data-ng-view></div>
                                 <!------------------------------------------------>
                             {% endif %}
                         </div>

@@ -38,9 +38,15 @@ apt -y --no-upgrade install \
     gunicorn3 \
     postgresql-contrib \
     python-setuptools \
+    libffi-dev \
+    ttf-ubuntu-font-family \
+    python3-pip \
     --fix-missing
 
 # export https_proxy=http://91.189.89.33:3128
+
+echo "Installing packages via pip"
+pip3 install --upgrade html5lib weasyprint
 
 echo "Installing packages via npm"
 jslibs_dir="weebl/oilserver/static"

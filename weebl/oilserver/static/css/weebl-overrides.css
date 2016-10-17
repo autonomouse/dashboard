@@ -15,9 +15,14 @@ a.external {
 
 .page-header .page-header__title {
     font-size:2em;
-    width:auto;padding:10px 0;
+    width:auto;
+    padding:10px 0;
     margin:0;
     float:left;
+}
+
+.page-header .page-header__actions {
+    padding:12px 0;
 }
 
 img.centered {

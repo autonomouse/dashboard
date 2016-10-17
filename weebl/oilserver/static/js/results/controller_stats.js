@@ -260,6 +260,11 @@ app.controller('successRateController', [
             Common.highlightSection($scope, section);
         };
 
+        $scope.generatePDF = function() {
+            $scope.data.pdf_content = angular.element("#content-view").html();
+            return $scope.data.pdf_content;
+        };
+
         // Sorts the table by predicate.
         $scope.data.sortTable = function(predicate, tab) {
             if (predicate === $scope.data.tabs[tab].predicate) {
@@ -278,4 +283,5 @@ app.controller('successRateController', [
         $scope.data.testRuns = update('pipeline');
         updateGraphValues();
         plotStatsGraph();
+        $scope.$watch($scope.generatePDF, $scope.generatePDF);
     }]);

@@ -46,6 +46,7 @@ Depends:
  python3-requests-oauthlib,
  python3-social-auth,
  python3-tz,
+ ttf-ubuntu-font-family,
  python3-yaml
 Provides: ${python3:Provides}
 XB-Python-Version: ${python3:Versions}
