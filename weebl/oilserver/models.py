@@ -169,9 +169,12 @@ class UbuntuVersion(models.Model):
         help_text="The name of the version of the Ubuntu system.")
     number = models.CharField(
         max_length=10,
-        unique=True,
+        unique=False,
         default="",
         help_text="The numerical version of the Ubuntu system")
+
+    class Meta:
+        unique_together = (('name', 'number'),)
 
     def __str__(self):
         return self.name
