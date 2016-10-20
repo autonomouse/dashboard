@@ -1,2 +1,4 @@
 recursive-include weebl/oilserver/static *
 recursive-include weebl/oilserver/templates *
+recursive-include weebl/oilserver/fixtures *
+
