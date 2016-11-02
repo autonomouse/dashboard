@@ -23,12 +23,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = 'd)nfvgqd2efxi9c9#99v%y&s6e3=ia3a9srw+wphvchub*gr@#'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 TEMPLATE_DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['*']  # FIXME: Need to pass in the IP from the weebl charm.
+# ALLOWED_HOSTS will not accept localhost or 127.0.0.1 nor does [] work anymore
 
 # Application definition
 
