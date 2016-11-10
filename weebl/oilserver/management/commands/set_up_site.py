@@ -3,11 +3,6 @@ from oilserver import models
 from django.contrib.sites.models import Site
 
 
-def main(sitename):
-    this_site = get_or_create_site(sitename)
-    return get_or_create_settings(this_site)
-
-
 def get_or_create_site(name):
     if Site.objects.filter(domain=name, name=name).exists():
         return Site.objects.get(domain=name, name=name)
@@ -23,6 +18,11 @@ def get_or_create_settings(site):
         settings = models.WeeblSetting(site=site)
         settings.save()
         return True
+
+
+def main(sitename):
+    this_site = get_or_create_site(sitename)
+    return get_or_create_settings(this_site)
 
 
 class Command(BaseCommand):
