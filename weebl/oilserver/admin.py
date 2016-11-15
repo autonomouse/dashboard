@@ -144,6 +144,7 @@ class ProductUnderTestAdmin(admin.ModelAdmin):
 
     search_fields = ['name']
     ordering = ['name']
+    form = ProductUnderTestForm
 
 admin.site.register(models.ProductUnderTest, ProductUnderTestAdmin)
 
