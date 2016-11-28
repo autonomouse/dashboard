@@ -181,7 +181,7 @@ class UbuntuVersion(models.Model):
 
 
 class Project(TimeStampedBaseModel):
-    """A system for tracking bugs (e.g. Launchpad). """
+    """The project that a product falls under. """
     name = models.CharField(
         max_length=255,
         unique=True,

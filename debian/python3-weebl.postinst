@@ -5,5 +5,4 @@ ln -s /usr/share/weebl/weebl-nginx-site.conf /etc/nginx/sites-enabled/weebl-ngin
 
 echo "Migrating database and collecting static files..."
 export DJANGO_SETTINGS_MODULE=weebl.settings
-/usr/bin/python3 /usr/bin/django-admin collectstatic --noinput
 /usr/bin/python3 /usr/bin/django-admin migrate --noinput
