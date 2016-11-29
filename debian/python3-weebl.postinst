@@ -3,6 +3,10 @@ set -e
 rm -rf /etc/nginx/sites-enabled/weebl-nginx-site.conf
 ln -s /usr/share/weebl/weebl-nginx-site.conf /etc/nginx/sites-enabled/weebl-nginx-site.conf
 
-echo "Migrating database and collecting static files..."
 export DJANGO_SETTINGS_MODULE=weebl.settings
+
+echo "Copying required static files..."
+/usr/bin/python3 /usr/bin/django-admin collectstatic --noinput
+
+echo "Migrating database..."
 /usr/bin/python3 /usr/bin/django-admin migrate --noinput

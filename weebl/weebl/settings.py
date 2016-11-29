@@ -69,11 +69,7 @@ WSGI_APPLICATION = 'weebl.wsgi.application'
 
 CONFIG_PATH = '/etc/weebl/weebl.yaml'
 
-STATICFILES_DIRS = [
-    "/usr/share/javascript/jquery/",
-    "/usr/share/javascript/angular.js/",
-    "/usr/share/javascript/yui3/",
-]
+STATICFILES_DIRS = []
 
 BUILTIN_STATIC = os.path.join(BASE_DIR, 'oilserver', 'static')
 

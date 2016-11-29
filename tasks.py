@@ -51,6 +51,7 @@ def go(database, server="runserver", ip_addr="127.0.0.1", port=8000):
 @task(help={'database': "Type test or production", })
 def init(database):
     """Set up and run weebl using either a test or a production database."""
+    manage_static_files()
     initialise_database(database)
     set_permissions('.')
 
@@ -58,6 +59,7 @@ def init(database):
 def run_tests():
     """Run unit, functional, and lint tests for each app."""
     destroy_db(test_db_name, test_pwd, force=True, backup=False)
+    manage_static_files()
     initialise_database("test")
     load_fixtures()
     run_lint_tests()
@@ -450,6 +452,13 @@ def mkdir(directory):
             if not os.path.isdir(directory):
                 raise
 
+def  manage_static_files():
+    """Copies static files from system dir (installed via the install_deps
+    script) and copies them to local folder (which is in the gitignore file).
+    This obviously assumes that install_deps has been run first.
+    """
+    run('{} {} {} collectstatic --noinput'.format(
+        preamble, python3_version, manage_cmd))
 
 def set_permissions(folder):
     """Walk through the weebl folder and change the owner of any files or
