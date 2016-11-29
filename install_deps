@@ -25,7 +25,6 @@ apt -y --no-upgrade install \
     python3-pip \
     python3-arrow \
     libjs-yui3-min \
-    libjs-angularjs \
     libjs-yui \
     npm \
     python3-pyparsing \
