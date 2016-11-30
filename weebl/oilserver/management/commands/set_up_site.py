@@ -4,8 +4,9 @@ from django.contrib.sites.models import Site
 
 
 def get_or_create_site(name):
-    if Site.objects.filter(domain=name, name=name).exists():
-        return Site.objects.get(domain=name, name=name)
+    site = Site.objects.filter(domain=name, name=name)
+    if site.exists():
+        return site[0]
     this_site = Site(domain=name, name=name)
     this_site.save()
     return this_site
