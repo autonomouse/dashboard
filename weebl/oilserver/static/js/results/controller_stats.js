@@ -116,6 +116,7 @@ app.controller('successRateController', [
                 $scope.data.graphValues.test_cloud_image.pass.$promise,
                 $scope.data.graphValues.test_cloud_image.jobtotal.$promise,
                 $scope.data.graphValues.test_bundletests.pass.$promise,
+                $scope.data.graphValues.test_bundletests.skip.$promise,
                 $scope.data.graphValues.test_bundletests.jobtotal.$promise
             ]).then(function() {
                 if ($scope.data.graphValues.total.$resolved) {
