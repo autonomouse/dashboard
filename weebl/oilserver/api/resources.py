@@ -257,6 +257,7 @@ class ProductUnderTestResource(CommonResource):
         InternalContactResource, 'internalcontact', full_list=True)
     producttype = ForeignKey(
         ProductTypeResource, 'producttype', full_list=True)
+    project = ForeignKey(ProjectResource, 'project', full_list=True)
     reports = ToManyField(ReportResource, 'reports')
     machineconfigurations = ReverseManyField(
         'oilserver.api.resources.MachineConfigurationResource',
@@ -277,7 +278,8 @@ class ProductUnderTestResource(CommonResource):
             'jujuservicedeployments': ALL_WITH_RELATIONS,
             'uuid': ('exact',),
             'name': ('exact', 'in',),
-            'producttype': ALL_WITH_RELATIONS, }
+            'producttype': ALL_WITH_RELATIONS,
+            'project': ALL_WITH_RELATIONS, }
 
 
 class OpenstackVersionResource(CommonResource):
