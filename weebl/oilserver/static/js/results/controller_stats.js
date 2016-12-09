@@ -120,6 +120,8 @@ app.controller('successRateController', [
                 $scope.data.graphValues.test_bundletests.jobtotal.$promise
             ]).then(function() {
                 if ($scope.data.graphValues.total.$resolved) {
+                    console.log(JSON.stringify($scope.data.graphValues));
+                    console.log('----------------------------');
                     console.log('total test runs = ' + $scope.data.graphValues.total.meta.total_count);
                     console.log('deploy passes = ' + $scope.data.graphValues.deploy.pass.meta.total_count);
                     console.log('total deploy builds = ' + $scope.data.graphValues.deploy.jobtotal.meta.total_count);
