@@ -225,6 +225,7 @@ class InternalContact(TimeStampedBaseModel):
     staffdirectoryurl = models.URLField(
         default=None,
         blank=True,
+        null=True,
         help_text="URL linking to Canonical staff directory.")
     uuid = models.CharField(
         max_length=36,

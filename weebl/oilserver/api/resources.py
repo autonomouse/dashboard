@@ -251,11 +251,12 @@ class ProductTypeResource(CommonResource):
 class ProductUnderTestResource(CommonResource):
     """API Resource for 'ProductUnderTest' model. """
 
-    vendor = ForeignKey(VendorResource, 'vendor')
-    project = ForeignKey(ProjectResource, 'project')
-    internalcontact = ForeignKey(InternalContactResource, 'internalcontact')
+    vendor = ForeignKey(VendorResource, 'vendor', full_list=True)
+    project = ForeignKey(ProjectResource, 'project', full_list=True)
+    internalcontact = ForeignKey(
+        InternalContactResource, 'internalcontact', full_list=True)
     producttype = ForeignKey(
-        ProductTypeResource, 'producttype', use_in='detail')
+        ProductTypeResource, 'producttype', full_list=True)
     reports = ToManyField(ReportResource, 'reports')
     machineconfigurations = ReverseManyField(
         'oilserver.api.resources.MachineConfigurationResource',
@@ -265,7 +266,8 @@ class ProductUnderTestResource(CommonResource):
         'jujuservicedeployments')
 
     class Meta(CommonMeta):
-        queryset = models.ProductUnderTest.objects.all()
+        queryset = models.ProductUnderTest.objects.select_related(
+            'vendor', 'project', 'internalcontact', 'producttype').all()
         filtering = {
             'project': ('exact',),
             'internalcontact': ('exact',),
