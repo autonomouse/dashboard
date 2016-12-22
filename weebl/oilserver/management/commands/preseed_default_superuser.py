@@ -75,5 +75,3 @@ class Command(BaseCommand):
         user = create_admin_user(username, email)
         socialuser = create_social_user(user, provider, uid)
         apikey = create_apikey(user, apikey)
-        socialuser
-        apikey
