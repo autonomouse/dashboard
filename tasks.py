@@ -89,7 +89,6 @@ def createdb(database):
     if exists:
         print("Database: {} already exists!".format(database))
         return
-    load_fixtures("initial_settings.yaml")
 
 @task(help={'database': "Type test or production"})
 def create_empty_db(database):
@@ -164,14 +163,6 @@ def backup_database(database, force=False):
             print(msg.format(application, " - aborting"))
             return
     return backup_to
-
-@task(help={'fixture': "Fixture to load into database"})
-def load_fixtures(fixture="initial_settings.yaml"):
-    """Loads up data from a fixtures file (defaults to initial_settings.yaml).
-    """
-    print("Adding data from {} into database".format(fixture))
-    run('{} {} loaddata "{}"'.format(
-        python3_version, manage_cmd, fixture))
 
 @task()
 def fake_data():
