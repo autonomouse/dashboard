@@ -37,7 +37,7 @@
                                     {{ user.get_full_name }}
                                 </a>
                                 <ul class="nav" id="user-options">
-                                    {% if user.is_staff %}
+                                    {% if user.is_superuser%}
                                         <li>
                                             <a href="{{ site }}/admin/">Admin</a>
                                         </li>
@@ -65,50 +65,54 @@
                 </div>
             </header>
             <main id="body">
-                <div data-ng-controller="successRateController as successRate">
-                    <header class="page-header margin-bottom" data-maas-sticky-header>
-                        <div class="inner-wrapper">
-                            <h1 class="page-header__title">
-                                <span class="page-header__title--identicator" id="bulk-actions">
-                                    {% include 'page-picker.html' %}
-                                </span>
-                            </h1>
-                            <div class="page-header__actions" data-ng-show="data.currentsection === 'reports'">
-                                <form class="right" action="pdf" method="post">
-                                      <input type="hidden" name="template" value="report-summary.html"/>
-                                      <input type="text" name="content" data-ng-model="data.pdf_content" style="display: none;"/>
-                                      <input type="hidden" name="force-one-page" value="True"/>
-                                      <input type="hidden" name="filename" value="filename.pdf"/>
-                                      <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-                                      <input type="submit" name="submit" value="Save to PDF"/>
-                                </form>
-                            </div>
-                        </div>
-                    </header>
-
-                    <div class="inner-wrapper">
-
-                        <!-- accordion -->
-                        {% if user.is_authenticated %}
-                        {% include 'accordion.html' %}
-                        {% endif %}
-
-                        <!-- main content -->
-                        <div id="main-content" data-maas-error-overlay>
-                            {% if not user.is_authenticated %}
-                                <div id="content" class="nine-col last-col" data-ng-controller="locationController">
-                                    <p>Please <a href="{{ site }}{% url 'social:begin' 'ubuntu' %}?next={$ data.absURI $}">log in</a> to see data.</p>
+                {% if user.is_staff or user.is_superuser %}
+                    <div data-ng-controller="successRateController as successRate">
+                        <header class="page-header margin-bottom" data-maas-sticky-header>
+                            <div class="inner-wrapper">
+                                <h1 class="page-header__title">
+                                    <span class="page-header__title--identicator" id="bulk-actions">
+                                        {% include 'page-picker.html' %}
+                                    </span>
+                                </h1>
+                                <div class="page-header__actions" data-ng-show="data.currentsection === 'reports'">
+                                    <form class="right" action="pdf" method="post">
+                                          <input type="hidden" name="template" value="report-summary.html"/>
+                                          <input type="text" name="content" data-ng-model="data.pdf_content" style="display: none;"/>
+                                          <input type="hidden" name="force-one-page" value="True"/>
+                                          <input type="hidden" name="filename" value="filename.pdf"/>
+                                          <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                                          <input type="submit" name="submit" value="Save to PDF"/>
+                                    </form>
                                 </div>
-                            {% else %}
+                            </div>
+                        </header>
+
+                        <div class="inner-wrapper">
+
+                            <!-- accordion -->
+                            {% if user.is_authenticated %}
+                            {% include 'accordion.html' %}
+                            {% endif %}
+
+                            <!-- main content -->
+                            <div id="main-content" data-maas-error-overlay>
                                 <!------------------------------------------------>
                                 {% include 'search-bar.html' %}
                                 <!------------------------------------------------>
                                 <div id="content-view" data-ng-view></div>
                                 <!------------------------------------------------>
-                            {% endif %}
+                            </div>
                         </div>
                     </div>
-                </div>
+                {% elif user.is_authenticated %}
+                    <div id="content">
+                        <p>You are not authorised to see this content. If you feel that this is not correct, please request access from a member of the OIL team.</p>
+                    </div>
+                {% else %}
+                    <div id="content">
+                        <p>Please <a href="{{ site }}{% url 'social:begin' 'ubuntu' %}?next={$ data.absURI $}">log in</a> to see data.</p>
+                    </div>
+                {% endif %}
             </main>
 
             <div class="footer-wrapper" data-maas-error-toggle>
