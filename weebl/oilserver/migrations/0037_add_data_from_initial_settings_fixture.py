@@ -38,22 +38,10 @@ def set_up_testcaseinstancestatus():
     create_or_pass(oilserver.models.TestCaseInstanceStatus, tcis_name_descriptions)
 
 
-def set_up_jobtypes():
-    jt_name_descriptions = {
-        "pipeline_deploy": "Deploy Openstack",
-        "pipeline_prepare": "Configure Openstack for test",
-        "test_tempest_smoke": "Run Openstack's tempest tests",
-        "test_bundletests": "Test Bundles",
-        "test_cloud_image": "SSH to guest instance",
-        "pipeline_start": "Initialise test run", }
-    create_or_pass(oilserver.models.JobType, jt_name_descriptions)
-
-
 def add_data_from_initial_settings_fixture(apps, schema_editor):
     '''Add data from initial settings fixture.'''
     set_up_statuses()
     set_up_testcaseinstancestatus()
-    set_up_jobtypes()
 
 
 class Migration(migrations.Migration):

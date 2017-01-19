@@ -470,6 +470,18 @@ class JobType(models.Model):
         blank=True,
         null=True,
         help_text="Optional description of job type.")
+    colour = models.CharField(
+        max_length=6,
+        default="56334b",
+        help_text="HTML colour code for this job (excluding the '#' prefix).")
+    order = models.IntegerField(
+        default=0,
+        blank=False,
+        null=False,
+        help_text="Order in which jobs are run/should be displayed in UI.")
+    plot = models.BooleanField(
+        default=True,
+        help_text="Show on plots (e.g. success rate and trends graphs).")
 
     def __str__(self):
         return self.name
