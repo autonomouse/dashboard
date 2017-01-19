@@ -4,10 +4,16 @@ from django.shortcuts import redirect
 from django.http import HttpResponse
 from weasyprint import HTML
 from django.template.loader import render_to_string
+from datetime import datetime
+from weebl.__init__ import __version__
+from weebl.__init__ import __api_version__
 
 
 def main_page(request):
-    return render(request, 'index.html')
+    return render(request, 'index.html', {
+        'TMYear': datetime.now().year,
+        'version': __version__,
+        'api_version': __api_version__})
 
 
 def pdf_view(request):

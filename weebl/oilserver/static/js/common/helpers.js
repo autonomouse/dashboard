@@ -67,11 +67,11 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
     };
 
     function arrayToObjectOnProperty(array, property) {
-	var outputObject = {};
-	array.map(function(o) {
-	    outputObject[o[property]] = o;
-	});
-	return outputObject;
+        var outputObject = {};
+        array.map(function(o) {
+            outputObject[o[property]] = o;
+        });
+        return outputObject;
     };
 
     function jobtypeLookup(jobname) {
