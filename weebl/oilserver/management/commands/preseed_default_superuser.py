@@ -73,5 +73,5 @@ class Command(BaseCommand):
             self.feedback(msg)
             raise
         user = create_admin_user(username, email)
-        socialuser = create_social_user(user, provider, uid)
+        create_social_user(user, provider, uid)
         apikey = create_apikey(user, apikey)
