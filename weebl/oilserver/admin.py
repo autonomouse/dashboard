@@ -259,6 +259,25 @@ class MachineConfigurationAdmin(admin.ModelAdmin):
 admin.site.register(models.MachineConfiguration, MachineConfigurationAdmin)
 
 
+class TestFrameworkForm(forms.ModelForm):
+
+    class Meta:
+        model = models.TestFramework
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super(TestFrameworkForm, self).__init__(*args, **kwargs)
+
+class TestFrameworkAdmin(admin.ModelAdmin):
+    list_display = ['__str__', 'name', 'version']
+
+    search_fields = ['name', 'version']
+    ordering = ['name', 'version']
+    form = TestFrameworkForm
+
+admin.site.register(models.TestFramework, TestFrameworkAdmin)
+
+
 # Register any remaining models that have not been explicitly registered:
 for model in get_models(get_app('oilserver')):
     try:
