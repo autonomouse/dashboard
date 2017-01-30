@@ -30,3 +30,9 @@ img.centered {
     margin-left: auto;
     margin-right: auto;
 }
+
+.accordion .accordion__tab .accordion__tab-title.active+.accordion__tab-content {
+    max-height: 500px;
+    overflow-y: scroll;
+    transition: max-height 0.5s ease-in
+}
