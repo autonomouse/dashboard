@@ -6,8 +6,12 @@ import django
 import psycopg2
 import psutil
 import shutil
+import tarfile
+import tempfile
 from invoke import task, run
 from datetime import datetime
+from distutils.dir_util import copy_tree
+from weebl.weebl.__init__ import __api_version__
 
 application = 'weebl'
 local_manage_cmd = "{}/manage.py".format(application)
@@ -30,6 +34,7 @@ file_loc = os.path.dirname(os.path.abspath(__file__))
 deploy_path = "{}/{}".format(file_loc, application)  # change
 setup_file_loc = "setup.py"
 https_proxy = "http://91.189.89.33:3128"
+svg_dir = os.path.join(file_loc, "weebl/oilserver/static/img/bundles/")
 
 ''' REQUIRES install_deps to have been run first. '''
 
@@ -210,6 +215,12 @@ def make_superuser(username, database="production"):
 def run_lint_tests():
     """Runs lint tests. """
     lint_weebl()
+
+@task(help={'tarball': "Path to data tarball file.",
+            'database': "Test or production. Defaults to production."})
+def overwrite_database(tarball, database="production"):
+    """Overwrites data in local database with data from the given tarball."""
+    restore_from_tarball(tarball, database)
 
 def initialise_database(database):
     if database == "production":
@@ -472,3 +483,20 @@ def set_permissions(folder):
 
 def chown(uid, gid, dirpath):
     run("sudo chown {}:{} {}".format(uid, gid, dirpath))
+
+def restore_from_tarball(tarball, database):
+    if not tarball.endswith("tar.gz"):
+        raise Exception("Can only extract from tar.gz tarballs...")
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        os.chdir(tmp_dir)
+        print("Extracting data to {}".format(tmp_dir))
+        with tarfile.open(tarball, "r:gz") as tar:
+            tar.extractall()
+        bundles = os.path.join(tmp_dir, 'weebl_data/bundles')
+        shutil.chown(path=bundles, user=os.environ.get('USER'))
+        subdir = os.path.join(tmp_dir, "weebl_data")
+        [dump_file] = [file for file in os.listdir(subdir) if 'dump' in file]
+        dump_file_path = os.path.join(subdir, dump_file)
+        tmp_path = shutil.copy(dump_file_path, "/tmp")
+        restore_from_dump(database, tmp_path)
+        os.remove(tmp_path)
