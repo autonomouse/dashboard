@@ -220,7 +220,7 @@ def run_lint_tests():
             'database': "Test or production. Defaults to production."})
 def overwrite_database(tarball, database="production"):
     """Overwrites data in local database with data from the given tarball."""
-    restore_from_tarball(tarball, database)
+    restore_from_tarball(os.path.abspath(tarball), database)
 
 def initialise_database(database):
     if database == "production":
