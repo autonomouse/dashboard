@@ -46,6 +46,11 @@ def get_obj_attribute(obj, field, *args):
             return attr
 
 
+class CustomModelChoiceFieldUUID(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.uuid
+
+
 class CustomModelChoiceFieldName(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.name
@@ -276,6 +281,50 @@ class TestFrameworkAdmin(admin.ModelAdmin):
     form = TestFrameworkForm
 
 admin.site.register(models.TestFramework, TestFrameworkAdmin)
+
+
+class JujuServiceDeploymentForm(forms.ModelForm):
+    pipeline = CustomModelChoiceFieldUUID(
+        queryset=models.Pipeline.objects.all())
+    productundertest = CustomModelChoiceFieldName(
+        queryset=models.ProductUnderTest.objects.all())
+    charm = CustomModelChoiceFieldName(
+        queryset=models.Charm.objects.all())
+    jujuservice = CustomModelChoiceFieldName(
+        queryset=models.JujuService.objects.all())
+
+    class Meta:
+        model = models.JujuServiceDeployment
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super(JujuServiceDeploymentForm, self).__init__(*args, **kwargs)
+        add_related_field_wrapper(self, 'pipeline')
+        add_related_field_wrapper(self, 'productundertest')
+        add_related_field_wrapper(self, 'charm')
+        add_related_field_wrapper(self, 'jujuservice')
+
+
+class JujuServiceDeploymentAdmin(admin.ModelAdmin):
+    list_display = ['uuid', 'pipeline_uuid', 'productundertest_uuid',
+                    'charm_uuid', 'jujuservice_name']
+
+    def pipeline_uuid(self, obj):
+        return get_obj_attribute(obj, 'uuid', 'pipeline')
+
+    def productundertest_uuid(self, obj):
+        return get_obj_attribute(obj, 'name', 'productundertest')
+
+    def charm_uuid(self, obj):
+        return get_obj_attribute(obj, 'name', 'charm')
+
+    def jujuservice_name(self, obj):
+        return get_obj_attribute(obj, 'name', 'jujuservice')
+
+    search_fields = ['uuid']
+    form = JujuServiceDeploymentForm
+
+admin.site.register(models.JujuServiceDeployment, JujuServiceDeploymentAdmin)
 
 
 # Register any remaining models that have not been explicitly registered:
