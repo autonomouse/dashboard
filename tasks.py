@@ -11,7 +11,8 @@ import tempfile
 from invoke import task, run
 from datetime import datetime
 from distutils.dir_util import copy_tree
-from weebl.weebl.__init__ import __api_version__
+sys.path.append('weebl/')
+from weebl.__init__ import __api_version__
 
 application = 'weebl'
 local_manage_cmd = "{}/manage.py".format(application)
@@ -31,7 +32,6 @@ prdctn_db_name = "bugs_database"
 test_settings = "test_settings"
 prdctn_settings = "settings"
 file_loc = os.path.dirname(os.path.abspath(__file__))
-deploy_path = "{}/{}".format(file_loc, application)  # change
 setup_file_loc = "setup.py"
 https_proxy = "http://91.189.89.33:3128"
 svg_dir = os.path.join(file_loc, "weebl/oilserver/static/img/bundles/")
@@ -191,7 +191,6 @@ def make_superuser(username, database="production"):
     """Converts a user into a superuser (the user must have already logged in
     at least once).
     """
-    sys.path.append(deploy_path)
     os.environ['DJANGO_SETTINGS_MODULE'] = 'weebl.settings'
     django.setup()
     from django.contrib.auth.models import User
