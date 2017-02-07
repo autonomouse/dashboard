@@ -2,7 +2,7 @@
     <div class="four-col">
         <p>Test run ID: {$ data.testRunId $}</p>
         <p>Test run completed at: {$ data.humaniseDate(data.individual_testRun.completed_at) $}</p>
-        <p>Environment: {$ data.individual_testRun.buildexecutor.jenkins.environment.name $}</p>
+        <p>Environment: <a href="{$ data.individual_testRun.buildexecutor.jenkins.external_access_url $}">{$ data.individual_testRun.buildexecutor.jenkins.environment.name $}</a></p>
     </div>
     <div id="content" class="five-col last-col">
         <a ng-href="{$ data.image $}">
