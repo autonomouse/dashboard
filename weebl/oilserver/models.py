@@ -1,5 +1,5 @@
 from oilserver import utils
-from django.db import models
+from django.db import models, connection
 from django.contrib.sites.models import Site
 from weebl.__init__ import __api_version__
 
@@ -29,6 +29,21 @@ class TimeStampedBaseModel(models.Model):
             self.created_at = current_time
         self.updated_at = current_time
         return super(TimeStampedBaseModel, self).save(*args, **kwargs)
+
+
+class MaterializedViewRefresher(models.Manager):
+    def refresh(self):
+        with connection.cursor() as cursor:
+            cursor.execute("REFRESH MATERIALIZED VIEW %s" %
+                           self.model._meta.db_table)
+
+
+class MaterializedViewModel(models.Model):
+    class Meta:
+        abstract = True
+        managed = False
+
+    objects = MaterializedViewRefresher()
 
 
 class Environment(TimeStampedBaseModel):
@@ -541,6 +556,9 @@ class JujuServiceDeployment(TimeStampedBaseModel):
         help_text="UUID of this juju service deployment.")
     pipeline = models.ForeignKey(
         Pipeline, null=True, related_name='jujuservicedeployments')
+    success = models.NullBooleanField(
+        default=None,
+        help_text="Whether this juju service deployed successfully.")
     jujuservice = models.ForeignKey(
         JujuService, null=True, blank=True, default=None,
         related_name='jujuservicedeployments')
@@ -615,6 +633,37 @@ class TestFramework(TimeStampedBaseModel):
         return "{}_{}".format(self.name, self.version)
 
 
+class ReportSection(TimeStampedBaseModel):
+    """The section of a report."""
+    uuid = models.CharField(
+        max_length=36,
+        default=utils.generate_uuid,
+        unique=True,
+        blank=False,
+        null=False,
+        help_text="UUID of the report section.")
+    name = models.CharField(
+        max_length=255,
+        default=None,
+        unique=False,
+        blank=True,
+        null=True,
+        help_text="The section of detailed report.")
+    functionalgroup = models.CharField(
+        max_length=255,
+        default=None,
+        unique=False,
+        blank=True,
+        null=True,
+        help_text="The functionality this subsection tests.")
+
+    class Meta:
+        unique_together = (('name', 'functionalgroup'),)
+
+    def __str__(self):
+        return self.section + ':' + self.functionalgroup
+
+
 class TestCaseClass(TimeStampedBaseModel):
     """The class of test cases, within the larger suite of Openstack tests
     used.
@@ -623,9 +672,15 @@ class TestCaseClass(TimeStampedBaseModel):
         max_length=255,
         blank=False,
         null=False,
-        help_text="Name of this individual test case.")
+        help_text="Name of this individual test case class.")
+    producttypes = models.ManyToManyField(
+        ProductType, null=True, blank=True, default=None,
+        related_name='testcaseclasses',
+        help_text='Product types this class tests.')
     testframework = models.ForeignKey(
         TestFramework, null=True, related_name='testcaseclasses')
+    reportsection = models.ForeignKey(
+        ReportSection, null=True, related_name='testcaseclasses')
     uuid = models.CharField(
         max_length=36,
         default=utils.generate_uuid,
@@ -926,3 +981,186 @@ class ConfigurationChoices(models.Model):
 
     def __str__(self):
         return self.pipeline.uuid
+
+
+class BugReportView(MaterializedViewModel):
+    """View of bug information for reports."""
+    reportname = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="The name of the corresponding report.")
+    date = models.DateTimeField(
+        default=None,
+        blank=True,
+        null=True,
+        help_text="DateTime of these bugs.")
+    environmentname = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="The name of the corresponding environment.")
+    groupname = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="The name of the corresponding group.")
+    bug = models.ForeignKey(Bug, related_name='bugreportviews')
+    occurrences = models.IntegerField(
+        default=0,
+        blank=False,
+        null=False,
+        help_text="Number of occurrences of the bug.")
+
+
+class PipelineReportView(MaterializedViewModel):
+    """View of pipeline information for reports."""
+    reportname = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="The name of the corresponding report.")
+    date = models.DateTimeField(
+        default=None,
+        blank=True,
+        null=True,
+        help_text="DateTime of these bugs.")
+    environmentname = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="The name of the corresponding environment.")
+    numpipelines = models.IntegerField(
+        default=0,
+        blank=False,
+        null=False,
+        help_text="Number of pipelines.")
+    numdeployfail = models.IntegerField(
+        default=0,
+        blank=False,
+        null=False,
+        help_text="Number of failed deploy stages.")
+    numpreparefail = models.IntegerField(
+        default=0,
+        blank=False,
+        null=False,
+        help_text="Number of failed prepare stages.")
+    numtestfail = models.IntegerField(
+        default=0,
+        blank=False,
+        null=False,
+        help_text="Number of failed test stages.")
+
+
+class ServiceReportView(MaterializedViewModel):
+    """View of service information for reports."""
+    reportname = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="The name of the corresponding report.")
+    date = models.DateTimeField(
+        default=None,
+        blank=True,
+        null=True,
+        help_text="DateTime of these bugs.")
+    environmentname = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="The name of the corresponding environment.")
+    numpipelines = models.IntegerField(
+        default=0,
+        blank=False,
+        null=False,
+        help_text="Number of pipelines.")
+    producttypename = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="The name of the corresponding producttype.")
+    productundertestname = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="The name of the corresponding productundertest.")
+    numsuccess = models.IntegerField(
+        default=0,
+        blank=False,
+        null=False,
+        help_text="Number of successful deploys for the productundertest.")
+
+
+class TestReportView(MaterializedViewModel):
+    """View of test information for reports."""
+    reportname = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="The name of the corresponding report.")
+    date = models.DateTimeField(
+        default=None,
+        blank=True,
+        null=True,
+        help_text="DateTime of these bugs.")
+    environmentname = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="The name of the corresponding environment.")
+    openstackversionname = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="The name of the corresponding OpenStack version.")
+    ubuntuversionname = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="The name of the corresponding Ubuntu version.")
+    groupname = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="Product this testcase tests.")
+    subgroupname = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="Functional group of the testcase.")
+    testcasename = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="The name of the corresponding testcase.")
+    testcaseclassname = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="The name of the corresponding testcaseclass.")
+    testframeworkname = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="The name of the corresponding testframework.")
+    bug = models.ForeignKey(Bug, related_name='testreportviews')
+    numtestcases = models.IntegerField(
+        default=0,
+        blank=False,
+        null=False,
+        help_text="Number of total testcases ran.")
+    numsuccess = models.IntegerField(
+        default=0,
+        blank=False,
+        null=False,
+        help_text="Number of successful testcases.")
+    numskipped = models.IntegerField(
+        default=0,
+        blank=False,
+        null=False,
+        help_text="Number of skipped testcases.")
+    numfailed = models.IntegerField(
+        default=0,
+        blank=False,
+        null=False,
+        help_text="Number of failed testcases.")

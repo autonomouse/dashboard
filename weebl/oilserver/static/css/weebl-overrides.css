@@ -36,3 +36,14 @@ img.centered {
     overflow-y: scroll;
     transition: max-height 0.5s ease-in
 }
+
+form input.linkcamo {
+    background:none!important;
+    border:none;
+    padding:0!important;
+    color:#dd4814;
+}
+
+form input.linkcamo:hover {
+    text-decoration:underline;
+}

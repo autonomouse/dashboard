@@ -238,6 +238,9 @@ class ProductTypeResource(CommonResource):
     productundertests = ReverseManyField(
         'oilserver.api.resources.ProductUnderTestResource',
         'productundertests')
+    testcaseclasses = ReverseManyField(
+        'oilserver.api.resources.TestCaseClassResource',
+        'testcaseclasses')
 
     class Meta(CommonMeta):
         queryset = models.ProductType.objects.all()
@@ -616,11 +619,30 @@ class TestFrameworkResource(CommonResource):
                      'uuid': ('exact'), }
 
 
+class ReportSectionResource(CommonResource):
+    """API Resource for 'ReportSection' model."""
+
+    testcaseclasses = ReverseManyField(
+        'oilserver.api.resources.TestCaseClassResource',
+        'testcaseclasses')
+
+    class Meta(CommonMeta):
+        queryset = models.ReportSection.objects.all()
+        filtering = {
+            'name': ('exact'),
+            'functionalgroup': ('exact'),
+        }
+
+
 class TestCaseClassResource(CommonResource):
     """API Resource for 'TestCaseClass' model. """
 
     testframework = ForeignKey(
         TestFrameworkResource, 'testframework')
+    producttypes = ToManyField(
+        ProductTypeResource, 'producttypes')
+    reportsection = ForeignKey(
+        ReportSectionResource, 'reportsection')
 
     class Meta(CommonMeta):
         queryset = models.TestCaseClass.objects.all()
@@ -865,5 +887,68 @@ class ReportInstanceResource(CommonResource):
     class Meta(CommonMeta):
         queryset = models.ReportInstance.objects.all()
         filtering = {'uuid': ('exact',),
-                     'report': ('exact',),
-                     'reportperiod': ('exact',), }
+                     'report': ALL_WITH_RELATIONS,
+                     'reportperiod': ALL_WITH_RELATIONS, }
+
+
+class BugReportViewResource(CommonResource):
+    """API Resource for 'BugReportView' model. """
+
+    bug = ToOneField(BugResource, 'bug', readonly=True)
+
+    class Meta(CommonMeta):
+        queryset = models.BugReportView.objects.all()
+        excludes = ['id']
+        max_limit = None
+        list_allowed_methods = ['get']  # all items
+        detail_allowed_methods = []  # individual
+        filtering = {'bug': ALL_WITH_RELATIONS,
+                     'reportname': ('exact', 'in'),
+                     'date': ALL,
+                     'environmentname': ('exact', 'in'), }
+
+
+class PipelineReportViewResource(CommonResource):
+    """API Resource for 'PipelineReportView' model. """
+
+    class Meta(CommonMeta):
+        queryset = models.PipelineReportView.objects.all()
+        excludes = ['id']
+        max_limit = None
+        list_allowed_methods = ['get']  # all items
+        detail_allowed_methods = []  # individual
+        filtering = {'reportname': ('exact', 'in'),
+                     'date': ALL,
+                     'environmentname': ('exact', 'in'), }
+
+
+class ServiceReportViewResource(CommonResource):
+    """API Resource for 'ServiceReportView' model. """
+
+    class Meta(CommonMeta):
+        queryset = models.ServiceReportView.objects.all()
+        excludes = ['id']
+        max_limit = None
+        list_allowed_methods = ['get']  # all items
+        detail_allowed_methods = []  # individual
+        filtering = {'reportname': ('exact', 'in'),
+                     'date': ALL,
+                     'environmentname': ('exact', 'in'), }
+
+
+class TestReportViewResource(CommonResource):
+    """API Resource for 'TestReportView' model. """
+
+    bug = ToOneField(BugResource, 'bug', readonly=True)
+
+    class Meta(CommonMeta):
+        queryset = models.TestReportView.objects.all()
+        excludes = ['id']
+        max_limit = None
+        list_allowed_methods = ['get']  # all items
+        detail_allowed_methods = []  # individual
+        filtering = {'bug': ALL_WITH_RELATIONS,
+                     'reportname': ('exact', 'in'),
+                     'date': ALL,
+                     'groupname': ALL,
+                     'environmentname': ('exact', 'in'), }

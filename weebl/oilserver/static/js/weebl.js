@@ -30,6 +30,11 @@ app.config(function ($routeProvider) {
         .when('/results', {
             redirectTo: '/results/successRate'
         })
+        .when('/reports/detailed', {
+            templateUrl: '/static/partials/detailed.html',
+            controller: 'detailedReportController',
+            controllerAs: 'detailedReport'
+        })
         .when('/reports/overview', {
             templateUrl: '/static/partials/overview.html',
             controller: 'overviewReportController',

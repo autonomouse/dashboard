@@ -254,6 +254,12 @@ OBJECT = [
 ]
 
 
+def random_selection(items, min_=1, max_=None):
+    if max_ is None:
+        max_ = len(items)
+    return random.sample(items, random.randint(min_, max_))
+
+
 def populate_ubuntu_versions():
     for ubuntu_name, ubuntu_number in UBUNTU_VERSIONS:
         if models.UbuntuVersion.objects.filter(
@@ -294,7 +300,8 @@ def populate_producttypes():
         producttype.save()
         for productundertest in PRODUCT_TYPES[producttype.name].keys():
             product = get_or_create(models.ProductUnderTest,
-                                    name=productundertest)
+                                    name=productundertest,
+                                    prettyname=productundertest)
             product.producttype = producttype
             product.save()
 
@@ -523,6 +530,12 @@ def make_build(pipeline, jobtype, testcases, success_rate, started_at=None):
 
     if test_case_instance_status.name == 'failure':
         make_bug_occurrence(testcaseinstance)
+        if jobtype.name == 'pipeline_deploy':
+            deployments = models.JujuServiceDeployment.objects.get(
+                pipeline=pipeline)
+            for deployment in random_selection(deployments):
+                deployment.success = False
+                deployment.save()
 
     return build, test_case_instance_status
 
@@ -541,11 +554,20 @@ def make_testframework(framework_name):
 
 
 def make_testclass(testframework, testclass_name):
+    mapping = {
+        'network': models.ProductType.get(name='sdn'),
+        'compute': models.ProductType.get(name='compute')
+    }
     try:
         testcaseclass = models.TestCaseClass(
             name=testclass_name,
+            functionalgroup='Everything',
             testframework=testframework)
         testcaseclass.save()
+        for name, producttype in mapping.items:
+            if name in testclass_name:
+                testcaseclass.producttypes.append(producttype)
+                testcaseclass.save()
     except IntegrityError:
         testcaseclass = models.TestCaseClass.objects.get(name=testclass_name)
     return testcaseclass
@@ -668,8 +690,8 @@ def make_pipelines(num_pipelines, machineconfigs):
     current_count = models.Pipeline.objects.count()
     for i in range(current_count, num_pipelines):
         pipeline = make_pipeline()
-        make_builds(pipeline)
         deploy_services(pipeline, machineconfigs)
+        make_builds(pipeline)
 
 
 def populate_data(num_bugs, num_pipelines):

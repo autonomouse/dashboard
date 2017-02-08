@@ -42,6 +42,11 @@ v_api.register(resources.CharmResource())
 v_api.register(resources.VersionConfigurationResource())
 v_api.register(resources.ProductTypeResource())
 v_api.register(resources.ConfigurationChoicesResource())
+v_api.register(resources.BugReportViewResource())
+v_api.register(resources.PipelineReportViewResource())
+v_api.register(resources.ServiceReportViewResource())
+v_api.register(resources.TestReportViewResource())
+v_api.register(resources.ReportSectionResource())
 
 
 urlpatterns = patterns(

@@ -12,6 +12,7 @@ app.controller('sectionController', ['$rootScope', '$scope', '$location', 'Commo
             {'url': 'reports', 'name': 'Reports',
                 'tabs': [
                     {'url': 'overview', 'name': 'Overview'},
+                    {'url': 'detailed', 'name': 'Detailed'},
                 ]
             },
             {'url': 'throughput', 'name': 'Throughput',
@@ -41,6 +42,7 @@ app.controller('sectionController', ['$rootScope', '$scope', '$location', 'Commo
                 cleanedLocation = extraMappings[cleanedLocation];
             }
             $scope.activeSection = cleanedLocation.split('/')[0];
+            $rootScope.activeSection = $scope.activeSection;
             $scope.tabs = common.arrayToObjectOnProperty($scope.sections, 'url')[$scope.activeSection].tabs;
             $scope.activeTab = cleanedLocation.split('/')[1];
             $rootScope.title = common.arrayToObjectOnProperty($scope.tabs, 'url')[$scope.activeTab].name;

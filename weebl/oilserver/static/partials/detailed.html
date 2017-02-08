@@ -1,0 +1,168 @@
+<div id="content" class="nine-col last-col report" data-ng-if="!data.reports.detailed.forceReportChoice">
+    <div class="row no-border">
+        <h1>{$ data.reports.detailed.reportGroup $} - {$ data.reports.detailed.reportPeriod $}</h1>
+        <!-- <p>variable(products): {$ data.reports.detailed.products $}</p> (last to do)-->
+
+        <div class="nobreak">
+            <h5>{$ data.reports.detailed.reportGroup $} monthly explanation</h5>
+            <p>{$ data.reports.detailed.vendorExplanation $}</p>
+            <p></p>
+        </div>
+        <div class="nobreak">
+            <h5>Overall monthly explanation</h5>
+            <p>{$ data.reports.detailed.monthlyExplanation $}</p>
+        </div>
+    </div>
+
+    <div class="row no-border">
+        <h5>Deployment History</h5>
+        <nvd3 options="data.reports.detailed.historicalBarChart" data="data.reports.detailed.historicalPipelinesGraph"></nvd3>
+        <center><p>(Total number of deploys per month)</p></center>
+    </div>
+
+    <div class="row no-border">
+        <h5>Service Deployment</h5>
+        <p>Over the past month your hardware has been deployed in {$ runs $} cloud instances across many different OpenStack services. Below is a breakdown of which services have been deployed to your hardware.</p>
+        <nvd3 options="data.reports.detailed.serviceBarChart" data="data.reports.detailed.serviceDeploymentGraph"></nvd3>
+    </div>
+    <div class="row no-border">
+        <table style="background: #fff;">
+            <tbody style="background: #fff;">
+                <tr style="background: #fff;" data-ng-repeat="(producttypename, producttype) in data.reports.detailed.serviceDeploymentBreakdown">
+                    <th style="background: #fff;">
+                        <center>
+                            <p>{$ producttypename $}</p>
+                            <nvd3 options="data.reports.detailed.servicePieChart" data="data.reports.detailed.mungeServicePie(producttype)"></nvd3>
+                        </center>
+                    </th>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="row no-border">
+        <div class="nobreak">
+            <p>Overall the OpenStack deployment failures can be categorized into the following:</p>
+            <p>chart: {$ data.reports.detailed.bugInfo[null] $}</p>
+        </div>
+    </div>
+    <div class="row no-border">
+        <div class="nobreak">
+            <h5>Testcase history</h5>
+            <p>Percentage of passing, skipping, and failing testcases. This is a breakdown of tempest testcase results that ran during the test stage. Total number of unique testcases given on x-axis.</p>
+            <nvd3 options="data.reports.detailed.historicalBarChart" data="data.reports.detailed.historicalTestcasesGraph"></nvd3>
+        </div>
+    </div>
+    <div class="row no-border">
+        <!--<ul class="key">
+            <li><span class="new"></span> Changed this month</li>
+            <li>T = Trusty</li>
+            <li>X = Xenial</li>
+        </ul> -->
+        <p>Group summary</p>
+        <table class="tick-list">
+            <thead>
+                <tr>
+                    <th>Group</th>
+                    <th data-ng-repeat="(openstackversionname, ubuntuversioninfo) in data.reports.detailed.groupTable" colspan="{$ ubuntuversioninfo | keylength $}">
+                        {$ openstackversionname $}
+                    </th>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td data-ng-repeat-start="(openstackversionname, ubuntuversioninfo) in data.reports.detailed.groupTable" ng-if="0"></td>
+                    <td data-ng-repeat="(ubuntuversionname, groupinfo) in ubuntuversioninfo">
+                        {$ ubuntuversionname $}
+                    </td>
+                    <td data-ng-repeat-end ng-if="0"></td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr data-ng-repeat="(groupname, group) in data.reports.detailed.testcaseInfo" ng-if="groupname != 'null'">
+                    <td>
+                        {$ groupname $}
+                    </td>
+                    <td data-ng-repeat-start="(openstackversionname, ubuntuversioninfo) in data.reports.detailed.groupTable" ng-if="0"></td>
+                    <td data-ng-repeat-start="(ubuntuversionname, groupinfo) in ubuntuversioninfo" ng-if="0"></td>
+                    <td>
+                        <img data-ng-if="groupinfo[groupname].numfailed > 0" src="/static/img/reports/cross.png" alt="" />
+                        <p data-ng-if="groupinfo[groupname].numfailed == 0 && groupinfo[groupname].numsuccess == 0">
+                        <font color="#000000">-</font>
+                        </p>
+                        <img data-ng-if="groupinfo[groupname].numfailed == 0 && groupinfo[groupname].numsuccess > 0" src="/static/img/reports/tick.png" alt="" />
+                    </td>
+                    <td data-ng-repeat-end ng-if="0"></td>
+                    <td data-ng-repeat-end ng-if="0"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div data-ng-repeat="(groupname, group) in data.reports.detailed.testcaseInfo" ng-if="groupname != 'null'">
+        <h2>{$ groupname $}</h2>
+        <table class="tick-list">
+            <thead>
+                <tr>
+                    <th>Group</th>
+                    <th data-ng-repeat="(openstackversionname, ubuntuversioninfo) in data.reports.detailed.subgroupTable[groupname]" colspan="{$ ubuntuversioninfo | keylength $}">
+                        {$ openstackversionname $}
+                    </th>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td data-ng-repeat-start="(openstackversionname, ubuntuversioninfo) in data.reports.detailed.subgroupTable[groupname]" ng-if="0"></td>
+                    <td data-ng-repeat="(ubuntuversionname, subgroupinfo) in ubuntuversioninfo">
+                        {$ ubuntuversionname $}
+                    </td>
+                    <td data-ng-repeat-end ng-if="0"></td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr data-ng-repeat="(subgroupname, subgroup) in data.reports.detailed.testcaseInfo[groupname]">
+                    <td>
+                        {$ subgroupname $}
+                    </td>
+                    <td data-ng-repeat-start="(openstackversionname, ubuntuversioninfo) in data.reports.detailed.subgroupTable[groupname]" ng-if="0"></td>
+                    <td data-ng-repeat-start="(ubuntuversionname, subgroupinfo) in ubuntuversioninfo" ng-if="0"></td>
+                    <td>
+                        <img data-ng-if="subgroupinfo[subgroupname].numfailed > 0" src="/static/img/reports/cross.png" alt="" />
+                        <p data-ng-if="subgroupinfo[subgroupname].numfailed == 0 && subgroupinfo[subgroupname].numsuccess == 0">
+                        <font color="#000000">-</font>
+                        </p>
+                        <img data-ng-if="subgroupinfo[subgroupname].numfailed == 0 && subgroupinfo[subgroupname].numsuccess > 0" src="/static/img/reports/tick.png" alt="" />
+                    </td>
+                    <td data-ng-repeat-end ng-if="0"></td>
+                    <td data-ng-repeat-end ng-if="0"></td>
+                </tr>
+            </tbody>
+        </table>
+        <!-- chart(BugInfo): {$ data.reports.detailed.bugInfo[groupname] $} -->
+        <div class="row no-border" data-ng-repeat="(subgroupname, subgroup) in group">
+            <div class="group-header">
+                {$ groupname $} {$ subgroupname $}
+            </div>
+            <div data-ng-repeat="(testcasename, testcaseinfo) in subgroup">
+                <div class="eight-col no-margin-bottom box" style="width: 100%">
+                    <div class="six-col no-margin-bottom">
+                        <p>{$ removeBrackets(testcasename) $}</p>
+                        <p>{$ testcaseinfo.testcaseclassname $}</p>
+                        <p data-ng-if="testcaseinfo.bug">Reason: {$ testcaseinfo.bug $}</p>
+                    </div>
+                    <div class="two-col last-col no-margin-bottom">
+                        <div class="one-col no-margin-bottom">
+                            <p>Pass: {$ 100 * testcaseinfo.numsuccess/testcaseinfo.numtestcases | number: 0 $}%</p>
+                            <p>Skip: {$ 100 * testcaseinfo.numskipped/testcaseinfo.numtestcases | number: 0 $}%</p>
+                            <p>Fail: {$ 100 * testcaseinfo.numfailed/testcaseinfo.numtestcases | number: 0 $}%</p>
+                        </div>
+                        <div class="one-col last-col no-margin-bottom">
+                            <nvd3 options="data.reports.detailed.testcasePieChart" data="data.reports.detailed.mungeTestcasePie(testcaseinfo)"></nvd3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="content" class="nine-col last-col report" data-ng-if="data.reports.detailed.forceReportChoice">
+    Please select a Report to Generate
+</div>
