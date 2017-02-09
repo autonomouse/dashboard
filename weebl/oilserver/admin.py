@@ -273,6 +273,7 @@ class TestFrameworkForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(TestFrameworkForm, self).__init__(*args, **kwargs)
 
+
 class TestFrameworkAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'name', 'version']
 

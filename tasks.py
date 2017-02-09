@@ -66,7 +66,6 @@ def run_tests():
     destroy_db(test_db_name, test_pwd, force=True, backup=False)
     manage_static_files()
     initialise_database("test")
-    load_fixtures()
     run_lint_tests()
     for app in apps:
         run_unit_tests(app)
