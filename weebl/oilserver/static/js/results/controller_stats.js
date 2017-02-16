@@ -277,9 +277,9 @@ app.controller('successRateController', [
             $scope.data.tabs[tab].predicate = predicate;
         };
 
-        $scope.data.jobtypeLookup = function(jobname) {
-            return Common.jobtypeLookup(jobname);
-        };
+        $q.all([$scope.data.job_details.$promise]).then(function([job_details]) {
+            $scope.data.jobtypeLookup = Common.makeJobDetailsDict(job_details);
+        });
 
         $scope.data = getMetadata($scope);
         $scope.data.testRuns = update('pipeline');

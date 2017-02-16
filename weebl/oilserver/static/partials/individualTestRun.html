@@ -100,20 +100,27 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="table-listing__row" data-ng-repeat="pl_testcase in data.pipeline_testcaseinstance.objects  | filter:filterFn" >
+                    <tr class="table-listing__row" data-ng-repeat="job in data.orderedJobsList" data-ng-show="data.job_build_outcome[job].jobtype_description != null" >
                         <td class="table-listing__cell">
-                            {$ data.jobtypeLookup(pl_testcase.build.jobtype.name); $}
+                            {$ data.job_build_outcome[job].jobtype_description; $}
                         </td>
                         <td class="table-listing__cell">
-                            <a href="{$ pl_testcase.build['jenkins_build_url']; $}" class="external">{$ pl_testcase.build['build_id']; $}</a>
+                            <a href="{$ data.job_build_outcome[job].jenkinsBuildUrl; $}" class="external">{$ data.job_build_outcome[job].build_number; $}</a>
                         </td>
                         <td class="table-listing__cell">
-                            {$ pl_testcase.testcaseinstancestatus.name; $}
+                            {$ data.job_build_outcome[job].jobstatus; $}
                         </td>
                     </tr>
                 </tbody>
             </table>
         </span>
+
+        <div data-ng-show="data.pipeline_machines.meta.total_count">
+            The {$ data.pipeline_machines.meta.total_count $} <ng-pluralize count="data.pipeline_machines.meta.total_count" when="{'0': 'machines', '1': 'machine', 'other': 'machines'}"></ng-pluralize> used in this OpenStack deployment were:
+            <span ng-if="data.pipeline_machines.meta.total_count > 0 ">
+                <span ng-repeat="machine in data.pipeline_machines.objects">{$ $first ? '' : $last ? ' and ' : ', ' $}{$ machine.hostname $}</span>
+            </span>
+        </div>
 
         {$ data.bugs_affecting_pipeline.meta.total_count $} <ng-pluralize count="data.bugs_affecting_pipeline.meta.total_count" when="{'0': 'bugs', '1': 'bug', 'other': 'bugs'}"></ng-pluralize> found to be affecting this test run.
         <span ng-if="data.bugs_affecting_pipeline.meta.total_count > 0 ">
@@ -154,12 +161,5 @@
                 </tbody>
             </table>
         </span>
-
-        <div data-ng-show="data.pipeline_machines.meta.total_count">
-            The {$ data.pipeline_machines.meta.total_count $} <ng-pluralize count="data.pipeline_machines.meta.total_count" when="{'0': 'machines', '1': 'machine', 'other': 'machines'}"></ng-pluralize> used in this OpenStack deployment were:
-            <span ng-if="data.pipeline_machines.meta.total_count > 0 ">
-                <span ng-repeat="machine in data.pipeline_machines.objects">{$ $first ? '' : $last ? ' and ' : ', ' $}{$ machine.hostname $}</span>
-            </span>
-        </div>
     </div>
 </div>
