@@ -1,4 +1,4 @@
-app.factory('Common', ['$rootScope', '$location', function($rootScope, $location) {
+app.factory('Common', ['$rootScope', '$location', 'DataService', function($rootScope, $location, DataService) {
 
     function filterConfig(origin) {
         // It might be sensible to add this stuff to a config file, maybe?
@@ -38,7 +38,6 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
             'testcaseclass': 'testcases__testcaseinstances__build__pipeline__',
             'testcase': 'testcaseinstances__build__pipeline__'
         };
-
         return [model_fields, prefixtures, original_model_names]
     };
 
@@ -63,6 +62,7 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
         };
         if (angular.isUndefined($scope.data.results)) $scope.data.results = {};
         if (angular.isUndefined($scope.data.reports)) $scope.data.reports = {};
+        $scope.data.job_details = DataService.refresh('jobtype', $scope.data.user, $scope.data.apikey).query({});
         return $scope
     };
 
@@ -74,16 +74,43 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
         return outputObject;
     };
 
-    function jobtypeLookup(jobname) {
-        var dictionary = {
-            'pipeline_deploy': 'Deploy Openstack',
-            'pipeline_prepare': 'Configure Openstack for test',
-            'pipeline_start': 'Initialise test run',
-            'test_bundletests': 'Bundletest',
-            'test_cloud_image': 'SSH to guest instance',
-            'test_tempest_smoke': 'Tempest test suite',
+    function makeJobDetailsDict(job_details, plot_only) {
+        if (angular.isUndefined(plot_only) || (plot_only === null)) {
+            plot_only = false;
         };
-        return dictionary[jobname] != null ? dictionary[jobname] : jobname
+        var jobDict = {};
+        angular.forEach(job_details, function(job_info){
+            if ((plot_only === false) || (job_info.plot === true)) {
+                jobDict[job_info.name] = job_info;
+            };
+        });
+        return jobDict;
+    };
+
+    function orderJobsArray(job_details) {
+        job_details.sort(function(a, b) {
+            return cmp(a.order, b.order) || cmp(b.name, a.name);
+        });
+        return job_details;
+    };
+
+    function cmp(x, y) {
+        return x > y ? 1 : x < y ? -1 : 0;
+    };
+
+    function getJobsList(job_details, plot_only) {
+        if (angular.isUndefined(plot_only) || (plot_only === null)) {
+            plot_only = false;
+        };
+        var jobsList = [];
+        for (var idx in orderJobsArray(job_details)) {
+            if ((plot_only === false) || (job_details[idx].plot === true)) {
+                if (!angular.isUndefined(job_details[idx].order)) {
+                    jobsList.push(job_details[idx].name);
+                };
+            };
+        };
+        return jobsList;
     };
 
     function humaniseDate(datestr) {
@@ -192,8 +219,10 @@ app.factory('Common', ['$rootScope', '$location', function($rootScope, $location
       generateActiveFilters: generateActiveFilters,
       generateFilterPaths: generateFilterPaths,
       getFilterModels: getFilterModels,
-      jobtypeLookup: jobtypeLookup,
+      getJobsList: getJobsList,
+      makeJobDetailsDict: makeJobDetailsDict,
+      orderJobsArray: orderJobsArray,
       getQueryFieldName: getQueryFieldName,
-      getBundleImageLocation: getBundleImageLocation,
+      getBundleImageLocation: getBundleImageLocation
     };
 }]);

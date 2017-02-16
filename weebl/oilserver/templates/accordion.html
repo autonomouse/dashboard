@@ -125,7 +125,7 @@
                                     <div class="accordion__tab-content">
                                         <ul class="accordion__tab-list">
                                             <li class="accordion__tab-item" data-ng-repeat="failedjobs in data.metadata.failedjobs | orderBy:['name']"  data-ng-class="{ active: data.results.search.isFilterActive('failedjobs', failedjobs.name, true) }">
-                                                <a class="accordion__tab-link" href="" data-ng-click="data.results.search.toggleFilter('failedjobs', failedjobs.name, true)">{$ data.jobtypeLookup(failedjobs.name) $}</a>
+                                                <a class="accordion__tab-link" href="" data-ng-click="data.results.search.toggleFilter('failedjobs', failedjobs.name, true)">{$ data.jobtypeLookup[failedjobs.name].description $}</a>
                                             </li>
                                         </ul>
                                     </div>
