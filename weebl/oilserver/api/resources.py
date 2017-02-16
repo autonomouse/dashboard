@@ -429,6 +429,41 @@ class PipelineResource(CommonResource):
             return self.create_response(
                 request, str(e), response_class=HttpApplicationError)
 
+    def get_list(self, request, **kwargs):
+        """
+        This method hijacks the usual get_list and forces it to instead return
+        the number of pipelines run binned by time period if
+        'timeinterval_grouping' is present in the request. The time
+        period can be day, month or year and is defined by what is given as the
+        value for timeinterval_grouping.
+        """
+        interval = request.GET.get('timeinterval_grouping')
+        if interval not in ['hour', 'day', 'month', 'year']:
+            return super(PipelineResource, self).get_list(request, **kwargs)
+
+        # Get sorted_objects, as usual
+        base_bundle = self.build_bundle(request=request)
+        objects = self.obj_get_list(
+            bundle=base_bundle, **self.remove_api_resource_names(kwargs))
+        sorted_objects = self.apply_sorting(objects, options=request.GET)
+
+        # Group data into bins of a time period (defined by interval)
+        stmnt = "date_trunc('%s', oilserver_pipeline.completed_at)" % interval
+        timeframe = sorted_objects.filter(completed_at__isnull=False).extra({
+            interval: stmnt})
+        period = timeframe.values(interval).order_by(interval)
+        trend_data = list(period.annotate(count=Count("id")))
+
+        # Return binned data instead of usual objects list
+        paginator = self._meta.paginator_class(
+            request.GET, trend_data, resource_uri=self.get_resource_uri(),
+            limit=self._meta.limit, max_limit=self._meta.max_limit,
+            collection_name=self._meta.collection_name)
+        to_be_serialized = paginator.page()
+        to_be_serialized = self.alter_list_data_to_serialize(
+            request, to_be_serialized)
+        return self.create_response(request, to_be_serialized)
+
 
 class ConfigurationChoicesResource(CommonResource):
     """API Resource for 'ConfigurationChoices' model. """
@@ -772,17 +807,16 @@ class BugResource(CommonResource):
             bundle)
         bundle.data['occurrence_count'] = bugoccurrence.count()
 
-        bug_history_req = bundle.request.GET.get(
-            'historical_bugoccurrences_grouping')
+        interval = bundle.request.GET.get('historical_bugoccurrences_grouping')
         try:
             bugno = bundle.data['bugtrackerbug'].data['bug_number']
         except (KeyError, AttributeError):
             bugno = None
-        if bug_history_req in ['day', 'month', 'year'] and bugno:
+        if interval in ['day', 'month', 'year'] and bugno:
             bugoccurrences_history = models.BugOccurrence.objects.filter(
                 knownbugregex__bug__bugtrackerbug__bug_number=bugno)
             stmnt = "date_trunc('%s', oilserver_bugoccurrence.created_at)" % \
-                bug_history_req
+                interval
             timeframe = bugoccurrences_history.extra({"date": stmnt})
             bugocc_data = []
             if timeframe:
