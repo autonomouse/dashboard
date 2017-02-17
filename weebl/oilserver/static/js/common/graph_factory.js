@@ -1,19 +1,19 @@
-app.factory('graphFactory', ['DataService', function(DataService) {
+app.factory('graphFactory', ['Common', function(Common) {
 
-var calcPercentage = function calcPercentage(value, number_of_test_runs) {
-      var percentage = d3.format(',.2f')(((value / number_of_test_runs) * 100))
-      if (percentage == "NaN"){
-          return "0";
-      } else {
-          return percentage;
+var calcPercentage = function calcPercentage(value, total, number_of_tests_skipped) {
+    if (angular.isUndefined(number_of_tests_skipped))  number_of_tests_skipped = 0;
+    total = total - number_of_tests_skipped;
+    var percentage = d3.format(',.2f')(((value / total) * 100))
+    if (percentage == "NaN"){
+        return "0";
+    } else {
+        return percentage;
     }
-  };
+};
 
-var plot_stats_graph = function(scope, graphValues) {
+var plot_stats_graph = function(scope, graphValues, jobDetails) {
 
-    function updateChartData(number_of_test_runs, pass_deploy_count, total_deploy_count, pass_prepare_count, total_prepare_count,
-                             pass_test_cloud_image_count, total_test_cloud_image_count,
-                             pass_test_bundletests_count, skip_test_bundletests_count, total_test_bundletests_count) {
+    function updateChartData(graphValues, stack_bar_data) {
         var stack_bar_config = {
             visible: true,
             extended: false,
@@ -46,61 +46,38 @@ var plot_stats_graph = function(scope, graphValues) {
             },
             title: {
                 enable: true,
-                text: "Percentage Success Rates for " + number_of_test_runs + " Matching Runs",
+                text: "Percentage Success Rates for " + graphValues.total.meta.total_count + " Matching Tests in " + graphValues.pipeline_total.meta.total_count + " Test Runs",
                 css: {
-                    width: "nullpx",
                     textAlign: "center"
                 }
             }
         };
         scope.individual_stack_bar_options = individual_stack_bar_options;
-
-        var stack_bar_data = [
-            {
-                key: "Test Run Success",
-                values: [
-                    {
-                        "label" : "Deploy Openstack" ,
-                        "value" : pass_deploy_count,
-                        "individualPercentage" : calcPercentage(pass_deploy_count, total_deploy_count),
-                        "color" : "#56334b"
-                    } ,
-                    {
-                        "label" : "Configure Openstack for test" ,
-                        "value" : pass_prepare_count,
-                        "individualPercentage" : calcPercentage(pass_prepare_count, total_prepare_count),
-                        "color" : "#7e5273"
-                    } ,
-                    {
-                        "label" : "SSH to guest instance",
-                        "value" : pass_test_cloud_image_count,
-                        "individualPercentage" : calcPercentage(pass_test_cloud_image_count, total_test_cloud_image_count),
-                        "color" : "#ad79a8"
-                    },
-                    {
-                        "label" : "Tempest tests",
-                        "value" : pass_test_bundletests_count,
-                        "individualPercentage" : calcPercentage(pass_test_bundletests_count, total_test_bundletests_count - skip_test_bundletests_count),
-                        "color" : "#c8a6c5"
-                    }
-                ]
-            }
-        ]
         scope.stack_bar_data = stack_bar_data;
     };
 
-    updateChartData(
-        graphValues.total.meta.total_count,
-        graphValues.deploy.pass.meta.total_count,
-        graphValues.deploy.jobtotal.meta.total_count,
-        graphValues.prepare.pass.meta.total_count,
-        graphValues.prepare.jobtotal.meta.total_count,
-        graphValues.test_cloud_image.pass.meta.total_count,
-        graphValues.test_cloud_image.jobtotal.meta.total_count,
-        graphValues.test_bundletests.pass.meta.total_count,
-        graphValues.test_bundletests.skip.meta.total_count,
-        graphValues.test_bundletests.jobtotal.meta.total_count
-    )
+    var vals = new Array(Object.keys(jobDetails).length);
+    angular.forEach(jobDetails, function(job_info){
+        job = job_info.name;
+        if (angular.isDefined(graphValues[job])) {
+            vals.push({
+                "label" : jobDetails[job].description,
+                "value" : graphValues[job].pass.meta.total_count,
+                "individualPercentage" : calcPercentage(
+                    graphValues[job].pass.meta.total_count,
+                    graphValues[job].jobtotal.meta.total_count,
+                    graphValues[job].skip.meta.total_count),
+                "color" : '#' + jobDetails[job].colour
+            });
+        };
+    });
+    var stack_bar_data = [{
+        key: "Test Run Success",
+        values: vals.filter(function(n){ return n != undefined })
+    }];
+
+    updateChartData(graphValues, stack_bar_data);
+
 };
 
 var plotBugHistoryGraph = function(scope, graphValues) {
@@ -167,14 +144,6 @@ var plotBugHistoryGraph = function(scope, graphValues) {
                     'margin': '10px 13px 0px 7px',
                     'font-size': '75%'
                 }
-            },
-            caption: {
-                enable: false,
-                html: "",
-                css: {
-                    'text-align': 'justify',
-                    'margin': '10px 13px 0px 7px'
-                }
             }
         };
         scope.LineChart_options = LineChart_options;
@@ -201,10 +170,9 @@ var plotBugHistoryGraph = function(scope, graphValues) {
     )
   };
 
-
   return {
     plot_stats_graph: plot_stats_graph,
     plotBugHistoryGraph: plotBugHistoryGraph,
-    calcPercentage: calcPercentage,
+    calcPercentage: calcPercentage
   };
 }]);

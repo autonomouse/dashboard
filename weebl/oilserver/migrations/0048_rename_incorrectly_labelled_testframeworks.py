@@ -24,8 +24,7 @@ def noop():
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('oilserver',
-         '0039_remove_oil_suffix_form_machines_and_merge'),
+        ('oilserver', '0047_auto_20170209_1413'),
     ]
 
     operations = [

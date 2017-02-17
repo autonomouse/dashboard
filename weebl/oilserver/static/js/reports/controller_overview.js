@@ -206,11 +206,6 @@ app.controller('overviewReportController', [
             console.log(expandableFilters);
             get = {};
             everything = {};
-            metaOnly = {'meta_only': true, 'limit': 1, 'max_limit': 1};
-
-            function metaWith(object) {
-                return angular.extend({}, metaOnly, object);
-            }
 
             //from period
             get.testcasesPeriod = ResourceFilterCall('testcaseinstance', expansionTemplates['testcaseinstance'], expandableFilters, metaOnly);
@@ -221,12 +216,12 @@ app.controller('overviewReportController', [
             delete expandableFilters['pipeline'];
             get.testcasesTotal = ResourceFilterCall('testcaseinstance', expansionTemplates['testcaseinstance'], expandableFilters, metaOnly);
             get.pipelinesTotal = ResourceFilterCall('pipeline', expansionTemplates['pipeline'], expandableFilters, metaOnly);
-            get.hardwareProducts = ResourceFilterCall('productundertest', expansionTemplates['hardwareProducts'], expandableFilters, metaWith({'machineconfigurations__isnull': 'False'}));
-            get.hardwareVendors = ResourceFilterCall('vendor', expansionTemplates['vendor'], expandableFilters, metaWith({'productundertests__machineconfigurations__isnull': 'False'}));
+            get.hardwareProducts = ResourceFilterCall('productundertest', expansionTemplates['hardwareProducts'], expandableFilters, Common.metaWith({'machineconfigurations__isnull': 'False'}));
+            get.hardwareVendors = ResourceFilterCall('vendor', expansionTemplates['vendor'], expandableFilters, Common.metaWith({'productundertests__machineconfigurations__isnull': 'False'}));
             get.servicesTested = ResourceFilterCall('jujuservice', expansionTemplates['jujuservice'], expandableFilters, {'jujuservicedeployments__productundertest__isnull': 'True'});
-            get.testedSwift = ResourceFilterCall('jujuservice', expansionTemplates['jujuservice'], expandableFilters, metaWith({'name__exact': 'swift'}));
+            get.testedSwift = ResourceFilterCall('jujuservice', expansionTemplates['jujuservice'], expandableFilters, Common.metaWith({'name__exact': 'swift'}));
             get.productTypes = ResourceFilterCall('producttype', expansionTemplates['producttype'], expandableFilters, everything);
-            get.configs = ResourceFilterCall('configurationchoices', expansionTemplates['configurationchoices'], expandableFilters, metaWith({'count_runs': 'True', 'exclude_versions': 'True'}));
+            get.configs = ResourceFilterCall('configurationchoices', expansionTemplates['configurationchoices'], expandableFilters, Common.metaWith({'count_runs': 'True', 'exclude_versions': 'True'}));
 
             //get all products for the report directly, not the number of 'other' products in pipelines
             get.productsUnderTest = ResourceFilterCall('productundertest', expansionTemplates['productundertest'], expandableFilters, everything);

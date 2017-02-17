@@ -209,8 +209,39 @@ app.factory('Common', ['$rootScope', '$location', 'DataService', function($rootS
     };
 
     function getBundleImageLocation(testRunId) {
-    return '/static/img/bundles/' + testRunId + '.svg';
+        return '/static/img/bundles/' + testRunId + '.svg';
     };
+
+    function getTotals($scope) {
+        var local_filters = metaWith(generateActiveFilters($scope, 'testcaseinstance'));
+        var total = DataService.refresh('testcaseinstance', $scope.data.user, $scope.data.apikey).get(local_filters);
+
+        var local_filters = metaWith(generateActiveFilters($scope, 'pipeline'));
+        var pipeline_total = DataService.refresh('pipeline', $scope.data.user, $scope.data.apikey).get(local_filters);
+        return [total, pipeline_total];
+    };
+
+    function fetchTestDataForJobname(jobname, $scope) {
+        var model = 'testcaseinstance';
+        var local_filters = metaWith(generateActiveFilters($scope, model));
+        local_filters['build__jobtype__name'] = jobname;
+        local_filters['successful_jobtype'] = jobname;
+        local_filters['testcaseinstancestatus__name'] = 'success';
+        var pass = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(local_filters);
+        local_filters['testcaseinstancestatus__name'] = 'skipped';
+        var skip = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(local_filters);
+        delete local_filters['successful_jobtype'];
+        delete local_filters['testcaseinstancestatus__name'];
+        var jobtotal = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(local_filters);
+        total = null;
+        pipeline_total = null;
+        return [pass, skip, jobtotal]
+    };
+
+    function metaWith(object) {
+        metaOnly = {'meta_only': true, 'limit': 1, 'max_limit': 1};
+        return angular.extend({}, metaOnly, object);
+    }
 
     return {
       initialise: initialise,
@@ -223,6 +254,9 @@ app.factory('Common', ['$rootScope', '$location', 'DataService', function($rootS
       makeJobDetailsDict: makeJobDetailsDict,
       orderJobsArray: orderJobsArray,
       getQueryFieldName: getQueryFieldName,
-      getBundleImageLocation: getBundleImageLocation
+      getBundleImageLocation: getBundleImageLocation,
+      fetchTestDataForJobname: fetchTestDataForJobname,
+      getTotals: getTotals,
+      metaWith: metaWith
     };
 }]);

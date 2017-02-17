@@ -49,108 +49,45 @@ app.controller('successRateController', [
             return $scope.data;
         };
 
-        function fetchTestDataForJobname(jobname, graphValues) {
-            var model = 'testcaseinstance';
-            var local_filters = Common.generateActiveFilters($scope, model);
-            local_filters['meta_only'] = true;
-            local_filters['limit'] = 1;
-            local_filters['max_limit'] = 1;
-            local_filters['build__jobtype__name'] = jobname;
-            if(jobname == "test_bundletests")
-                local_filters['testcase__testcaseclass__testframework__name'] = 'bundletests';
-            local_filters['successful_jobtype'] = jobname;
-            local_filters['testcaseinstancestatus__name'] = 'success';
-            graphValues.pass = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(local_filters);
-            local_filters['testcaseinstancestatus__name'] = 'skipped';
-            graphValues.skip = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(local_filters);
-            delete local_filters['successful_jobtype'];
-            delete local_filters['testcaseinstancestatus__name'];
-            graphValues.jobtotal = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(local_filters);
-        };
-
-        function fetchDataForEachStatus(jobname, graphValues) {
-            var model = 'pipeline';
-            var local_filters = Common.generateActiveFilters($scope, model);
-            local_filters['meta_only'] = true;
-            local_filters['limit'] = 1;
-            local_filters['max_limit'] = 1;
-            if(jobname === null) {
-                graphValues.total = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(local_filters);
-            } else {
-                local_filters['successful_jobtype'] = jobname;
-                graphValues.pass = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(local_filters);
-                delete local_filters['successful_jobtype'];
-                local_filters['builds__jobtype__name'] = jobname;
-                graphValues.jobtotal = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(local_filters);
-            };
-        };
-
         function updateGraphValues() {
-            $scope.data.fetching_data = true;
+            $scope.data.plot_data_loading = true;
             $scope.data.graphValues = {};
-            $scope.data.graphValues.total = {};
-            $scope.data.graphValues.deploy = {};
-            $scope.data.graphValues.prepare = {};
-            $scope.data.graphValues.test_cloud_image = {};
-            $scope.data.graphValues.test_bundletests = {};
-
-            fetchDataForEachStatus(null, $scope.data.graphValues);
-            fetchDataForEachStatus('pipeline_deploy', $scope.data.graphValues.deploy);
-            fetchDataForEachStatus('pipeline_prepare', $scope.data.graphValues.prepare);
-            fetchDataForEachStatus('test_cloud_image', $scope.data.graphValues.test_cloud_image);
-            fetchTestDataForJobname('test_bundletests', $scope.data.graphValues.test_bundletests);
-
-            $scope.data.fetching_data = false;
-
+            [$scope.data.graphValues.total, $scope.data.graphValues.pipeline_total] = Common.getTotals($scope);
+            $q.all([$scope.data.job_details.$promise]).then(function([job_details]) {
+                jobs = Common.getJobsList(job_details, true);
+                angular.forEach(jobs, function(jobname){
+                    $scope.data.graphValues[jobname] = {};
+                    [$scope.data.graphValues[jobname].pass,
+                     $scope.data.graphValues[jobname].skip,
+                     $scope.data.graphValues[jobname].jobtotal
+                 ] = Common.fetchTestDataForJobname(jobname, $scope);
+                });
+            });
             plotStatsGraph();
          };
 
         function plotStatsGraph() {
-            $scope.data.plot_data_loading = true;
-            $q.all([
-                $scope.data.graphValues.total.$promise,
-                $scope.data.graphValues.deploy.pass.$promise,
-                $scope.data.graphValues.deploy.jobtotal.$promise,
-                $scope.data.graphValues.prepare.pass.$promise,
-                $scope.data.graphValues.prepare.jobtotal.$promise,
-                $scope.data.graphValues.test_cloud_image.pass.$promise,
-                $scope.data.graphValues.test_cloud_image.jobtotal.$promise,
-                $scope.data.graphValues.test_bundletests.pass.$promise,
-                $scope.data.graphValues.test_bundletests.skip.$promise,
-                $scope.data.graphValues.test_bundletests.jobtotal.$promise
-            ]).then(function() {
-                if ($scope.data.graphValues.total.$resolved) {
-                    console.log(JSON.stringify($scope.data.graphValues));
-                    console.log('----------------------------');
-                    console.log('total test runs = ' + $scope.data.graphValues.total.meta.total_count);
-                    console.log('deploy passes = ' + $scope.data.graphValues.deploy.pass.meta.total_count);
-                    console.log('total deploy builds = ' + $scope.data.graphValues.deploy.jobtotal.meta.total_count);
-                    console.log('prepare passes = ' + $scope.data.graphValues.prepare.pass.meta.total_count);
-                    console.log('total prepare builds = ' + $scope.data.graphValues.prepare.jobtotal.meta.total_count);
-                    console.log('cloud_image passes = ' + $scope.data.graphValues.test_cloud_image.pass.meta.total_count);
-                    console.log('total cloud_image builds = ' + $scope.data.graphValues.test_cloud_image.jobtotal.meta.total_count);
-                    if($scope.data.results.search.filters.failedjobs)
-                        $scope.data.graphValues.test_bundletests.pass.meta.total_count = 0;
-                    console.log('bundletests testcases passes = ' + $scope.data.graphValues.test_bundletests.pass.meta.total_count);
-                    console.log('bundletests testcases skipped = ' + $scope.data.graphValues.test_bundletests.skip.meta.total_count);
-                    console.log('total bundletests testcases = ' + $scope.data.graphValues.test_bundletests.jobtotal.meta.total_count);
-                    console.log('non-skipped bundletests testcases = ' + ($scope.data.graphValues.test_bundletests.jobtotal.meta.total_count -
-                        $scope.data.graphValues.test_bundletests.skip.meta.total_count));
-                    console.log('----------------------------');
-
-                    graphFactory.plot_stats_graph(binding, $scope.data.graphValues);
-                    $scope.data.plot_data_loading = false;
-                };
+            $q.all([$scope.data.job_details.$promise]).then(function([job_details]) {
+                var queue = [$scope.data.graphValues.total.$promise];
+                angular.forEach(Common.getJobsList(job_details, true), function(jobname){
+                    if (!angular.isUndefined($scope.data.graphValues[jobname].pass)) queue.push($scope.data.graphValues[jobname].pass.$promise);
+                    if (!angular.isUndefined($scope.data.graphValues[jobname].jobtotal)) queue.push($scope.data.graphValues[jobname].jobtotal.$promise);
+                    if (!angular.isUndefined($scope.data.graphValues[jobname].skip)) queue.push($scope.data.graphValues[jobname].skip.$promise);
+                });
+                $q.all(queue).then(function() {
+                    if ($scope.data.graphValues.total.$resolved) {
+                        jobDetails = Common.makeJobDetailsDict(job_details);
+                        graphFactory.plot_stats_graph(binding, $scope.data.graphValues, jobDetails);
+                        $scope.data.plot_data_loading = false;
+                    };
+                });
             });
         };
 
 
         function update(model) {
-            $scope.data.fetching_data = true;
             active_filters = Common.generateActiveFilters($scope, model);
-            var datum = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(active_filters);
-            $scope.data.fetching_data = false;
-            return datum
+            return DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(active_filters);
         };
 
         function dateToString(date) {
