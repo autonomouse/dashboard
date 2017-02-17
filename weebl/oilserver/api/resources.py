@@ -620,6 +620,7 @@ class JujuServiceDeploymentResource(CommonResource):
         queryset = models.JujuServiceDeployment.objects.all()
         filtering = {
             'uuid': ('exact',),
+            'success': ALL,
             'jujuservice': ALL_WITH_RELATIONS,
             'charm': ALL_WITH_RELATIONS,
             'pipeline': ALL_WITH_RELATIONS,
