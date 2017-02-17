@@ -652,8 +652,7 @@ class TestFrameworkResource(CommonResource):
         queryset = models.TestFramework.objects.all()
         filtering = {'name': ('exact'),
                      'version': ('exact'),
-                     'uuid': ('exact'),
-                    }
+                     'uuid': ('exact'), }
 
 
 class ReportSectionResource(CommonResource):
