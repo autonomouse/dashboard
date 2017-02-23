@@ -118,13 +118,13 @@ admin.site.register(models.Build, BuildAdmin)
 
 class ProductUnderTestForm(forms.ModelForm):
     project = CustomModelChoiceFieldName(
-        queryset=models.Project.objects.all())
+        queryset=models.Project.objects.all(), required=False)
     vendor = CustomModelChoiceFieldName(
-        queryset=models.Vendor.objects.all())
+        queryset=models.Vendor.objects.all(), required=False)
     internalcontact = CustomModelChoiceFieldName(
-        queryset=models.InternalContact.objects.all())
+        queryset=models.InternalContact.objects.all(), required=False)
     producttype = CustomModelChoiceFieldName(
-        queryset=models.ProductType.objects.all())
+        queryset=models.ProductType.objects.all(), required=False)
 
     class Meta:
         model = models.ProductUnderTest
