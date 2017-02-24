@@ -8,7 +8,7 @@ import oilserver.utils
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('oilserver', '0050_amend_jobtype_descriptions_and_colours'),
+        ('oilserver', '0052_amend_jobtype_descriptions_and_colours'),
     ]
 
     operations = [

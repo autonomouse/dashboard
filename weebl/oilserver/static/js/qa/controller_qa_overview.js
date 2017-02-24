@@ -73,7 +73,7 @@ app.controller('qaOverviewController', [
             if (angular.isUndefined($scope.data.qa.search.filters["environment"])) {
                 var environment = '';
             } else {
-                var environment = [];
+                var environment = []; //$scope.data.qa.search.filters["environment"] + ' data, ';
                 for (var idx in $scope.data.qa.search.filters["environment"]) {
                     var this_env = $scope.data.qa.search.filters["environment"][idx].slice(1);
                     if (parseInt(idx) === 0) {

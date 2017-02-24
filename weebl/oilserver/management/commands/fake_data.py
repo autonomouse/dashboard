@@ -150,8 +150,10 @@ BLOCK_STORAGES = {choice: ['cinder-vnx', 'cinder']
                   for choice in BLOCK_STORAGE_CHOICES}
 COMPUTES = {choice: ['nova-cloud-controller', 'nova-compute']
             for choice in COMPUTE_CHOICES}
-MAASVERSIONS = {choice: ['maas'] for choice in MAASVERSION_CHOICES}
-JUJUVERSIONS = {choice: ['juju'] for choice in JUJUVERSION_CHOICES}
+MAASVERSIONS = {choice: ['maas']
+            for choice in MAASVERSION_CHOICES}
+JUJUVERSIONS = {choice: ['juju']
+            for choice in JUJUVERSION_CHOICES}
 
 PRODUCT_TYPES = {
     'sdn': SDNS,
