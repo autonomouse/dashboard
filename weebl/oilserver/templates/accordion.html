@@ -131,6 +131,7 @@
                                     </div>
                                 </div>
                             </div>
+
                             <div class="three-col" data-ng-if="data.reports.show_filters">
                                 <div class="accordion maas-accordion">
                                     <div  data-ng-controller="overviewReportController">
@@ -168,6 +169,30 @@
                                                 </ul>
                                             </div>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion three-col maas-accordion" data-ng-if="data.qa.show_filters">
+                                <h3 class="accordion__title">Filter by</h3>
+                                <div class="ng-hide accordion__tab" data-ng-show="1">
+                                    <h4 class="accordion__tab-title maas-accordion-tab active">Start Date</h4>
+                                    <div class="accordion__tab-content">
+                                        <ul class="accordion__tab-list">
+                                            <li class="accordion__tab-item" data-ng-repeat="date in data.start_dates"  data-ng-class="{ active: data.qa.search.isFilterActive('start_date', date, true) }">
+                                                <a class="accordion__tab-link" href="" data-ng-click="data.qa.search.toggleFilter('start_date', date, true)">{$ date $}</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="ng-hide accordion__tab" data-ng-show="data.metadata.environment.length">
+                                    <h4 class="accordion__tab-title maas-accordion-tab">Environment</h4>
+                                    <div class="accordion__tab-content">
+                                        <ul class="accordion__tab-list">
+                                            <li class="accordion__tab-item" data-ng-repeat="env in data.metadata.environment | orderBy:['name']"  data-ng-class="{ active: data.qa.search.isFilterActive('environment', env.name, true) }">
+                                                <a class="accordion__tab-link" href="" data-ng-click="data.qa.search.toggleFilter('environment', env.name, true)">{$ env.name $}</a>
+                                            </li>
+                                        </ul>
                                     </div>
                                 </div>
                             </div>

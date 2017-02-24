@@ -15,6 +15,7 @@ from django.db.models.aggregates import Count as AggCount
 from oilserver import models, utils
 from django.contrib.sites.models import Site
 from oilserver.api.authorization import WorldReadableDjangoAuthorization
+from django.forms.models import model_to_dict
 
 # default to not populating reverse relations ('use_in') for speed and 'maximum
 # recursion depth' exceeded wormhole
@@ -243,7 +244,7 @@ class ProductTypeResource(CommonResource):
         'testcaseclasses')
 
     class Meta(CommonMeta):
-        queryset = models.ProductType.objects.all()
+        queryset = models.ProductType.objects.all().order_by('name')
         filtering = {
             'toplevel': ('exact',),
             'uuid': ('exact',),
@@ -316,6 +317,28 @@ class VersionConfigurationResource(CommonResource):
                      'openstackversion': ALL_WITH_RELATIONS, }
 
 
+class SolutionTagResource(CommonResource):
+    """API Resource for 'SolutionTag' model."""
+
+    class Meta(CommonMeta):
+        queryset = models.SolutionTag.objects.all()
+        filtering = {'name': ('exact'),
+                     'colour': ('exact'), }
+        detail_uri_name = 'name'
+
+
+class SolutionResource(CommonResource):
+    """API Resource for 'Solution' model. """
+
+    solutiontag = ToOneField(
+        SolutionTagResource, 'solutiontag', full=True)
+
+    class Meta(CommonMeta):
+        queryset = models.Solution.objects.all()
+        filtering = {'cdo_checksum': ('exact'),
+                     'solutiontag': ALL_WITH_RELATIONS, }
+        detail_uri_name = 'cdo_checksum'
+
 class PipelineResource(CommonResource):
     """API Resource for 'Pipeline' model.
 
@@ -324,12 +347,14 @@ class PipelineResource(CommonResource):
 
     buildexecutor = ForeignKey(
         BuildExecutorResource, 'buildexecutor', use_in='detail')
+    solution = ForeignKey(SolutionResource, 'solution', full_list=True)
     versionconfiguration = ForeignKey(
         VersionConfigurationResource, 'versionconfiguration', use_in='detail')
     configurationchoices = ToOneField(
         'oilserver.api.resources.ConfigurationChoicesResource',
         'configurationchoices',
         readonly=True, full=True, use_in='detail')
+    # FIXME: Shouldn't this be configurationchoice?
     builds = ReverseManyField(
         'oilserver.api.resources.BuildResource', 'builds')
     jujuservicedeployments = ReverseManyField(
@@ -337,10 +362,11 @@ class PipelineResource(CommonResource):
         'jujuservicedeployments')
 
     class Meta(CommonMeta):
-        queryset = models.Pipeline.objects.all()
+        queryset = models.Pipeline.objects.all().order_by('-completed_at')
         filtering = {'uuid': ALL,
                      'builds': ALL_WITH_RELATIONS,
                      'completed_at': ALL,
+                     'solution': ALL_WITH_RELATIONS,
                      'versionconfiguration': ALL_WITH_RELATIONS,
                      'configurationchoices': ALL_WITH_RELATIONS,
                      'jujuservicedeployments': ALL_WITH_RELATIONS,
@@ -609,10 +635,13 @@ class BuildResource(CommonResource):
 class JujuServiceDeploymentResource(CommonResource):
     """API Resource for 'JujuServiceDeployment' model. """
 
-    pipeline = ForeignKey(PipelineResource, 'pipeline', null=False)
-    jujuservice = ForeignKey(JujuServiceResource, 'jujuservice')
+    pipeline = ForeignKey(
+        PipelineResource, 'pipeline', null=False, full_list=True)
+    jujuservice = ForeignKey(
+        JujuServiceResource, 'jujuservice', full_list=True)
     charm = ForeignKey(CharmResource, 'charm')
-    productundertest = ForeignKey(ProductUnderTestResource, 'productundertest')
+    productundertest = ForeignKey(
+        ProductUnderTestResource, 'productundertest')
     units = ReverseManyField(
         'oilserver.api.resources.UnitResource', 'units')
 

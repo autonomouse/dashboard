@@ -6,7 +6,9 @@ app.controller('schedulerController', [
 
         $scope.data.reports.show_filters = false;
         $scope.data.results.show_filters = false;
+        $scope.data.qa.show_filters = false;
         $scope.data.results.show_search = false;
+        $scope.data.qa.show_search = false;
         $scope.data.throughput = {};
         $scope.data.throughput.scheduler = {};
         $scope.data.throughput.scheduler.job_starts = {};

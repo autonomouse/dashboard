@@ -6,6 +6,10 @@
     margin-bottom: 120px;
 }
 
+.darktable-listing__row {
+    background-color: #E2E0DD;
+}
+
 a.external {
     background: url(/static/img/external-link-orange.svg) center right no-repeat;
     background-size: 0.7em 0.7em;

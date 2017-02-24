@@ -36,7 +36,8 @@ app.factory('Common', ['$rootScope', '$location', 'DataService', function($rootS
             'testcaseinstance': 'build__pipeline__',
             'testframework': 'testcaseclasses__testcases__testcaseinstances__build__pipeline__',
             'testcaseclass': 'testcases__testcaseinstances__build__pipeline__',
-            'testcase': 'testcaseinstances__build__pipeline__'
+            'testcase': 'testcaseinstances__build__pipeline__',
+            'solution': 'pipelines__'
         };
         return [model_fields, prefixtures, original_model_names]
     };
@@ -56,12 +57,14 @@ app.factory('Common', ['$rootScope', '$location', 'DataService', function($rootS
             $scope.data.tabs.bugs = {};
             $scope.data.tabs.bugs.predicate = "occurrence_count";
             $scope.data.tabs.bugs.reverse = true;
+            $scope.data.tabs.qa = {};
         };
         if (angular.isUndefined($scope.data.subfilterPlotForm)) {
             $scope.data.subfilterPlotForm = {};
         };
         if (angular.isUndefined($scope.data.results)) $scope.data.results = {};
         if (angular.isUndefined($scope.data.reports)) $scope.data.reports = {};
+        if (angular.isUndefined($scope.data.qa)) $scope.data.qa = {};
         $scope.data.job_details = DataService.refresh('jobtype', $scope.data.user, $scope.data.apikey).query({});
         return $scope
     };
@@ -120,7 +123,7 @@ app.factory('Common', ['$rootScope', '$location', 'DataService', function($rootS
         var date_obj = new Date(datestr);
         // Return an empty string if the date is invalid:
         if (date_obj == "Invalid Date") {
-            return "";
+            return datestr;
         }
         var monthNames = ["Jan", "Feb", "Mar","Apr", "May", "Jun",
                           "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -212,20 +215,50 @@ app.factory('Common', ['$rootScope', '$location', 'DataService', function($rootS
         return '/static/img/bundles/' + testRunId + '.svg';
     };
 
+    function dateSymbolToHours() {
+        return {
+            '3 Hours Ago': 3,
+            '12 Hours Ago': 12,
+            '24 Hours Ago': 24,
+            '1 Day Ago': 24,
+            '48 Hours Ago': 48,
+            '2 Days Ago': 48,
+            '7 Days Ago': 168,
+            '1 Week Ago': 168,
+            '2 Weeks Ago': 336,
+            '3 Weeks Ago': 504,
+            '4 Weeks Ago': 672,
+            '30 Days Ago': 720,
+            'One Year Ago': 8760,
+            'Two Years Ago': 17520, // 24*365*2 Bit risky, what with leap years and all that though...
+            'Dawn of Time': null
+        }
+    };
+
+    function individual_filters() {
+        return ["start_date", "finish_date"]
+    };
+
+    function getLogoURL(svg) {
+        return logo_path + svg;
+    };
+
     function getTotals($scope) {
-        var local_filters = metaWith(generateActiveFilters($scope, 'testcaseinstance'));
+        var local_filters = metaWith(generateActiveFilters($scope, 'testcaseinstance'), true);
         var total = DataService.refresh('testcaseinstance', $scope.data.user, $scope.data.apikey).get(local_filters);
 
-        var local_filters = metaWith(generateActiveFilters($scope, 'pipeline'));
+        var local_filters = metaWith(generateActiveFilters($scope, 'pipeline'), true);
         var pipeline_total = DataService.refresh('pipeline', $scope.data.user, $scope.data.apikey).get(local_filters);
         return [total, pipeline_total];
     };
 
-    function fetchTestDataForJobname(jobname, $scope) {
+    function fetchTestDataForJobname(jobname, $scope, tag, meta_only) {
         var model = 'testcaseinstance';
-        var local_filters = metaWith(generateActiveFilters($scope, model));
+        if (angular.isUndefined(meta_only)) meta_only === true;
+        var local_filters = metaWith(generateActiveFilters($scope, model), meta_only);
         local_filters['build__jobtype__name'] = jobname;
         local_filters['successful_jobtype'] = jobname;
+        if ((angular.isDefined(tag)) && (tag != null)) local_filters['build__pipeline__solution__solutiontag__name'] = tag;
         local_filters['testcaseinstancestatus__name'] = 'success';
         var pass = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(local_filters);
         local_filters['testcaseinstancestatus__name'] = 'skipped';
@@ -238,10 +271,23 @@ app.factory('Common', ['$rootScope', '$location', 'DataService', function($rootS
         return [pass, skip, jobtotal]
     };
 
-    function metaWith(object) {
-        metaOnly = {'meta_only': true, 'limit': 1, 'max_limit': 1};
-        return angular.extend({}, metaOnly, object);
+    function metaWith(object, meta_only) {
+        if (angular.isUndefined(meta_only)) meta_only === true;
+        dict = {'meta_only': meta_only, 'limit': 1, 'max_limit': 1};
+        return angular.extend({}, dict, object);
     }
+
+   function checkAllInQueueIsAreResolved(queue) {
+       var everything_resolved = true;
+       angular.forEach(queue, function(queued_item){
+            if (!queued_item.$resolved) everything_resolved = false;
+        });
+        if (everything_resolved) {
+            return true;
+        } else {
+            return false;
+        };
+    };
 
     return {
       initialise: initialise,
@@ -255,8 +301,12 @@ app.factory('Common', ['$rootScope', '$location', 'DataService', function($rootS
       orderJobsArray: orderJobsArray,
       getQueryFieldName: getQueryFieldName,
       getBundleImageLocation: getBundleImageLocation,
+      dateSymbolToHours: dateSymbolToHours,
+      individual_filters: individual_filters,
+      getLogoURL: getLogoURL,
       fetchTestDataForJobname: fetchTestDataForJobname,
       getTotals: getTotals,
-      metaWith: metaWith
+      metaWith: metaWith,
+      checkAllInQueueIsAreResolved: checkAllInQueueIsAreResolved
     };
 }]);

@@ -47,7 +47,8 @@ v_api.register(resources.PipelineReportViewResource())
 v_api.register(resources.ServiceReportViewResource())
 v_api.register(resources.TestReportViewResource())
 v_api.register(resources.ReportSectionResource())
-
+v_api.register(resources.SolutionTagResource())
+v_api.register(resources.SolutionResource())
 
 urlpatterns = patterns(
     '',

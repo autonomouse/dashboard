@@ -5,7 +5,7 @@ app.controller('successRateController', [
         for (var datum in $scope.data) {
             data[datum] = $scope.data[datum]
         };
-        $scope.data = data;
+        if (angular.isUndefined($scope.data)) $scope.data = data;
 
         binding = this;
         binding.user = $scope.data.user;
@@ -13,11 +13,14 @@ app.controller('successRateController', [
 
 
         $scope = Common.initialise($scope);
-        if ($scope.data.results.search === undefined) $scope.data.results.search = new SearchFactory.Search();
+        $scope.data.graphValues = {"ready": false};
+        if (angular.isUndefined($scope.data.results.search))  $scope.data.results.search = new SearchFactory.Search();
 
         $scope.data.reports.show_filters = false;
         $scope.data.results.show_filters = true;
+        $scope.data.qa.show_filters = false;
         $scope.data.results.show_search = true;
+        $scope.data.qa.show_search = false;
 
         $scope.data.default_tab = 'successRate';
         $scope.data.default_section = 'results';
@@ -51,7 +54,6 @@ app.controller('successRateController', [
 
         function updateGraphValues() {
             $scope.data.plot_data_loading = true;
-            $scope.data.graphValues = {};
             [$scope.data.graphValues.total, $scope.data.graphValues.pipeline_total] = Common.getTotals($scope);
             $q.all([$scope.data.job_details.$promise]).then(function([job_details]) {
                 jobs = Common.getJobsList(job_details, true);
@@ -68,17 +70,19 @@ app.controller('successRateController', [
 
         function plotStatsGraph() {
             $q.all([$scope.data.job_details.$promise]).then(function([job_details]) {
-                var queue = [$scope.data.graphValues.total.$promise];
+                var queue = [$scope.data.graphValues.total.$promise, $scope.data.graphValues.pipeline_total.$promise];
                 angular.forEach(Common.getJobsList(job_details, true), function(jobname){
                     if (!angular.isUndefined($scope.data.graphValues[jobname].pass)) queue.push($scope.data.graphValues[jobname].pass.$promise);
                     if (!angular.isUndefined($scope.data.graphValues[jobname].jobtotal)) queue.push($scope.data.graphValues[jobname].jobtotal.$promise);
                     if (!angular.isUndefined($scope.data.graphValues[jobname].skip)) queue.push($scope.data.graphValues[jobname].skip.$promise);
                 });
-                $q.all(queue).then(function() {
-                    if ($scope.data.graphValues.total.$resolved) {
+                $q.all(queue).then(function(queue) {
+                    if (Common.checkAllInQueueIsAreResolved(queue)) {
                         jobDetails = Common.makeJobDetailsDict(job_details);
                         graphFactory.plot_stats_graph(binding, $scope.data.graphValues, jobDetails);
                         $scope.data.plot_data_loading = false;
+                    } else {
+                        console.log("Can not plot stats graph yet, queue not completely resolved...");
                     };
                 });
             });
@@ -222,4 +226,11 @@ app.controller('successRateController', [
         $scope.data.testRuns = update('pipeline');
         updateGraphValues();
         plotStatsGraph();
+        jobDetails = Common.makeJobDetailsDict($scope.data.job_details);
+
+        $scope.$watch('data.graphValues.ready', function() {
+            if ($scope.data.graphValues.ready === true) {
+                graphFactory.plot_stats_graph(binding, $scope.data.graphValues, jobDetails);
+            }
+        });
     }]);

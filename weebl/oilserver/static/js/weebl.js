@@ -51,8 +51,13 @@ app.config(function ($routeProvider) {
         .when('/throughput', {
             redirectTo: '/throughput/scheduler'
         })
+        .when('/qa/overview', {
+            templateUrl: '/static/partials/qa_overview.html',
+            controller: 'qaOverviewController',
+            controllerAs:'qaOverview'
+        })
         .otherwise({
-            redirectTo: '/results/successRate'
+            redirectTo: '/qa/overview'
         });
   });
 

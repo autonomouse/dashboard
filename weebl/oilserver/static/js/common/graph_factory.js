@@ -24,6 +24,8 @@ var plot_stats_graph = function(scope, graphValues, jobDetails) {
         };
         scope.stack_bar_config = stack_bar_config;
 
+        var total_count = angular.isDefined(graphValues.total.meta) ? graphValues.total.meta.total_count: "";
+        var pipeline_total_count = angular.isDefined(graphValues.pipeline_total.meta) ? graphValues.pipeline_total.meta.total_count: "";
         var individual_stack_bar_options = {
             chart: {
                 type: 'discreteBarChart',
@@ -46,7 +48,7 @@ var plot_stats_graph = function(scope, graphValues, jobDetails) {
             },
             title: {
                 enable: true,
-                text: "Percentage Success Rates for " + graphValues.total.meta.total_count + " Matching Tests in " + graphValues.pipeline_total.meta.total_count + " Test Runs",
+                text: "Percentage Success Rates for " + total_count + " Matching Tests in " + pipeline_total_count + " Test Runs",
                 css: {
                     textAlign: "center"
                 }
@@ -59,16 +61,19 @@ var plot_stats_graph = function(scope, graphValues, jobDetails) {
     var vals = new Array(Object.keys(jobDetails).length);
     angular.forEach(jobDetails, function(job_info){
         job = job_info.name;
-        if (angular.isDefined(graphValues[job])) {
-            vals.push({
-                "label" : jobDetails[job].description,
-                "value" : graphValues[job].pass.meta.total_count,
-                "individualPercentage" : calcPercentage(
-                    graphValues[job].pass.meta.total_count,
-                    graphValues[job].jobtotal.meta.total_count,
-                    graphValues[job].skip.meta.total_count),
-                "color" : '#' + jobDetails[job].colour
-            });
+        if (angular.isDefined(graphValues[job]) &&
+            angular.isDefined(graphValues[job].pass.meta) &&
+            angular.isDefined(graphValues[job].jobtotal.meta) &&
+            angular.isDefined(graphValues[job].skip.meta)) {
+                vals.push({
+                    "label" : jobDetails[job].description,
+                    "value" : graphValues[job].pass.meta.total_count,
+                    "individualPercentage" : calcPercentage(
+                        graphValues[job].pass.meta.total_count,
+                        graphValues[job].jobtotal.meta.total_count,
+                        graphValues[job].skip.meta.total_count),
+                    "color" : '#' + jobDetails[job].colour
+                });
         };
     });
     var stack_bar_data = [{
@@ -168,11 +173,61 @@ var plotBugHistoryGraph = function(scope, graphValues) {
         graphValues.maxNum + 5,
         graphValues.minDate
     )
+};
+
+var plot_solutions_graph = function(scope, graphValues) {
+
+    function updateSolutionsChartData(graphValues) {
+        var qa_stack_bar_config = {
+            visible: true,
+            extended: false,
+            disabled: false,
+            autorefresh: true,
+            refreshDataOnly: false,
+            debounce: 10
+        };
+        scope.qa_stack_bar_config = qa_stack_bar_config;
+
+        var qa_stack_bar_options = {
+            chart: {
+                type: 'discreteBarChart',
+                height: 450,
+                x: function(d){return d.label;},
+                y: function(d){return d.value;},
+                showValues: true,
+                valueFormat: function(d){return d + "%";},
+                transitionDuration: 500,
+                xAxis: {
+                    axisLabel: 'Solution'
+                },
+                yAxis: {
+                    axisLabel: 'Percentage Confidence',
+                    tickFormat: function(d) {
+                        return d3.format(',d')(d);
+                    }
+                },
+                yDomain: [0, 100]
+            },
+            title: {
+                enable: true,
+                text: "Percentage Confidence For Each Solution",
+                css: {
+                    width: "nullpx",
+                    textAlign: "center"
+                }
+            }
+        };
+        scope.qa_stack_bar_options = qa_stack_bar_options;
+        scope.qa_stack_bar_data = graphValues.qa_stack_bar_data;
+    };
+    updateSolutionsChartData(graphValues);
+    scope.qa_stack_bar_data
   };
 
   return {
     plot_stats_graph: plot_stats_graph,
     plotBugHistoryGraph: plotBugHistoryGraph,
-    calcPercentage: calcPercentage
+    calcPercentage: calcPercentage,
+    plot_solutions_graph: plot_solutions_graph
   };
 }]);

@@ -18,7 +18,9 @@ app.controller('detailedReportController', [
         if(angular.isUndefined($scope.data.reports.detailed)) $scope.data.reports.detailed = {};
         $scope.data.reports.show_filters = true;
         $scope.data.results.show_filters = false;
+        $scope.data.qa.show_filters = false;
         $scope.data.results.show_search = false;
+        $scope.data.qa.show_search = false;
 
         $scope.data.reports.search.defaultFilters = {"date": "Last 30 Days", "report": "Overall"};
         $scope.data.reports.search.individualFilters = ["date", "report"];
@@ -32,7 +34,7 @@ app.controller('detailedReportController', [
             'Last Year': 365,
             'All Time': null
         };
-        
+
         var previouslyMunged = {};
 
         $scope.data.reports.search.update();
@@ -187,7 +189,7 @@ app.controller('detailedReportController', [
                 var key = keys[keyIndex];
                 if (!(key in output)) {
                     output[key] = input1[key];
-                } 
+                }
                 else {
                     var valueKeys = Object.keys(output[key]);
                     for (var valueKeyIndex in valueKeys) {
@@ -197,10 +199,10 @@ app.controller('detailedReportController', [
                         }
                     }
                 }
-            } 
+            }
             return output;
         }
-        
+
         function testcaseCategorize(input) {
             var output = {failed: 0, skipped: 0, passed: 0, total: 0};
             keys = Object.keys(input);
@@ -216,7 +218,7 @@ app.controller('detailedReportController', [
                 else if (input[key].numsuccess > 0) {
                     output.passed++;
                 }
-            } 
+            }
             return output;
         }
 

@@ -120,6 +120,27 @@ DATABASE_CHOICES = [
     'galera-cluster',
 ]
 
+MAASVERSION_CHOICES = [
+    'maas_2.1.0+bzr5480-0ubuntu1~16.04.1',
+    'maas_2.1.2+bzr5555-0ubuntu1~16.04.1',
+    'maas_2.1.3+bzr5573-0ubuntu1~16.04.1',
+    'maas_2.2.0~beta1+bzr5675',
+]
+
+JUJUVERSION_CHOICES = [
+    'juju_2.0-beta15-trusty-amd64',
+    'juju_2.0-beta16-trusty-amd64',
+    'juju_2.0-beta17-trusty-amd64',
+    'juju_2.0-beta18-trusty-amd64',
+    'juju_2.0-beta18-xenial-amd64',
+    'juju_2.0-rc3-xenial-amd64',
+    'juju_2.0.0-xenial-amd64',
+    'juju_2.0.1-xenial-amd64',
+    'juju_2.0.2-xenial-amd64',
+    'juju_2.1-beta2-xenial-amd64',
+    'juju_2.1-beta4-xenial-amd64',
+]
+
 SDNS = {choice: ['neutron-api', 'bird', 'neutron-gateway']
         for choice in SDN_CHOICES}
 IMAGE_STORAGES = {choice: ['swift', 'glance']
@@ -129,13 +150,19 @@ BLOCK_STORAGES = {choice: ['cinder-vnx', 'cinder']
                   for choice in BLOCK_STORAGE_CHOICES}
 COMPUTES = {choice: ['nova-cloud-controller', 'nova-compute']
             for choice in COMPUTE_CHOICES}
+MAASVERSIONS = {choice: ['maas']
+            for choice in MAASVERSION_CHOICES}
+JUJUVERSIONS = {choice: ['juju']
+            for choice in JUJUVERSION_CHOICES}
 
 PRODUCT_TYPES = {
     'sdn': SDNS,
     'imagestorage': IMAGE_STORAGES,
     'database': DATABASES,
     'compute': COMPUTES,
-    'blockstorage': BLOCK_STORAGES
+    'blockstorage': BLOCK_STORAGES,
+    'maas': MAASVERSIONS,
+    'juju': JUJUVERSIONS
 }
 
 
@@ -158,6 +185,8 @@ SERVICES = [
     'glance',
     'cinder-vnx',
     'cinder',
+    'maas',
+    'juju',
 ]
 
 COMPONENT_NAME = [
@@ -300,8 +329,7 @@ def populate_producttypes():
         producttype.save()
         for productundertest in PRODUCT_TYPES[producttype.name].keys():
             product = get_or_create(models.ProductUnderTest,
-                                    name=productundertest,
-                                    prettyname=productundertest)
+                                    name=productundertest)
             product.producttype = producttype
             product.save()
 
@@ -531,9 +559,10 @@ def make_build(pipeline, jobtype, testcases, success_rate, started_at=None):
     if test_case_instance_status.name == 'failure':
         make_bug_occurrence(testcaseinstance)
         if jobtype.name == 'pipeline_deploy':
-            deployments = models.JujuServiceDeployment.objects.get(
+            deployments = models.JujuServiceDeployment.objects.filter(
                 pipeline=pipeline)
-            for deployment in random_selection(deployments):
+            listified_deployments = [item for item in deployments]
+            for deployment in random_selection(listified_deployments):
                 deployment.success = False
                 deployment.save()
 
@@ -555,18 +584,17 @@ def make_testframework(framework_name):
 
 def make_testclass(testframework, testclass_name):
     mapping = {
-        'network': models.ProductType.get(name='sdn'),
-        'compute': models.ProductType.get(name='compute')
+        'network': models.ProductType.objects.get(name='sdn'),
+        'compute': models.ProductType.objects.get(name='compute')
     }
     try:
         testcaseclass = models.TestCaseClass(
             name=testclass_name,
-            functionalgroup='Everything',
             testframework=testframework)
         testcaseclass.save()
-        for name, producttype in mapping.items:
+        for name, producttype in mapping.items():
             if name in testclass_name:
-                testcaseclass.producttypes.append(producttype)
+                testcaseclass.producttypes.add(producttype)
                 testcaseclass.save()
     except IntegrityError:
         testcaseclass = models.TestCaseClass.objects.get(name=testclass_name)
@@ -649,7 +677,7 @@ def make_builds(pipeline):
 
 def get_random_machineconfig():
     machine = get_random_machine()
-    return models.MachineConfiguration.objects.get(machine=machine)
+    return models.MachineConfiguration.objects.filter(machine=machine)[0]
 
 
 def deploy_services(pipeline_uuid, machineconfigs):

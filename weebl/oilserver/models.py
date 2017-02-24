@@ -385,6 +385,37 @@ class VersionConfiguration(TimeStampedBaseModel):
         return self.uuid
 
 
+class SolutionTag(TimeStampedBaseModel):
+    """The identifier used by CDO QA to refer to a given solution."""
+    name = models.CharField(
+        max_length=255,
+        unique=True,
+        help_text="The current name of the solution.")
+    colour = models.CharField(
+        max_length=6,
+        default="56334b",
+        help_text="HTML colour code (excluding the '#' prefix).")
+
+    def __str__(self):
+        return self.name
+
+
+class Solution(TimeStampedBaseModel):
+    """The set of technologies defined by CDO QA as a solution."""
+    cdo_checksum = models.CharField(
+        max_length=255,
+        unique=True,
+        help_text="MD5 checksum used by CDO QA to identify this solution.")
+    solutiontag = models.OneToOneField(
+        SolutionTag,
+        null=True,
+        blank=True,
+        default=None)
+
+    def __str__(self):
+        return self.cdo_checksum
+
+
 class Pipeline(TimeStampedBaseModel):
     """The pipelines currently recorded."""
     uuid = models.CharField(
@@ -400,6 +431,8 @@ class Pipeline(TimeStampedBaseModel):
         default=None,
         auto_now_add=False,
         help_text="DateTime the pipeline was completed.")
+    solution = models.ForeignKey(
+        Solution, null=True, blank=True, default=None)
     versionconfiguration = models.ForeignKey(
         VersionConfiguration, null=True, blank=True, default=None,
         related_name='pipelines')

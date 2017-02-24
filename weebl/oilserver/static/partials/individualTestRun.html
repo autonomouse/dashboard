@@ -1,16 +1,32 @@
 <div class="row">
     <div class="four-col">
         <p>Test run ID: {$ data.testRunId $}</p>
-        <p>Test run completed at: {$ data.humaniseDate(data.individual_testRun.completed_at) $}</p>
-        <p>Environment: <a href="{$ data.individual_testRun.buildexecutor.jenkins.external_access_url $}">{$ data.individual_testRun.buildexecutor.jenkins.environment.name $}</a></p>
+        <p>Test run completed at: {$ data.humaniseDate(data.individual_testRun.completed_at != null ? data.individual_testRun.completed_at : "(Test run not yet complete)"); $}</p>
+        <p data-ng-show="data.individual_testRun.buildexecutor.jenkins.environment.name != null">Environment: <a href="{$ data.individual_testRun.buildexecutor.jenkins.external_access_url $}">{$ data.individual_testRun.buildexecutor.jenkins.environment.name $}</a></p>
+        <p>OpenStack Version: {$ (data.individual_testRun.versionconfiguration != null) ? data.individual_testRun.versionconfiguration.openstackversion.name : "Unknown"; $} </p>
+        <p>Ubuntu Version: {$ (data.individual_testRun.versionconfiguration != null) ? data.individual_testRun.versionconfiguration.ubuntuversion.name : "Unknown"; $} </p>
+        <p data-ng-show="data.individual_testRun.solution.solutiontag.name != null">Solution: {$ data.individual_testRun.solution.solutiontag.name $}</p>
     </div>
+
     <div id="content" class="five-col last-col">
         <a ng-href="{$ data.image $}">
             <img class="centered" data-ng-src="{$ data.image $}" on-error-src="/static/img/bundles/missing.png" />
         </a>
     </div>
 </div>
+
 <div class="row">
+    <div id="content" class="nine-col last-col">
+        <div data-ng-show="data.pipeline_machines.meta.total_count">
+    </div>
+
+    <div id="content" class="nine-col last-col">
+        {$ data.pipeline_machines.meta.total_count $} <ng-pluralize count="data.pipeline_machines.meta.total_count" when="{'0': 'machines', '1': 'machine', 'other': 'machines'}"></ng-pluralize> <ng-pluralize count="data.pipeline_machines.meta.total_count" when="{'0': 'were', '1': 'was', 'other': 'were'}"></ng-pluralize> used in this OpenStack deployment
+        <span ng-if="data.pipeline_machines.meta.total_count > 0 ">
+            : <span ng-repeat="machine in data.pipeline_machines.objects">{$ $first ? '' : $last ? ' and ' : ', ' $}{$ machine.hostname $}</span>
+        </span>
+    </div>
+
     <div id="content" class="nine-col last-col">
         <table class="table-listing">
             <thead>
@@ -21,107 +37,25 @@
                     <th class="table-listing__header">
                         Name
                     </th>
+                    <!--
+                    <th class="table-listing__header">
+                        Deploy Time
+                    </th>
+                    -->
                 </tr>
             </thead>
             <tbody>
-                <tr class="table-listing__row">
-                    <td class="table-listing__cell">
-                        OpenStack Version
-                    </td>
-                    <td class="table-listing__cell">
-                        {$ data.individual_testRun.configurationchoices.openstackversion $}
-                    </td>
-                </tr>
-                <tr class="table-listing__row">
-                    <td class="table-listing__cell">
-                        Ubuntu Version
-                    </td>
-                    <td class="table-listing__cell">
-                        {$ data.individual_testRun.configurationchoices.ubuntuversion $}
-                    </td>
-                </tr>
-                <tr class="table-listing__row">
-                    <td class="table-listing__cell">
-                        Block Storage
-                    </td>
-                    <td class="table-listing__cell">
-                        {$ data.individual_testRun.configurationchoices.blockstorage $}
-                    </td>
-                </tr>
-                <tr class="table-listing__row">
-                    <td class="table-listing__cell">
-                        Compute
-                    </td>
-                    <td class="table-listing__cell">
-                        {$ data.individual_testRun.configurationchoices.compute $}
-                    </td>
-                </tr>
-                <tr class="table-listing__row">
-                    <td class="table-listing__cell">
-                        Database
-                    </td>
-                    <td class="table-listing__cell">
-                        {$ data.individual_testRun.configurationchoices.database $}
-                    </td>
-                </tr>
-                <tr class="table-listing__row">
-                    <td class="table-listing__cell">
-                        Image Storage
-                    </td>
-                    <td class="table-listing__cell">
-                        {$ data.individual_testRun.configurationchoices.imagestorage $}
-                    </td>
-                </tr>
-                <tr class="table-listing__row">
-                    <td class="table-listing__cell">
-                        SDN
-                    </td>
-                    <td class="table-listing__cell">
-                        {$ data.individual_testRun.configurationchoices.sdn $}
-                    </td>
+                <tr class="table-listing__row" data-ng-repeat="product in data.producttypes" ng-show="product.name != ''">
+                    <td class="table-listing__cell">{$ product.type $}</td>
+                    <td class="table-listing__cell"><span ng-repeat="name in product.name">{$ $first ? '' : $last ? ' and ' : ', ' $}{$ name $}</span></td>
+                    <!-- <td class="table-listing__cell">{$ product.deploy_time $}</td> -->
                 </tr>
             </tbody>
         </table>
 
-        {$ data.pipeline_builds.meta.total_count $} <ng-pluralize count="data.pipeline_builds.meta.total_count" when="{'0': 'jobs', '1': 'job', 'other': 'jobs'}"></ng-pluralize> run during this test.
-        <span ng-if="data.pipeline_builds.meta.total_count > 0 ">
-            <table class="table-listing">
-                <thead>
-                    <tr class="table-listing__row">
-                        <th class="table-listing__header">
-                            Job Type
-                        </th>
-                        <th class="table-listing__header">
-                            Build Number
-                        </th>
-                        <th class="table-listing__header">
-                            Outcome
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="table-listing__row" data-ng-repeat="job in data.orderedJobsList" data-ng-show="data.job_build_outcome[job].jobtype_description != null" >
-                        <td class="table-listing__cell">
-                            {$ data.job_build_outcome[job].jobtype_description; $}
-                        </td>
-                        <td class="table-listing__cell">
-                            <a href="{$ data.job_build_outcome[job].jenkinsBuildUrl; $}" class="external">{$ data.job_build_outcome[job].build_number; $}</a>
-                        </td>
-                        <td class="table-listing__cell">
-                            {$ data.job_build_outcome[job].jobstatus; $}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </span>
+    </div>
 
-        <div data-ng-show="data.pipeline_machines.meta.total_count">
-            The {$ data.pipeline_machines.meta.total_count $} <ng-pluralize count="data.pipeline_machines.meta.total_count" when="{'0': 'machines', '1': 'machine', 'other': 'machines'}"></ng-pluralize> used in this OpenStack deployment were:
-            <span ng-if="data.pipeline_machines.meta.total_count > 0 ">
-                <span ng-repeat="machine in data.pipeline_machines.objects">{$ $first ? '' : $last ? ' and ' : ', ' $}{$ machine.hostname $}</span>
-            </span>
-        </div>
-
+    <div id="content" class="nine-col last-col">
         {$ data.bugs_affecting_pipeline.meta.total_count $} <ng-pluralize count="data.bugs_affecting_pipeline.meta.total_count" when="{'0': 'bugs', '1': 'bug', 'other': 'bugs'}"></ng-pluralize> found to be affecting this test run.
         <span ng-if="data.bugs_affecting_pipeline.meta.total_count > 0 ">
             <table class="table-listing">
@@ -161,5 +95,111 @@
                 </tbody>
             </table>
         </span>
+    </div>
+
+    <div id="content" class="nine-col last-col">
+        {$ data.pipeline_builds.meta.total_count $} <ng-pluralize count="data.pipeline_builds.meta.total_count" when="{'0': 'jobs', '1': 'job', 'other': 'jobs'}"></ng-pluralize> run during this test.
+        <span ng-if="data.pipeline_builds.meta.total_count > 0 ">
+            <table class="table-listing">
+                <thead>
+                    <tr class="table-listing__row">
+                        <th class="table-listing__header">
+                            Job Type
+                        </th>
+                        <th class="table-listing__header">
+                            Build Number
+                        </th>
+                        <th class="table-listing__header">
+                            Job Status
+                        </th>
+                        <th class="table-listing__header">
+                            Tests Passed
+                        </th>
+                        <th class="table-listing__header">
+                            Tests Failed
+                        </th>
+                        <th class="table-listing__header">
+                            Tests Skipped
+                        </th>
+                        <th class="table-listing__header">
+                            Tests In Error
+                        </th>
+                        <th class="table-listing__header">
+                            Tests Aborted
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="table-listing__row" data-ng-repeat="job in data.orderedJobsList" data-ng-show="data.job_build_outcome[job].jobtype_description != null" >
+                        <td class="table-listing__cell">
+                            {$ data.job_build_outcome[job].jobtype_description; $}
+                        </td>
+                        <td class="table-listing__cell">
+                            <a href="{$ data.job_build_outcome[job].jenkinsBuildUrl; $}" class="external">{$ data.job_build_outcome[job].build_number; $}</a>
+                        </td>
+                        <td class="table-listing__cell">
+                            <font color="{$ data.colourStatus(data.job_build_outcome[job].jobstatus); $}">{$ data.job_build_outcome[job].jobstatus; $}</font>
+                        </td>
+                        <td class="table-listing__cell">
+                            {$ data.test_results[job].pass_count; $}
+                        </td>
+                        <td class="table-listing__cell">
+                            {$ data.test_results[job].fail_count; $}
+                        </td>
+                        <td class="table-listing__cell">
+                            {$ data.test_results[job].skip_count; $}
+                        </td>
+                        <td class="table-listing__cell">
+                            {$ data.test_results[job].err_count; $}
+                        </td>
+                        <td class="table-listing__cell">
+                            {$ data.test_results[job].abort_count; $}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </span>
+
+    </div>
+
+    <div id="content" class="nine-col last-col">
+        <div data-ng-repeat="(jobname, job) in data.test_results" >
+            <div data-ng-show="job.fail_count > 0">
+                <h3>Details of the {$ job.fail_count $} "{$ data.jobDictionary[jobname].description $}" tests that failed</h3>
+                <table class="table-listing">
+                    <thead>
+                        <tr class="table-listing__row">
+                            <th class="table-listing__header">Test Case Class</th>
+                            <th class="table-listing__header">Test Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="table-listing__row" data-ng-repeat="(idx, test) in job['failed_tests'] track by $index">
+                            <td class="table-listing__cell">{$ test[0]; $}</td>
+                            <td class="table-listing__cell">{$ test[1]; $}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div data-ng-show="job.err_count > 0">
+                <h3>Details of the {$ job.err_count $} "{$ data.jobDictionary[jobname].description $}" tests in error</h3>
+                <table class="table-listing">
+                    <thead>
+                        <tr class="table-listing__row">
+                            <th class="table-listing__header">Test Case Class</th>
+                            <th class="table-listing__header">Test Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="table-listing__row" data-ng-repeat="(idx, test) in job['erred_tests'] track by $index" >
+                            <td class="table-listing__cell">{$ test[0]; $}</td>
+                            <td class="table-listing__cell">{$ test[1]; $}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
     </div>
 </div>

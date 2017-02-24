@@ -2,6 +2,11 @@ var app = angular.module('weebl');
 app.controller('sectionController', ['$rootScope', '$scope', '$location', 'Common',
     function($rootScope, $scope, $location, common) {
         $scope.sections = [
+            {'url': 'qa', 'name': 'Integrated QA',
+                'tabs': [
+                    {'url': 'overview', 'name': 'Overview'},
+                ]
+            },
             {'url': 'results', 'name': 'Results',
                 'tabs': [
                     {'url': 'successRate', 'name': 'Success Rate'},
@@ -9,7 +14,7 @@ app.controller('sectionController', ['$rootScope', '$scope', '$location', 'Commo
                     {'url': 'testRuns', 'name': 'Test Runs'},
                 ]
             },
-            {'url': 'reports', 'name': 'Reports',
+            {'url': 'reports', 'name': 'OIL Reports',
                 'tabs': [
                     {'url': 'overview', 'name': 'Overview'},
                     {'url': 'detailed', 'name': 'Detailed'},

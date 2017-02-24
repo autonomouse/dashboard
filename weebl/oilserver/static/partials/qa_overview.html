@@ -1,0 +1,55 @@
+<div id="content" class="nine-col last-col">
+        <div class="twelve-col">
+            <h1>{$ data.qa.overview.qaReportPeriod $}</h1>
+
+        </div>
+
+        <h4>Solutions Tested:</h4>
+
+        <table class="table-listing">
+            <thead>
+                <tr class="darktable-listing__row">
+                    <th class="table-listing__header">Source</th>
+                    <th class="table-listing__header">Most Recently Deployed</th>
+                    <th class="table-listing__header">Most Recent Status</th>
+                    <th class="table-listing__header"><img height"15" src="{$ data.qa.getLogoURL('maas.svg'); $}" alt="MAAS" title="MAAS" /></th>
+                    <th class="table-listing__header"><img height"15" src="{$ data.qa.getLogoURL('juju.svg'); $}" alt="Juju" title="Juju" /></th>
+                    <th class="table-listing__header"><img height"15" src="{$ data.qa.getLogoURL('openstack.svg'); $}" alt="OpenStack" title="OpenStack" /></th>
+                    <th class="table-listing__header"><img height"15" src="{$ data.qa.getLogoURL('ubuntu.svg'); $}" alt="Ubuntu" title="Ubuntu" /></th>
+                    <th class="table-listing__header">Success Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="table-listing__row" ng-repeat="solution in data.qa.overview.tablevalues">
+                    <td class="table-listing__cell">{$ solution.name; $}</td>
+                    <td class="table-listing__cell">
+                        <a href="#/results/testRun/{$ solution.testrun $}" title="{$ solution.testrun $}">
+                            {$ data.humaniseDate(solution.date); $}
+                        </a>
+                    </td>
+                    <td class="table-listing__cell">{$ solution.deploystatus; $}</td>
+                    <td class="table-listing__cell">{$ solution.maasversion; $}</td>
+                    <td class="table-listing__cell">{$ solution.jujuversion; $}</td>
+                    <td class="table-listing__cell">{$ solution.openstackversion; $}</td>
+                    <td class="table-listing__cell">{$ solution.ubuntuversion; $}</td>
+                    <td class="table-listing__cell">{$ solution.success_rate; $}%</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4>Success Rate:</h4>
+
+        <nvd3 options="qaOverview.qa_stack_bar_options"
+              data="qaOverview.qa_stack_bar_data"
+              config="qaOverview.qa_stack_bar_config"
+        ></nvd3>
+
+        <!--
+        <center><form name="myForm">
+            <label>Only show solutions deployed by Autopilot:
+                <input type="checkbox" ng-model="data.qa.deployedByAutopilot">
+            </label>
+        </form></center>
+        -->
+
+</div>
