@@ -15,7 +15,6 @@ from django.db.models.aggregates import Count as AggCount
 from oilserver import models, utils
 from django.contrib.sites.models import Site
 from oilserver.api.authorization import WorldReadableDjangoAuthorization
-from django.forms.models import model_to_dict
 
 # default to not populating reverse relations ('use_in') for speed and 'maximum
 # recursion depth' exceeded wormhole
@@ -338,6 +337,7 @@ class SolutionResource(CommonResource):
         filtering = {'cdo_checksum': ('exact'),
                      'solutiontag': ALL_WITH_RELATIONS, }
         detail_uri_name = 'cdo_checksum'
+
 
 class PipelineResource(CommonResource):
     """API Resource for 'Pipeline' model.
