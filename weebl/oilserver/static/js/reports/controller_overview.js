@@ -208,6 +208,7 @@ app.controller('overviewReportController', [
             console.log(expandableFilters);
             get = {};
             everything = {};
+            metaOnly = Common.metaWith({});
 
             //from period
             get.testcasesPeriod = ResourceFilterCall('testcaseinstance', expansionTemplates['testcaseinstance'], expandableFilters, metaOnly);
