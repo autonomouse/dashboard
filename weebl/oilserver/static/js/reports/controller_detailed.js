@@ -107,14 +107,14 @@ app.controller('detailedReportController', [
             var periods = Common.arrayToObjectOnProperty($scope.data.reports.metadata.reportPeriods, 'name');
             if(period in periods) {
                 filter_set.date__gte = periods[period].start_date;
-                filter_set.date__lte = periods[period].end_date;
+                filter_set.date__lt = periods[period].end_date;
             } else {
                 var days_offset = dateSymbolToDays[period];
                 if(days_offset !== null){
                     var today = new Date();
                     var prior_date = new Date(new Date().setDate(today.getDate()-days_offset));
                     filter_set.date__gte = prior_date.toISOString();
-                    filter_set.date__lte = today.toISOString();
+                    filter_set.date__lt = today.toISOString();
                 }
             }
             return filter_set;
@@ -166,7 +166,7 @@ app.controller('detailedReportController', [
             $scope.data.reports.detailed.historicalPeriods = historicalPeriods;
 
             filters.date__gte = historicalPeriods[0].start;
-            filters.date__lte = historicalPeriods[historicalPeriods.length - 1].end;
+            filters.date__lt = historicalPeriods[historicalPeriods.length - 1].end;
             return filters;
         }
 
@@ -175,7 +175,7 @@ app.controller('detailedReportController', [
             var historicalPeriods = $scope.data.reports.detailed.historicalPeriods;
             for (var historicalPeriodIndex in historicalPeriods) {
                 var historicalPeriod = historicalPeriods[historicalPeriodIndex];
-                if (historicalPeriod.start < input && historicalPeriod.end > input) {
+                if (historicalPeriod.start <= input && historicalPeriod.end > input) {
                     bins.push(historicalPeriod.name);
                 }
             }
@@ -381,10 +381,15 @@ app.controller('detailedReportController', [
                 //make historical graphs
                 layout = ['date'];
                 sumAttributes = ['numpipelines', 'numdeployfail', 'numtestfail', 'numpreparefail'];
+                console.log(data.historicalPipelines.objects);
                 var historicalPipelines = sumBins(sumOver(data.historicalPipelines.objects, layout, sumAttributes), historicalBinify);
+                console.log(historicalPipelines);
                 var historicalPipelinesGraph = [];
                 for (var historicalIndex in $scope.data.reports.detailed.historicalPeriods) {
                     var period = $scope.data.reports.detailed.historicalPeriods[historicalIndex].name;
+                    if (angular.isUndefined(historicalPipelines[period])) {
+                        historicalPipelines[period] = {'numpipelines': 0, 'numdeployfail': 0, 'numtestfail': 0, 'numpreparefail': 0};
+                    }
                     historicalPipelines[period].x = period + ' (' + historicalPipelines[period].numpipelines + ')';
                     var totalFail = historicalPipelines[period].numdeployfail + historicalPipelines[period].numtestfail + historicalPipelines[period].numpreparefail;
                     historicalPipelines[period].numpassed = historicalPipelines[period].numpipelines - totalFail;
@@ -412,9 +417,11 @@ app.controller('detailedReportController', [
                 var historicalTestcasesGraph = [];
                 for (var historicalIndex in $scope.data.reports.detailed.historicalPeriods) {
                     var period = $scope.data.reports.detailed.historicalPeriods[historicalIndex].name;
-                    historicalTestcases[period] = testcaseCategorize(historicalTestcases[period]);
-                    historicalTestcases[period].x = period + ' (' + historicalTestcases[period].total + ')';
-                    historicalTestcasesGraph.push(historicalTestcases[period]);
+                    if (!angular.isUndefined(historicalTestcases[period])) {
+                        historicalTestcases[period] = testcaseCategorize(historicalTestcases[period]);
+                        historicalTestcases[period].x = period + ' (' + historicalTestcases[period].total + ')';
+                        historicalTestcasesGraph.push(historicalTestcases[period]);
+                    }
                 }
                 testcaseCategorize(historicalTestcases)
                 $scope.data.reports.detailed.historicalTestcasesGraph = [
