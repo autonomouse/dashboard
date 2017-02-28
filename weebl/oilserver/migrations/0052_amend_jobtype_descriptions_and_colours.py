@@ -23,7 +23,7 @@ def amend_jobtype_descriptions_and_colours(apps, schema_editor):
         set_jobtype_data(JobType, 2, "pipeline_prepare", "Configure Openstack",
                          "9F639A", True)
         set_jobtype_data(JobType, 3, "test_tempest_smoke", "Tempest (old)",
-                         "FAD4C7", False)
+                         "806678", False)
         set_jobtype_data(JobType, 4, "test_bundletests", "Tempest", "806678",
                          True)
         set_jobtype_data(JobType, 5, "test_juju_bootstrap",
