@@ -16,7 +16,7 @@ def turn_off_tempest_plotting(apps, schema_editor):
             tempest_job.save()
 
 
-def noop():
+def noop(apps, schema_editor):
     pass
 
 

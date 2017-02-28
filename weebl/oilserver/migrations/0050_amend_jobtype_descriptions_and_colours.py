@@ -31,7 +31,7 @@ def amend_jobtype_descriptions_and_colours(apps, schema_editor):
         set_jobtype_data(JobType, 6, "test_cloud_image",
                          "SSH to guest instance", "2C001E", True)
 
-def noop():
+def noop(apps, schema_editor):
     pass
 
 

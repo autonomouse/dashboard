@@ -18,7 +18,7 @@ def gen_uuids(apps, schema_editor):
        gen_uuid_model(model)
 
 
-def noop():
+def noop(apps, schema_editor):
     pass
 
 

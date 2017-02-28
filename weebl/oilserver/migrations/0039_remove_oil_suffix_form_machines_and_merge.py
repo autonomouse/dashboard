@@ -25,7 +25,7 @@ def remove_oil_suffix_from_machines_and_merge(apps, schema_editor):
             machine_oil.delete()
 
 
-def noop():
+def noop(apps, schema_editor):
     pass
 
 

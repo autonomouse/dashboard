@@ -17,7 +17,7 @@ def rename_incorrectly_labelled_testframeworks(apps, schema_editor):
                 testframework.save()
 
 
-def noop():
+def noop(apps, schema_editor):
     pass
 
 
