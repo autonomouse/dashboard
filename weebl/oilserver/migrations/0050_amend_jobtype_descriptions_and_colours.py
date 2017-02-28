@@ -16,16 +16,16 @@ def set_jobtype_data(JobType, order, name, description, colour, plot):
 def amend_jobtype_descriptions_and_colours(apps, schema_editor):
     JobType = apps.get_model('oilserver', 'JobType')
     with transaction.atomic():
-        set_jobtype_data(JobType, 0, "pipeline_start", "Initialise test run",
-                         "DEDBD8", False)
-        set_jobtype_data(JobType, 1, "pipeline_deploy", "Deploy Openstack",
-                         "84377D", True)
-        set_jobtype_data(JobType, 2, "pipeline_prepare", "Configure Openstack",
-                         "9F639A", True)
-        set_jobtype_data(JobType, 3, "test_tempest_smoke", "Tempest (old)",
-                         "806678", False)
-        set_jobtype_data(JobType, 4, "test_bundletests", "Tempest", "806678",
-                         True)
+        set_jobtype_data(JobType, 0, "pipeline_start",
+                         "Initialise test run", "DEDBD8", False)
+        set_jobtype_data(JobType, 1, "pipeline_deploy",
+                         "Deploy Openstack", "84377D", True)
+        set_jobtype_data(JobType, 2, "pipeline_prepare",
+                         "Configure Openstack", "9F639A", True)
+        set_jobtype_data(JobType, 3, "test_tempest_smoke",
+                         "Tempest (old)", "806678", False)
+        set_jobtype_data(JobType, 4, "test_bundletests",
+                         "Tempest", "806678", True)
         set_jobtype_data(JobType, 5, "test_juju_bootstrap",
                          "OpenStack Provider", "56334B", True)
         set_jobtype_data(JobType, 6, "test_cloud_image",
