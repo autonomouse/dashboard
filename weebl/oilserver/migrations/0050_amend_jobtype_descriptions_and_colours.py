@@ -38,7 +38,7 @@ def noop():
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('oilserver', '0051_configurationchoices_fix_for_extra_toplevel_products'), ]
+        ('oilserver', '0049_remove_tempest_from_plots_by_default'), ]
 
     operations = [migrations.RunPython(
         amend_jobtype_descriptions_and_colours, reverse_code=noop), ]
