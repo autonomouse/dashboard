@@ -10,6 +10,11 @@ app.controller('testRunController', [
 
         $scope = Common.initialise($scope);
 
+        var img = document.getElementById("bundle_svg");
+        img.onerror = function () {
+            this.style.display = "none";
+        }
+
         $scope.data.plot_data_loading = true;
 
         $scope.data.testRunId = $routeParams.testRunId;
