@@ -34,17 +34,15 @@ app.controller('qaOverviewController', [
 
         $scope.data.humaniseDate = Common.humaniseDate;
 
-        var dateSymbolToHours = Common.dateSymbolToHours();
-
         function updateStartDate(start_date) {
             if (start_date.includes("Ago") || start_date.includes("Time")) {
-                var hours_offset = dateSymbolToHours[start_date];
+                var hours_offset = Common.dateSymbolToHours()[start_date];
                 console.log("Updating to last %d hours (%d days).", hours_offset, (hours_offset / 24));
                 if (hours_offset === null) {
                     $scope.data.start_date = null;
                 } else {
                     var today = new Date();
-                    prior_date = new Date(new Date().setHours(today.getHours()-(hours_offset*24)))
+                    prior_date = new Date(new Date().setHours(today.getHours()-(hours_offset)))
                     $scope.data.start_date = prior_date.toISOString();
                 }
             } else {
@@ -180,7 +178,8 @@ app.controller('qaOverviewController', [
             '1 Week Ago',
             '2 Weeks Ago',
             '3 Weeks Ago',
-            '4 Weeks Ago'
+            '4 Weeks Ago',
+            'Dawn of Time'
         ];
         $scope.data.finish_dates = ['Now'];
         $scope.data.qa.search.defaultFilters = {
