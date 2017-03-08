@@ -120,6 +120,16 @@
                                         </ul>
                                     </div>
                                 </div>
+                                <div class="ng-hide accordion__tab" data-ng-show="data.metadata.solutiontag.length">
+                                    <h4 class="accordion__tab-title maas-accordion-tab">Solution</h4>
+                                    <div class="accordion__tab-content">
+                                        <ul class="accordion__tab-list">
+                                            <li class="accordion__tab-item" data-ng-repeat="solutiontag in data.metadata.solutiontag | orderBy:['name']"  data-ng-class="{ active: data.results.search.isFilterActive('solutiontag', solutiontag.name, true) }">
+                                                <a class="accordion__tab-link" href="" data-ng-click="data.results.search.toggleFilter('solutiontag', solutiontag.name, true)">{$ solutiontag.name $}</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
                                 <div class="ng-hide accordion__tab" data-ng-show="data.metadata.failedjobs.length">
                                     <h4 class="accordion__tab-title maas-accordion-tab">Failed Jobs</h4>
                                     <div class="accordion__tab-content">

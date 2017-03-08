@@ -17,6 +17,7 @@ app.factory('Common', ['$rootScope', '$location', 'DataService', function($rootS
             'testcaseinstancestatus': 'testcaseinstances__testcaseinstancestatus__name__in',
             'machine': 'jujuservicedeployments__units__machineconfiguration__machine__hostname__in',
             'productundertest': 'jujuservicedeployments__units__machineconfiguration__productundertests__name__in|jujuservicedeployments__productundertest__name__in',
+            'solutiontag': 'solution__solutiontag__name__in',
             'failedjobs': 'failed_jobtype',
         };
 
@@ -37,7 +38,7 @@ app.factory('Common', ['$rootScope', '$location', 'DataService', function($rootS
             'testframework': 'testcaseclasses__testcases__testcaseinstances__build__pipeline__',
             'testcaseclass': 'testcases__testcaseinstances__build__pipeline__',
             'testcase': 'testcaseinstances__build__pipeline__',
-            'solution': 'pipelines__'
+            'solutiontag': 'solution__'
         };
         return [model_fields, prefixtures, original_model_names]
     };
