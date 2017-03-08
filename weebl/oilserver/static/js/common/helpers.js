@@ -43,6 +43,38 @@ app.factory('Common', ['$rootScope', '$location', 'DataService', function($rootS
         return [model_fields, prefixtures, original_model_names]
     };
 
+    function dateSymbolToHours() {
+        return {
+            'Now': 0,
+            '3 Hours Ago': 3,
+            '12 Hours Ago': 12,
+            '24 Hours Ago': 24,
+            '1 Day Ago': 24,
+            '48 Hours Ago': 48,
+            '2 Days Ago': 48,
+            '7 Days Ago': 168,
+            '1 Week Ago': 168,
+            '2 Weeks Ago': 336,
+            '3 Weeks Ago': 504,
+            '4 Weeks Ago': 672,
+            '30 Days Ago': 720,
+            'One Year Ago': 8760,
+            'Two Years Ago': 17520, // 24*365*2 Bit risky, what with leap years and all that though...
+            'Dawn of Time': null
+        }
+    };
+
+    function genEarliestAndLatest($scope) {
+        angular.forEach(dateSymbolToHours(), function(value, key) {
+            if ((angular.isUndefined($scope.data.earliest)) && (value === null)){
+                $scope.data.earliest = key;
+            };
+            if ((angular.isUndefined($scope.data.latest)) && (value === 0)){
+                $scope.data.latest = key;
+            };
+        });
+    };
+
     function initialise($scope) {
         if (angular.isUndefined($scope.data.metadata)) $scope.data.metadata = {};
         if (angular.isUndefined($scope.data.successRate)) $scope.data.successRate = {};
@@ -67,6 +99,7 @@ app.factory('Common', ['$rootScope', '$location', 'DataService', function($rootS
         if (angular.isUndefined($scope.data.reports)) $scope.data.reports = {};
         if (angular.isUndefined($scope.data.qa)) $scope.data.qa = {};
         $scope.data.job_details = DataService.refresh('jobtype', $scope.data.user, $scope.data.apikey).query({});
+        genEarliestAndLatest($scope);
         return $scope
     };
 
@@ -149,7 +182,6 @@ app.factory('Common', ['$rootScope', '$location', 'DataService', function($rootS
         return angular.isUndefined(original_model_names[field]) ? field : original_model_names[field]
     };
 
-
     function generateActiveFilters(scope, origin, exclude_dates) {
         angular.isUndefined(exclude_dates) ? exclude_dates=false : exclude_dates=exclude_dates
         var active_filters = {};
@@ -214,26 +246,6 @@ app.factory('Common', ['$rootScope', '$location', 'DataService', function($rootS
 
     function getBundleImageLocation(testRunId) {
         return '/static/img/bundles/' + testRunId + '.svg';
-    };
-
-    function dateSymbolToHours() {
-        return {
-            '3 Hours Ago': 3,
-            '12 Hours Ago': 12,
-            '24 Hours Ago': 24,
-            '1 Day Ago': 24,
-            '48 Hours Ago': 48,
-            '2 Days Ago': 48,
-            '7 Days Ago': 168,
-            '1 Week Ago': 168,
-            '2 Weeks Ago': 336,
-            '3 Weeks Ago': 504,
-            '4 Weeks Ago': 672,
-            '30 Days Ago': 720,
-            'One Year Ago': 8760,
-            'Two Years Ago': 17520, // 24*365*2 Bit risky, what with leap years and all that though...
-            'Dawn of Time': null
-        }
     };
 
     function individual_filters() {

@@ -1,4 +1,4 @@
-app.factory('SearchFactory', [function() {
+app.factory('SearchFactory', ['$location', function($location) {
     function Search() {
         // Holds an empty filter object.
         var emptyFilter = { _: [] };
@@ -46,6 +46,15 @@ app.factory('SearchFactory', [function() {
                 this._setIndividual();
                 this.runOnUpdate();
             }
+        };
+
+        this.setFiltersFromURL = function () {
+            angular.forEach($location.search(), function(value, key) {
+                this.filters[key] = [];
+                this.toggleFilter(key, value, true, false);
+            }, this);
+            this._filtersToString();
+            this.update();
         };
 
         this.reset = function() {
@@ -223,6 +232,10 @@ app.factory('SearchFactory', [function() {
             if(runUpdate) {
                 this.update();
             }
+        };
+
+        this.init = function() {
+            this.setFiltersFromURL();
         };
     };
     return {

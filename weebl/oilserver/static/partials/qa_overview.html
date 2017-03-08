@@ -21,7 +21,11 @@
             </thead>
             <tbody>
                 <tr class="table-listing__row" ng-repeat="solution in data.qa.overview.tablevalues">
-                    <td class="table-listing__cell">{$ solution.name; $}</td>
+                    <td class="table-listing__cell">
+                        <a href="#/results/testRuns?solutiontag={$ solution.name $}&start_date={$ data.earliest $}&finish_date={$ data.latest $}" title="{$ solution.testrun $}">
+                            {$ solution.name; $}
+                        </a>
+                    </td>
                     <td class="table-listing__cell">
                         <a href="#/results/testRun/{$ solution.testrun $}" title="{$ solution.testrun $}">
                             {$ data.humaniseDate(solution.date); $}

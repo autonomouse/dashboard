@@ -15,6 +15,7 @@ app.controller('successRateController', [
         $scope = Common.initialise($scope);
         $scope.data.graphValues = {"ready": false};
         if (angular.isUndefined($scope.data.results.search))  $scope.data.results.search = new SearchFactory.Search();
+        $scope.data.results.search.init();
 
         $scope.data.reports.show_filters = false;
         $scope.data.results.show_filters = true;
@@ -24,6 +25,7 @@ app.controller('successRateController', [
 
         $scope.data.default_tab = 'successRate';
         $scope.data.default_section = 'results';
+
 
         function getMetadata($scope) {
             var enum_fields = Common.getFilterModels();
