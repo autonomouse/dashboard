@@ -1,7 +1,7 @@
 var app = angular.module('weebl');
 app.controller('successRateController', [
-    '$scope', '$q', 'data', 'SearchFactory', 'DataService', 'graphFactory', 'Common',
-    function($scope, $q, data, SearchFactory, DataService, graphFactory, Common) {
+    '$scope', '$q', 'data', 'SearchFactory', 'graphFactory', 'DataService', 'Common', 'FilterFactory',
+    function($scope, $q, data, SearchFactory, graphFactory, DataService, Common, FilterFactory) {
         for (var datum in $scope.data) {
             data[datum] = $scope.data[datum]
         };
@@ -28,11 +28,11 @@ app.controller('successRateController', [
 
 
         function getMetadata($scope) {
-            var enum_fields = Common.getFilterModels();
+            var enum_fields = FilterFactory.getFilterModels();
 
             for (i = 0; i < enum_fields.length; i++) {
                 field = enum_fields[i];
-                query_field = Common.getQueryFieldName(field);
+                query_field = FilterFactory.getQueryFieldName(field);
                 $scope.data.metadata[field] = DataService.refresh(
                     query_field, $scope.data.user, $scope.data.apikey).query({});
             }
@@ -56,7 +56,7 @@ app.controller('successRateController', [
 
         function updateGraphValues() {
             $scope.data.plot_data_loading = true;
-            [$scope.data.graphValues.total, $scope.data.graphValues.pipeline_total] = Common.getTotals($scope);
+            [$scope.data.graphValues.total, $scope.data.graphValues.pipeline_total] = FilterFactory.getTotals($scope);
             $q.all([$scope.data.job_details.$promise]).then(function([job_details]) {
                 jobs = Common.getJobsList(job_details, true);
                 angular.forEach(jobs, function(jobname){
@@ -64,7 +64,7 @@ app.controller('successRateController', [
                     [$scope.data.graphValues[jobname].pass,
                      $scope.data.graphValues[jobname].skip,
                      $scope.data.graphValues[jobname].jobtotal
-                 ] = Common.fetchTestDataForJobname(jobname, $scope);
+                 ] = FilterFactory.fetchTestDataForJobname(jobname, $scope);
                 });
             });
             plotStatsGraph();
@@ -92,7 +92,7 @@ app.controller('successRateController', [
 
 
         function update(model) {
-            active_filters = Common.generateActiveFilters($scope, model);
+            active_filters = FilterFactory.generateActiveFilters($scope, model);
             return DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(active_filters);
         };
 
@@ -118,40 +118,13 @@ app.controller('successRateController', [
 
         $scope.data.humaniseDate = Common.humaniseDate;
 
-        var dateSymbolToDays = {
-            '24 Hours Ago': 1,
-            '7 Days Ago': 7,
-            '30 Days Ago': 30,
-            'One Year Ago': 365,
-            'Dawn of Time': null
+        function updateStartDate(start_date) {
+            $scope.data.start_date = FilterFactory.updateStartDate(start_date);
         };
 
-        function updateStartDate(start_date) {
-            if (start_date.includes("Ago") || start_date.includes("Time")) {
-                var days_offset = dateSymbolToDays[start_date];
-                console.log("Updating to last %d days.", days_offset);
-                if (days_offset === null) {
-                    $scope.data.start_date = null;
-                } else {
-                    var today = new Date();
-                    prior_date = new Date(new Date().setDate(today.getDate()-days_offset));
-                    $scope.data.start_date = prior_date.toISOString();
-                }
-            } else {
-                console.log("Taking start date literally.");
-                $scope.data.start_date = start_date;
-            }
-        }
-
         function updateFinishDate(finish_date) {
-            /* update finish_date */
-            if ((finish_date == 'Now') || (finish_date == null)) {
-                $scope.data.finish_date = null;
-            } else {
-                console.log("Taking finish date literally.");
-                $scope.data.finish_date = finish_date;
-            }
-        }
+            $scope.data.finish_date = FilterFactory.updateFinishDate(finish_date);
+        };
 
         function updateFromServer() {
             $scope.data.bugs = update('bug');

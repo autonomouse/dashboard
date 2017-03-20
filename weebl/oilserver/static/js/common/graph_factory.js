@@ -1,11 +1,12 @@
 app.factory('graphFactory', ['Common', function(Common) {
 
 var calcPercentage = function calcPercentage(value, total, number_of_tests_skipped) {
+    var d3formatting = ',.2f';
     if (angular.isUndefined(number_of_tests_skipped))  number_of_tests_skipped = 0;
     total = total - number_of_tests_skipped;
-    var percentage = d3.format(',.2f')(((value / total) * 100))
+    var percentage = d3.format(d3formatting)(((value / total) * 100))
     if (percentage == "NaN"){
-        return "0";
+        return d3.format(d3formatting)(0);
     } else {
         return percentage;
     }

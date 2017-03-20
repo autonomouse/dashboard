@@ -1,7 +1,7 @@
 var app = angular.module('weebl');
 app.controller('qaOverviewController', [
-    '$scope', '$q', 'SearchFactory', 'graphFactory', 'DataService', 'Common',
-    function($scope, $q, SearchFactory, graphFactory, DataService, Common) {
+    '$scope', '$q', 'SearchFactory', 'graphFactory', 'DataService', 'Common', 'FilterFactory',
+    function($scope, $q, SearchFactory, graphFactory, DataService, Common, FilterFactory) {
         if (angular.isUndefined($scope.data)) $scope.data = data;
 
         binding = this;
@@ -22,11 +22,11 @@ app.controller('qaOverviewController', [
         $scope.data.default_section = 'overview';
 
         function getMetadata($scope) {
-            var enum_fields = Common.getFilterModels();
+            var enum_fields = FilterFactory.getFilterModels();
 
             for (i = 0; i < enum_fields.length; i++) {
                 field = enum_fields[i];
-                query_field = Common.getQueryFieldName(field);
+                query_field = FilterFactory.getQueryFieldName(field);
                 $scope.data.metadata[field] = DataService.refresh(
                     query_field, $scope.data.user, $scope.data.apikey).query({});
             }
@@ -36,30 +36,11 @@ app.controller('qaOverviewController', [
         $scope.data.humaniseDate = Common.humaniseDate;
 
         function updateStartDate(start_date) {
-            if (start_date.includes("Ago") || start_date.includes("Time")) {
-                var hours_offset = Common.dateSymbolToHours()[start_date];
-                console.log("Updating to last %d hours (%d days).", hours_offset, (hours_offset / 24));
-                if (hours_offset === null) {
-                    $scope.data.start_date = null;
-                } else {
-                    var today = new Date();
-                    prior_date = new Date(new Date().setHours(today.getHours()-(hours_offset)))
-                    $scope.data.start_date = prior_date.toISOString();
-                }
-            } else {
-                console.log("Taking start date literally.");
-                $scope.data.start_date = start_date;
-            }
+            $scope.data.start_date = FilterFactory.updateStartDate(start_date);
         };
 
         function updateFinishDate(finish_date) {
-            /* update finish_date */
-            if ((finish_date == 'Now') || (finish_date == null)) {
-                $scope.data.finish_date = null;
-            } else {
-                console.log("Taking finish date literally.");
-                $scope.data.finish_date = finish_date;
-            }
+            $scope.data.finish_date = FilterFactory.updateFinishDate(finish_date);
         };
 
         function updateSearch() {
@@ -92,9 +73,9 @@ app.controller('qaOverviewController', [
 
         function plotSolutionsGraph(solutiontag, output) {
             var tag = solutiontag.name;
+            $scope.data.qa.overview.tablevalues[tag] = {'name': tag};
             var colour = solutiontag.colour;
             $q.all([output[0].$promise, output[1].$promise, output[2].$promise]).then(function([pass, skip, jobtotal]) {
-                $scope.data.qa.overview.tablevalues[tag] = {'name': tag};
                 $scope.data.qa.overview.tablevalues[tag].success_rate = graphFactory.calcPercentage(
                     pass.meta.total_count,
                     jobtotal.meta.total_count,
@@ -105,46 +86,51 @@ app.controller('qaOverviewController', [
                     "color" : colour
                 };
                 // only plot when have all data available:
-                if ($scope.data.qa.solutiontags.objects.length === Object.keys($scope.data.qa.overview.graphValues.qa_stack_bar_data[0]['valueDict']).length) {
-                    values = Object.keys($scope.data.qa.overview.graphValues.qa_stack_bar_data[0]['valueDict']).map(function(key){
-                        return $scope.data.qa.overview.graphValues.qa_stack_bar_data[0]['valueDict'][key];
-                    });
-                    $scope.data.qa.overview.graphValues.qa_stack_bar_data[0]['values'] = values;
-                    $scope.data.qa.overview.graphValues.qa_stack_bar_data[0]['valueDict'] = {};
-                    graphFactory.plot_solutions_graph(binding, $scope.data.qa.overview.graphValues)
-                };
+                $q.all([$scope.data.qa.solutiontags.$promise]).then(function([solutiontags]) {
+                    if (solutiontags.objects.length === Object.keys($scope.data.qa.overview.graphValues.qa_stack_bar_data[0]['valueDict']).length) {
+                        values = Object.keys($scope.data.qa.overview.graphValues.qa_stack_bar_data[0]['valueDict']).map(function(key){
+                            return $scope.data.qa.overview.graphValues.qa_stack_bar_data[0]['valueDict'][key];
+                        });
+                        $scope.data.qa.overview.graphValues.qa_stack_bar_data[0]['values'] = values;
+                        $scope.data.qa.overview.graphValues.qa_stack_bar_data[0]['valueDict'] = {};
+                        graphFactory.plot_solutions_graph(binding, $scope.data.qa.overview.graphValues)
+                    };
 
-                $q.all([
-                    DataService.refresh('solution', $scope.data.user, $scope.data.apikey).get({
-                        'solutiontag__name': tag}).$promise
-                ]).then(function([solution]) {
                     $q.all([
-                        DataService.refresh('testcaseinstance', $scope.data.user, $scope.data.apikey).query({
-                            'build__pipeline__solution__solutiontag__name': tag,
-                            'testcase__testcaseclass__testframework__name': 'pipeline_deploy',
-                            'limit':1}).$promise
-                    ]).then(function([latest_pipeline_tci]) {
-                        $scope.data.qa.overview.tablevalues[tag].deploystatus = latest_pipeline_tci[0].testcaseinstancestatus.name;
-                        var latest_pipeline = latest_pipeline_tci[0].build.pipeline
-                        $scope.data.qa.overview.tablevalues[tag].date = latest_pipeline.completed_at != null ? latest_pipeline.completed_at : "In progress";
-                        $scope.data.qa.overview.tablevalues[tag].testrun = latest_pipeline.uuid;
-                        $scope.data.qa.overview.tablevalues[tag].openstackversion = (latest_pipeline.versionconfiguration != null) ? latest_pipeline.versionconfiguration.openstackversion.name : "Unknown";
-                        $scope.data.qa.overview.tablevalues[tag].ubuntuversion = (latest_pipeline.versionconfiguration != null) ? latest_pipeline.versionconfiguration.ubuntuversion.name : "Unknown";
+                        DataService.refresh('solution', $scope.data.user, $scope.data.apikey).get({
+                            'solutiontag__name': tag}).$promise
+                    ]).then(function([solution]) {
                         $q.all([
-                            DataService.refresh('productundertest', $scope.data.user, $scope.data.apikey).get({
-                                'machineconfigurations__units__jujuservicedeployment__pipeline__uuid': latest_pipeline.uuid,
-                                'producttype__name': 'maas'}).$promise
-                        ]).then(function([maas_productundertest]) {
-                            $scope.data.qa.overview.tablevalues[tag].maasversion = maas_productundertest.objects[0].name;
-                        });
-                        $q.all([
-                            DataService.refresh('productundertest', $scope.data.user, $scope.data.apikey).get({
-                                'machineconfigurations__units__jujuservicedeployment__pipeline__uuid': latest_pipeline.uuid,
-                                'producttype__name': 'juju'}).$promise
-                        ]).then(function([juju_productundertest]) {
-                            $scope.data.qa.overview.tablevalues[tag].jujuversion = juju_productundertest.objects[0].name;
+                            DataService.refresh('testcaseinstance', $scope.data.user, $scope.data.apikey).query({
+                                'build__pipeline__solution__solutiontag__name': tag,
+                                'testcase__testcaseclass__testframework__name': 'pipeline_deploy',
+                                'limit':1}).$promise
+                        ]).then(function([latest_pipeline_tci]) {
+                            if (latest_pipeline_tci.length) {
+                                $scope.data.qa.overview.tablevalues[tag].deploystatus = latest_pipeline_tci[0].testcaseinstancestatus.name;
+                                var latest_pipeline = latest_pipeline_tci[0].build.pipeline
+                                $scope.data.qa.overview.tablevalues[tag].date = latest_pipeline.completed_at != null ? latest_pipeline.completed_at : "In progress";
+                                $scope.data.qa.overview.tablevalues[tag].testrun = latest_pipeline.uuid;
+                                $scope.data.qa.overview.tablevalues[tag].openstackversion = (latest_pipeline.versionconfiguration != null) ? latest_pipeline.versionconfiguration.openstackversion.name : "Unknown";
+                                $scope.data.qa.overview.tablevalues[tag].ubuntuversion = (latest_pipeline.versionconfiguration != null) ? latest_pipeline.versionconfiguration.ubuntuversion.name : "Unknown";
+                                $q.all([
+                                    DataService.refresh('productundertest', $scope.data.user, $scope.data.apikey).get({
+                                        'machineconfigurations__units__jujuservicedeployment__pipeline__uuid': latest_pipeline.uuid,
+                                        'producttype__name': 'maas'}).$promise
+                                ]).then(function([maas_productundertest]) {
+                                    $scope.data.qa.overview.tablevalues[tag].maasversion = maas_productundertest.objects[0].name;
+                                });
+                                $q.all([
+                                    DataService.refresh('productundertest', $scope.data.user, $scope.data.apikey).get({
+                                        'machineconfigurations__units__jujuservicedeployment__pipeline__uuid': latest_pipeline.uuid,
+                                        'producttype__name': 'juju'}).$promise
+                                ]).then(function([juju_productundertest]) {
+                                    $scope.data.qa.overview.tablevalues[tag].jujuversion = juju_productundertest.objects[0].name;
+                                });
+                            };
                         });
                     });
+
                 });
             });
         };
@@ -152,15 +138,16 @@ app.controller('qaOverviewController', [
         function updatePlotAndTableValues() {
             $scope.data.plot_data_loading = true;
             updateSearch();
-            active_filters = Common.generateActiveFilters($scope, 'pipeline');
+            active_filters = FilterFactory.generateActiveFilters($scope, 'pipeline');
             if ($scope.data.qa.deployedByAutopilot) {
                 //TODO: Once we record autopilot as a product, we can include it in the active_filters here for when deployedByAutopilot is true.
             };
             $q.all([$scope.data.qa.solutiontags.$promise]).then(function([solutiontags]) {
-                for (var idx in solutiontags.objects) {
+                var sortedSolTags = Common.orderArray(solutiontags.objects, 'name', null);
+                for (var idx in sortedSolTags) {
                     plotSolutionsGraph(
                         solutiontags.objects[idx],
-                        Common.fetchTestDataForJobname(
+                        FilterFactory.fetchTestDataForJobname(
                             'pipeline_deploy', $scope, solutiontags.objects[idx].name, true));
                 };
                 $scope.data.plot_data_loading = false
@@ -187,7 +174,7 @@ app.controller('qaOverviewController', [
             "start_date": '24 Hours Ago',
             "finish_date": 'Now',
         };
-        $scope.data.qa.search.individualFilters = Common.individual_filters();
+        $scope.data.qa.search.individualFilters = FilterFactory.individual_filters();
         // set the first search to 24 hours
         // if not doing that run update() instead to apply the above changes
         if($scope.data.qa.search.search == "") {
@@ -196,10 +183,7 @@ app.controller('qaOverviewController', [
         }
 
         $scope.data = getMetadata($scope);
-
-        $scope.data.qa.getLogoURL = function(svg) {
-            return Common.getLogoURL(svg)
-        };
+        $scope.data.getLogoURL = function(svg) { return Common.getLogoURL(svg) };
 
         $scope.data.qa.overview = {}
         $scope.data.qa.overview.solutions = {};

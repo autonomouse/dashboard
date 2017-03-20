@@ -1,7 +1,7 @@
 var app = angular.module('weebl');
 app.controller('testRunController', [
-    '$scope', '$q', '$rootScope', '$routeParams', 'data', 'DataService', 'Common',
-    function($scope, $q, $rootScope, $routeParams, data, DataService, Common) {
+    '$scope', '$q', '$rootScope', '$routeParams', 'data', 'DataService', 'Common', 'FilterFactory',
+    function($scope, $q, $rootScope, $routeParams, data, DataService, Common, FilterFactory) {
 
         for (var datum in $scope.data) {
             data[datum] = $scope.data[datum]
@@ -109,15 +109,12 @@ app.controller('testRunController', [
                     replaceZeroesWithEmptyString(abort)]
         };
 
-        $scope.data.colourStatus = function(status) {
-            status == "success" ? colour = "green" : status == "unknown" ? colour = "gray" : colour = "red";
-            return colour;
-        };
+        $scope.data.colourStatus = Common.colourStatus;
 
         function getIndividualTestResults(jobname, jobstatus) {
             if (angular.isUndefined($scope.data.test_results[jobname])) $scope.data.test_results[jobname] = {};
             var detail_params = {'build__pipeline__uuid': $scope.data.testRunId, 'build__jobtype__name': jobname};
-            var meta_params = Common.metaWith(detail_params, true);
+            var meta_params = FilterFactory.metaWith(detail_params, true);
 
             // Get numbers of tests that passed, failed, etc...
             $q.all([
