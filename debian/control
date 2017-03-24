@@ -19,7 +19,6 @@ Depends:
  ${misc:Depends},
  ${python3:Depends},
  gunicorn3,
- libjs-yui,
  libjs-yui3-min,
  npm,
  pandoc,
