@@ -150,19 +150,21 @@ BLOCK_STORAGES = {choice: ['cinder-vnx', 'cinder']
                   for choice in BLOCK_STORAGE_CHOICES}
 COMPUTES = {choice: ['nova-cloud-controller', 'nova-compute']
             for choice in COMPUTE_CHOICES}
-MAASVERSIONS = {choice: ['maas'] for choice in MAASVERSION_CHOICES}
-JUJUVERSIONS = {choice: ['juju'] for choice in JUJUVERSION_CHOICES}
 
 PRODUCT_TYPES = {
     'sdn': SDNS,
     'imagestorage': IMAGE_STORAGES,
     'database': DATABASES,
     'compute': COMPUTES,
-    'blockstorage': BLOCK_STORAGES,
-    'maas': MAASVERSIONS,
-    'juju': JUJUVERSIONS
+    'blockstorage': BLOCK_STORAGES
 }
 
+MAAS_AND_JUJU = {
+    'maas': MAASVERSION_CHOICES,
+    'juju': JUJUVERSION_CHOICES
+}
+
+TOP_LEVEL_PRODUCTS = ['sdn', 'imagestorage', 'database', 'compute', 'blockstorage']
 
 SW_PRODUCTS = set(itertools.chain.from_iterable(
     [choices.keys() for choices in PRODUCT_TYPES.values()]))
@@ -252,11 +254,15 @@ ENUM_MAPPINGS = [
     (models.TargetFileGlob, TARGET_FILES, 'glob_pattern'),
     (models.ProductUnderTest, HARDWARE_COMPONENTS, 'name'),
     (models.ProductUnderTest, SW_PRODUCTS, 'name'),
+    (models.ProductUnderTest, MAASVERSION_CHOICES, 'name'),
+    (models.ProductUnderTest, JUJUVERSION_CHOICES, 'name'),
     (models.Vendor, set(VENDORS.values()), 'name'),
     (models.Report, set(VENDORS.values()), 'name'),
     (models.Machine, MACHINE_NAMES, 'hostname'),
     (models.JujuService, SERVICES, 'name'),
     (models.ProductType, PRODUCT_TYPES.keys(), 'name'),
+    (models.ProductType, MAAS_AND_JUJU.keys(), 'name'),
+    (models.ProductType, ['hardware'], 'name'),
     (models.Charm, CHARMS, 'charm_source_url'),
 ]
 
@@ -278,6 +284,13 @@ OBJECT = [
     'restart networking',
     'end process',
     'restart charm',
+]
+
+
+SOLUTIONTAG_CHOICES = [
+    'stable',
+    'custom1',
+    'custom2',
 ]
 
 
@@ -321,15 +334,21 @@ def populate_vendors():
             productundertest.save()
 
 
+def make_product(PUT_keys, producttype):
+    for productundertest in PUT_keys:
+        product = get_or_create(models.ProductUnderTest, name=productundertest)
+        product.producttype = producttype
+        product.save()
+
 def populate_producttypes():
     for producttype in models.ProductType.objects.all():
-        producttype.toplevel = True
+        producttype.toplevel = True if producttype.name in TOP_LEVEL_PRODUCTS else False
         producttype.save()
-        for productundertest in PRODUCT_TYPES[producttype.name].keys():
-            product = get_or_create(models.ProductUnderTest,
-                                    name=productundertest)
-            product.producttype = producttype
-            product.save()
+        PRODUCTUNDERTESTS = PRODUCT_TYPES.get(producttype.name)
+        if PRODUCTUNDERTESTS is None:
+            make_product(HARDWARE_COMPONENTS, producttype)
+        else:
+            make_product(PRODUCTUNDERTESTS.keys(), producttype)
 
 
 def make_environment():
@@ -345,7 +364,7 @@ def make_jenkins():
     models.Jenkins(environment=models.Environment.objects.first(),
                    servicestatus=models.ServiceStatus.objects.get(name='up'),
                    external_access_url='https://oil-jenkins.canonical.com/'
-                   ).save()
+                  ).save()
 
 
 def make_build_executor():
@@ -354,7 +373,7 @@ def make_build_executor():
 
     models.BuildExecutor(name='unknown',
                          jenkins=models.Jenkins.objects.first(),
-                         ).save()
+                        ).save()
 
 
 def make_infrastructure():
@@ -395,6 +414,18 @@ def get_random_machine():
 def get_random_hw_productundertest():
     product = random.choice(HARDWARE_COMPONENTS)
     return models.ProductUnderTest.objects.get(name=product)
+
+
+def get_random_maas_and_juju_versions():
+    maas = random.choice(MAAS_AND_JUJU['maas'])
+    maas_PUT, maas_created = models.ProductUnderTest.objects.get_or_create(name=maas)
+    maas_PUT.producttype = models.ProductType.objects.get(name='maas')
+    maas_PUT.save()
+    juju = random.choice(MAAS_AND_JUJU['juju'])
+    juju_PUT, juju_created = models.ProductUnderTest.objects.get_or_create(name=juju)
+    juju_PUT.producttype = models.ProductType.objects.get(name='juju')
+    juju_PUT.save()
+    return (maas_PUT, juju_PUT)
 
 
 def make_pipeline_sw_choices():
@@ -699,7 +730,7 @@ def deploy_services(pipeline_uuid, machineconfigs):
             unit.save()
 
 
-def configure_machines():
+def configure_machines(maas, juju):
     machineconfigs = []
     for machine in models.Machine.objects.all():
         hardware = get_random_hw_productundertest()
@@ -707,27 +738,40 @@ def configure_machines():
             machine=machine)
         machineconfiguration.save()
         machineconfiguration.productundertests.add(hardware)
+        machineconfiguration.productundertests.add(maas)
+        machineconfiguration.productundertests.add(juju)
         machineconfiguration.save()
         machineconfigs.append(machineconfiguration)
     return machineconfigs
 
 
-def make_pipelines(num_pipelines, machineconfigs):
+def make_pipelines(num_pipelines, machineconfigs, num_repeats=3):
     current_count = models.Pipeline.objects.count()
+    solutiontags = [xxx for xxx in SOLUTIONTAG_CHOICES] * num_repeats
+    num_solutions = num_solutions = len(solutiontags)
+    add_solutions_to = random.sample(range(1, num_pipelines), num_solutions)
     for i in range(current_count, num_pipelines):
         pipeline = make_pipeline()
         deploy_services(pipeline, machineconfigs)
         make_builds(pipeline)
+        if i in add_solutions_to:
+            tag_name = solutiontags[add_solutions_to.index(i)]
+            [solution_tag, st_created] = models.SolutionTag.objects.get_or_create(name=tag_name)
+            [solution, s_created] = models.Solution.objects.get_or_create(
+                solutiontag=solution_tag, cdo_checksum=solution_tag)
+            pipeline.solution = solution
+            pipeline.save()
 
 
 def populate_data(num_bugs, num_pipelines):
     populate_enum_objects()
     populate_ubuntu_versions()
+    (maas, juju) = get_random_maas_and_juju_versions()
     populate_producttypes()
     populate_vendors()
     make_infrastructure()
     make_bugs(num_bugs)
-    machineconfigs = configure_machines()
+    machineconfigs = configure_machines(maas, juju)
     make_pipelines(num_pipelines, machineconfigs)
 
 

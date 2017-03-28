@@ -329,7 +329,7 @@ class SolutionTagResource(CommonResource):
 class SolutionResource(CommonResource):
     """API Resource for 'Solution' model. """
 
-    solutiontag = ToOneField(
+    solutiontag = ForeignKey(
         SolutionTagResource, 'solutiontag', full=True)
 
     class Meta(CommonMeta):
@@ -349,7 +349,8 @@ class PipelineResource(CommonResource):
         BuildExecutorResource, 'buildexecutor', use_in='detail')
     solution = ForeignKey(SolutionResource, 'solution', full_list=True)
     versionconfiguration = ForeignKey(
-        VersionConfigurationResource, 'versionconfiguration', use_in='detail')
+        VersionConfigurationResource, 'versionconfiguration', full_list=True,
+        full_detail=True)
     configurationchoices = ToOneField(
         'oilserver.api.resources.ConfigurationChoicesResource',
         'configurationchoices',

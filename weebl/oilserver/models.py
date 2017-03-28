@@ -406,7 +406,9 @@ class Solution(TimeStampedBaseModel):
         max_length=255,
         unique=True,
         help_text="MD5 checksum used by CDO QA to identify this solution.")
-    solutiontag = models.OneToOneField(
+    # A solution will only ever have one tag, as the name of the tag is
+    # included in the cdo_checksum generation to make sure they are unique:
+    solutiontag = models.ForeignKey(
         SolutionTag,
         null=True,
         blank=True,
