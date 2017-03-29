@@ -62,32 +62,75 @@ class CommonResource(ModelResource):
         return None
 
     def build_filters(self, filters=None, ignore_bad_filters=True):
-        def build_Q_from_query(query_dict):
-            return Q(**super(CommonResource, self).build_filters(query_dict))
-
         if filters is None:  # if you don't pass any filters at all
             filters = {}
 
         custom_filters = {}
         for filter_, value in dict(filters).items():
-            if '|' in filter_:
-                custom_queries = [build_Q_from_query({query: ','.join(value)})
-                                  for query in filter_.split('|')]
-                custom_filters[filter_] = reduce(operator.or_, custom_queries)
+            if '|' in filter_ or filter_.endswith('__mexact'):
                 del filters[filter_]
+                custom_filters[filter_] = value
         orm_filters = super(CommonResource, self).build_filters(
             filters, ignore_bad_filters)
         orm_filters.update(custom_filters)
         return orm_filters
 
+    def apply_or_filters(self, filter_, value):
+        """or filters have a filters separated by a '|' and the value must
+        equal one of the filters.
+
+        We build an Q object made from an OR query and return it. This should
+        be processed with the same filter call as other normal filters.
+        """
+        def build_Q_from_query(query_dict):
+            return Q(**super(CommonResource, self).build_filters(query_dict))
+
+        custom_queries = [build_Q_from_query({query: ','.join(value)})
+                          for query in filter_.split('|')]
+        return reduce(operator.or_, custom_queries)
+
+    def apply_mexact_filters(self, objects, mexact_filters):
+        """mexact filters are given a list and return objects where the list is
+        exactly equal to the given items, they end with '__mexact'.
+
+        This therefore compares that there are the same number of elements in
+        the list and that it contains all items.
+        """
+        if not mexact_filters:
+            return objects
+
+        # remove our __mexact trailing comparator from the filter key to get
+        # the bare field to filter against
+        mexact_filters = {k.rsplit('__mexact', 1)[0]: v
+                          for k, v in mexact_filters.items()}
+        # Add all annotations to get the number of elements, and this must be
+        # done first: https://docs.djangoproject.com/en/1.10/topics/db
+        # /aggregation/#order-of-annotate-and-filter-clauses
+        objects = objects.annotate(*[Count(mexact)
+                                     for mexact in mexact_filters])
+        # ensure the count is the same and that all values are included, do
+        # these in separate filter calls to ensure that all are true, but the
+        # objects at the end can be different: https://docs.djangoproject.com/
+        # en/1.10/topics/db/queries/#spanning-multi-valued-relationships
+        for mexact, values in mexact_filters.items():
+            objects = objects.filter(**{mexact + '__count': len(values)})
+            for value in values:
+                objects = objects.filter(**{mexact: value})
+        return objects
+
     def apply_filters(self, request, applicable_filters):
         querysets = []
+        mexacts = {}
         for filter_, value in dict(applicable_filters).items():
             if '|' in filter_:
-                querysets.append(value)
                 del applicable_filters[filter_]
-        return self.get_object_list(request).filter(
-            *querysets, **applicable_filters).distinct()
+                querysets.append(self.apply_or_filters(filter_, value))
+            elif filter_.endswith('__mexact'):
+                del applicable_filters[filter_]
+                mexacts[filter_] = value
+        objects = self.get_object_list(request).filter(*querysets,
+                                                       **applicable_filters)
+        return self.apply_mexact_filters(objects, mexacts).distinct()
 
 
 class EnvironmentResource(CommonResource):
