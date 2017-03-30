@@ -219,7 +219,7 @@ var plot_solutions_graph = function(scope, graphValues) {
             }
         };
         scope.qa_stack_bar_options = qa_stack_bar_options;
-        graphValues.qa_stack_bar_data[0].values = Common.orderArray(graphValues.qa_stack_bar_data[0].values, 'label', null);                        
+        graphValues.qa_stack_bar_data[0].values = Common.orderArray(graphValues.qa_stack_bar_data[0].values, 'label', null);
         scope.qa_stack_bar_data = graphValues.qa_stack_bar_data;
     };
     updateSolutionsChartData(graphValues);

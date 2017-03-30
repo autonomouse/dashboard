@@ -168,20 +168,59 @@ app.controller('successRateController', [
 
         function plotStatsGraph() {
             $q.all([$scope.data.job_details.$promise]).then(function([job_details]) {
-                var queue = [$scope.data.graphValues.total.$promise, $scope.data.graphValues.pipeline_total.$promise];
+                var queue = [$scope.data.graphValues.total.$promise,
+                             $scope.data.graphValues.pipeline_total.$promise];
                 angular.forEach(Common.getJobsList(job_details, true), function(jobname){
-                    if (!angular.isUndefined($scope.data.graphValues[jobname].pass))
+                    if (angular.isDefined($scope.data.graphValues[jobname].pass))
                         queue.push($scope.data.graphValues[jobname].pass.$promise);
-                    if (!angular.isUndefined($scope.data.graphValues[jobname].jobtotal))
+                    if (angular.isDefined($scope.data.graphValues[jobname].jobtotal))
                         queue.push($scope.data.graphValues[jobname].jobtotal.$promise);
-                    if (!angular.isUndefined($scope.data.graphValues[jobname].skip))
+                    if (angular.isDefined($scope.data.graphValues[jobname].skip))
                         queue.push($scope.data.graphValues[jobname].skip.$promise);
                 });
                 $q.all(queue).then(function(queue) {
-                    if (Common.checkAllInQueueIsAreResolved(queue)) {
+                    if (Common.checkAllInQueueAreResolved(queue)) {
                         jobDetails = Common.makeJobDetailsDict(job_details);
                         graphFactory.plot_stats_graph(binding, $scope.data.graphValues, jobDetails);
                         $scope.data.plot_data_loading = false;
+
+                        /*
+                        FIXME: The following requires a lot of if statements for now. They can be removed once Common.checkAllInQueueAreResolved has been updated.
+                        See the comment in checkAllInQueueAreResolved for the full explaination.
+                        */
+
+                        console.log('----------------------------');
+                        console.log("Stats from " +
+                                    $scope.data.results.search.filters["start_date"][0].slice(1) +
+                                    " to " + $scope.data.results.search.filters["finish_date"][0].slice(1) +
+                                    ":");
+                        if (angular.isDefined($scope.data.graphValues.pipeline_deploy.jobtotal.meta))
+                            console.log("deploy total: " +
+                                    $scope.data.graphValues.pipeline_deploy.jobtotal.meta.total_count);
+                        if (angular.isDefined($scope.data.graphValues.pipeline_deploy.pass.meta))
+                            console.log("deploy pass: " +
+                                    $scope.data.graphValues.pipeline_deploy.pass.meta.total_count);
+                        if (angular.isDefined($scope.data.graphValues.pipeline_prepare.jobtotal.meta))
+                            console.log("prepare total: " +
+                                    $scope.data.graphValues.pipeline_prepare.jobtotal.meta.total_count);
+                        if (angular.isDefined($scope.data.graphValues.pipeline_prepare.pass.meta))
+                            console.log("prepare pass: " +
+                                    $scope.data.graphValues.pipeline_prepare.pass.meta.total_count);
+                        if (angular.isDefined($scope.data.graphValues.test_bundletests.skip.meta))
+                            console.log('non-skipped bundletest (tempest) testcases = ' +
+                                    ($scope.data.graphValues.test_bundletests.jobtotal.meta.total_count -
+                                    $scope.data.graphValues.test_bundletests.skip.meta.total_count));
+                        if (angular.isDefined($scope.data.graphValues.test_bundletests.pass.meta))
+                            console.log("bundletest (tempest) passed testcases: " +
+                                    $scope.data.graphValues.test_bundletests.pass.meta.total_count);
+                        if (angular.isDefined($scope.data.graphValues.test_cloud_image.skip.meta))
+                            console.log('non-skipped cloud image testcases = ' +
+                                    ($scope.data.graphValues.test_cloud_image.jobtotal.meta.total_count -
+                                    $scope.data.graphValues.test_cloud_image.skip.meta.total_count));
+                        if (angular.isDefined($scope.data.graphValues.test_cloud_image.pass.meta))
+                            console.log("cloud image passed testcases: " +
+                                    $scope.data.graphValues.test_cloud_image.pass.meta.total_count);
+
                     } else {
                         console.log("Can not plot stats graph yet, queue not completely resolved...");
                     };
@@ -353,7 +392,6 @@ app.controller('successRateController', [
 
         $scope.data.first_batch();
         updateGraphValues();
-        plotStatsGraph();
         jobDetails = Common.makeJobDetailsDict($scope.data.job_details);
 
         $scope.data.colourStatus = Common.colourStatus;

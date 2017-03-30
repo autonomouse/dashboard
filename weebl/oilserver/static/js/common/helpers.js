@@ -139,7 +139,12 @@ app.factory('Common', ['$rootScope', '$location', 'DataService', function($rootS
         return logo_path + svg;
     };
 
-   function checkAllInQueueIsAreResolved(queue) {
+   function checkAllInQueueAreResolved(queue) {
+       /*
+       FIXME: This function checks is to see if all in the queue is resolved, but as it stands, the data cannot be retrieved without knowing what went in.
+       This is a problem because when using a $q.all().then(arguments) the arguments will be mor eup to date than what is in $scope.
+       This function needs to be changed to allow data to be retrieved from it, rather than relying on $scope.
+       */
        var everything_resolved = true;
        angular.forEach(queue, function(queued_item){
             if (!queued_item.$resolved) everything_resolved = false;
@@ -170,7 +175,7 @@ app.factory('Common', ['$rootScope', '$location', 'DataService', function($rootS
         abbreviateUUID: abbreviateUUID,
         arrayToObjectOnProperty: arrayToObjectOnProperty,
         colourStatus: colourStatus,
-        checkAllInQueueIsAreResolved: checkAllInQueueIsAreResolved,
+        checkAllInQueueAreResolved: checkAllInQueueAreResolved,
         dateSymbolToHours: dateSymbolToHours,
         getBundleImageLocation: getBundleImageLocation,
         getJobsList: getJobsList,
