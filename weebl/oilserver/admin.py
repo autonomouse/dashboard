@@ -328,6 +328,15 @@ class JujuServiceDeploymentAdmin(admin.ModelAdmin):
 admin.site.register(models.JujuServiceDeployment, JujuServiceDeploymentAdmin)
 
 
+class JenkinsAdmin(admin.ModelAdmin):
+    list_display = ['internal_access_url', 'external_access_url']
+
+    search_fields = ['internal_access_url', 'external_access_url']
+    ordering = ['internal_access_url', 'external_access_url']
+
+admin.site.register(models.Jenkins, JenkinsAdmin)
+
+
 # Register any remaining models that have not been explicitly registered:
 for model in get_models(get_app('oilserver')):
     try:

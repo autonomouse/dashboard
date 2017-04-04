@@ -110,6 +110,7 @@ app.controller('testRunController', [
         };
 
         $scope.data.colourStatus = Common.colourStatus;
+        $scope.data.joinURLs = Common.joinURLs;
 
         function getIndividualTestResults(jobname, jobstatus) {
             if (angular.isUndefined($scope.data.test_results[jobname])) $scope.data.test_results[jobname] = {};

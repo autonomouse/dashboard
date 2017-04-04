@@ -63,9 +63,9 @@ class Environment(TimeStampedBaseModel):
         null=True,
         help_text="Name of environment.")
     data_archive_url = models.URLField(
-        default=None,
+        default='',
         blank=True,
-        null=True,
+        null=False,
         help_text="A base URL to the data archive used.")
 
     def __str__(self):
@@ -131,12 +131,14 @@ class Jenkins(TimeStampedBaseModel):
     servicestatus = models.ForeignKey(ServiceStatus, related_name='jenkinses')
     external_access_url = models.URLField(
         unique=False,
+        blank=True,
+        null=True,
         help_text="A URL for external access to this server.")
     internal_access_url = models.URLField(
         unique=True,
         default=None,
-        blank=True,
-        null=True,
+        blank=False,
+        null=False,
         help_text="A URL used internally (e.g. behind a firewall) for access \
         to this server.")
     servicestatus_updated_at = models.DateTimeField(
@@ -144,7 +146,7 @@ class Jenkins(TimeStampedBaseModel):
         help_text="DateTime the service status was last updated.")
 
     def __str__(self):
-        return self.external_access_url
+        return self.internal_access_url
 
 
 class BuildExecutor(TimeStampedBaseModel):
@@ -576,8 +578,10 @@ class Build(TimeStampedBaseModel):
     @property
     def jenkins_build_url(self):
         url = self.pipeline.buildexecutor.jenkins.external_access_url
-        return "{}/job/{}/{}/".format(
-            url.rstrip('/'), self.jobtype.name, self.build_id)
+        if len(url):
+            return "{}/job/{}/{}/".format(
+                url.rstrip('/'), self.jobtype.name, self.build_id)
+        return None
 
 
 class JujuServiceDeployment(TimeStampedBaseModel):

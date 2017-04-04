@@ -171,6 +171,12 @@ app.factory('Common', ['$rootScope', '$location', 'DataService', function($rootS
         };
     };
 
+    function joinURLs(base, suffix) {
+        if (angular.isUndefined(base) || angular.isUndefined(suffix))
+            return;
+        return base.replace(/\/+$/, "") + "/" + suffix;
+    };
+
     return {
         abbreviateUUID: abbreviateUUID,
         arrayToObjectOnProperty: arrayToObjectOnProperty,
@@ -184,6 +190,7 @@ app.factory('Common', ['$rootScope', '$location', 'DataService', function($rootS
         initialise: initialise,
         makeJobDetailsDict: makeJobDetailsDict,
         orderJobsArray: orderJobsArray,
-        orderArray: orderArray
+        orderArray: orderArray,
+        joinURLs: joinURLs
     };
 }]);

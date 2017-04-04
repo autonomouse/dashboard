@@ -6,6 +6,10 @@
         <p>OpenStack Version: {$ (data.individual_testRun.versionconfiguration != null) ? data.individual_testRun.versionconfiguration.openstackversion.name : "Unknown"; $} </p>
         <p>Ubuntu Version: {$ (data.individual_testRun.versionconfiguration != null) ? data.individual_testRun.versionconfiguration.ubuntuversion.name : "Unknown"; $} </p>
         <p data-ng-show="data.individual_testRun.solution.solutiontag.name != null">Solution: {$ data.individual_testRun.solution.solutiontag.name $}</p>
+        <p data-ng-show="data.individual_testRun.buildexecutor.jenkins.environment.data_archive_url != ''">
+            <a href="{$ data.joinURLs(data.individual_testRun.buildexecutor.jenkins.environment.data_archive_url, data.testRunId) $}" class="external">
+                Link to artifacts repository for this test run</a>
+        </p>
     </div>
 
     <div id="content" class="five-col last-col">
@@ -135,7 +139,10 @@
                             {$ data.job_build_outcome[job].jobtype_description; $}
                         </td>
                         <td class="table-listing__cell">
-                            <a href="{$ data.job_build_outcome[job].jenkinsBuildUrl; $}" class="external">{$ data.job_build_outcome[job].build_number; $}</a>
+                            <span data-ng-if="data.job_build_outcome[job].jenkinsBuildUrl">
+                                <a href="{$ data.job_build_outcome[job].jenkinsBuildUrl; $}" class="external">{$ data.job_build_outcome[job].build_number; $}</a>
+                            </span>
+                            <span data-ng-if="!data.job_build_outcome[job].jenkinsBuildUrl">{$ data.job_build_outcome[job].build_number; $}</span>
                         </td>
                         <td class="table-listing__cell">
                             <font color="{$ data.colourStatus(data.job_build_outcome[job].jobstatus); $}">{$ data.job_build_outcome[job].jobstatus; $}</font>
