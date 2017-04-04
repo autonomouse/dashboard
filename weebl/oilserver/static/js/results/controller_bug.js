@@ -23,7 +23,7 @@ app.controller('bugController', [
         function getBugOccurrences() {
             console.log("Updating bug occurrence plot to use " + $scope.data.subfilterPlotForm.grouping + " data");
             params = {"bugtrackerbug__bug_number": $scope.data.individualBug.bugId,
-                "historical_bugoccurrences_grouping": $scope.data.subfilterPlotForm.grouping};
+                      "historical_bugoccurrences_grouping": $scope.data.subfilterPlotForm.grouping};
             $scope.data.individualBug.plotData = DataService.refresh(
                 'bug', $scope.data.user, $scope.data.apikey).get(params);
         };

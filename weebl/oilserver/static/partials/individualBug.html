@@ -1,4 +1,4 @@
-<h2 ng-show="data.individualBug.regex.objects[0].bug.uuid">
+<h2 data-ng-show="data.individualBug.regex.objects[0].bug.uuid">
     Bug details for "{$ data.individualBug.regex.objects[0].bug.summary $}"
     <a href="/admin/oilserver/bug/?q={$ data.individualBug.regex.objects[0].bug.uuid $}"> (edit)</a>
 </h2>
@@ -7,6 +7,16 @@
     {$ data.individualBug.bugId $}</a>
 </p>
 <p><span data-ng-show="data.individualBug.regex.objects[0].bug.bugtrackerbug.project.name">Project: {$ data.individualBug.regex.objects[0].bug.bugtrackerbug.project.name $}</span></p>
+<p data-ng-show="data.individualBug.regex.objects[0].bug.bugtrackerbug.project.name">Affected Products:
+    <span data-ng-if="data.individualBug.regex.objects[0].bug.bugtrackerbug.project.associated_products.length >= 1" data-ng-repeat="product in data.individualBug.regex.objects[0].bug.bugtrackerbug.project.associated_products">
+        {$ $first ? '' : $last ? ' and ' : ', ' $}{$ product $}
+    </span>
+    <span data-ng-if="data.individualBug.regex.objects[0].bug.bugtrackerbug.project.associated_products.length === 0">
+        No products have been associated with the {$ data.individualBug.regex.objects[0].bug.bugtrackerbug.project.name $} project
+    </span>
+</p>
+
+
 <p><span data-ng-show="data.individualBug.regex.objects[0].bug.bugtrackerbug.created_at">Weebl aware of this bug since: {$ data.humaniseDate(data.individualBug.regex.objects[0].bug.bugtrackerbug.created_at) $}</span></p>
 
 <!------------------------------------------------>
@@ -49,14 +59,14 @@
         '1': 'The following regular expression was used to identify this bug:',
         '2': 'The following regular expressions were used to identify this bug:'}">
     </ng-pluralize></p>
-    <div class="row" ng-repeat="regex in data.individualBug.regex.objects">
+    <div class="row" data-ng-repeat="regex in data.individualBug.regex.objects">
         <h2>"{$ regex.regex $}"</h2>
         <p>This regular expression has been matched on {$ data.individualBug.regex.objects[0].bug.occurrence_count $}<ng-pluralize count="data.individualBug.regex.objects[0].bug.occurrence_count" when="{
             '0': ' occasions.',
             '1': ' occasion ',
             'other': ' occasions, most recently '}">
         </ng-pluralize><span data-ng-show="data.individualBug.regex.objects[0].bug.last_seen">on {$ data.humaniseDate(data.individualBug.regex.objects[0].bug.last_seen) $}.</span></p></p>
-        <p>Targeted files: <span ng-repeat="targetfileglob in regex.targetfileglobs">{$ $first ? '' : $last ? ' and ' : ', ' $}{$ targetfileglob.glob_pattern $}</span></p>
+        <p>Targeted files: <span data-ng-repeat="targetfileglob in regex.targetfileglobs">{$ $first ? '' : $last ? ' and ' : ', ' $}{$ targetfileglob.glob_pattern $}</span></p>
     </div>
 </div>
 
@@ -76,7 +86,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr class="table-listing__row" ng-repeat="testRun in data.individualBug.testRuns.objects | orderBy:data.tabs.testRuns.predicate:data.tabs.testRuns.reverse">
+            <tr class="table-listing__row" data-ng-repeat="testRun in data.individualBug.testRuns.objects | orderBy:data.tabs.testRuns.predicate:data.tabs.testRuns.reverse">
                 <td class="table-listing__cell">
                     <a href="#/results/testRun/{$ testRun.uuid $}" title="{$ testRun.uuid $}">
                         {$ data.abbreviateUUID(testRun.uuid) $}

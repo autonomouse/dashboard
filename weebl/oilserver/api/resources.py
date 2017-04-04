@@ -25,6 +25,9 @@ ReverseOneField = utils.override_defaults(
 ReverseManyField = utils.override_defaults(
     fields.ToManyField,
     {'readonly': True, 'null': True, 'use_in': lambda _: False})
+ReverseManyIncludeURIField = utils.override_defaults(
+    fields.ToManyField,
+    {'readonly': True, 'null': True, 'use_in': 'all'})
 ForeignKey = utils.override_defaults(
     fields.ForeignKey,
     {'null': True, 'full': True, 'full_list': False})
@@ -211,17 +214,34 @@ class UbuntuVersionResource(CommonResource):
 class ProjectResource(CommonResource):
     """API Resource for 'Project' model. """
 
+    productundertests = ReverseManyIncludeURIField(
+        'oilserver.api.resources.ProductUnderTestResource',
+        'productundertests')
+    associated_products = fields.DictField(
+        'associated_products', readonly=True, null=True)
+
     class Meta(CommonMeta):
         queryset = models.Project.objects.all()
         filtering = {
             'uuid': ('exact',),
-            'name': ('exact',), }
+            'name': ('exact',),
+            'productundertests': ALL_WITH_RELATIONS, }
+
+    def dehydrate(self, bundle):
+        bundle = super(ProjectResource, self).dehydrate(bundle)
+        associated_products = []
+        for uri in bundle.data['productundertests']:
+            put_uuid = uri.rstrip('/').split('/')[-1]
+            put = models.ProductUnderTest.objects.get(uuid=put_uuid)
+            associated_products.append(put.producttype.name)
+        bundle.data['associated_products'] = list(set(associated_products))
+        return bundle
 
 
 class VendorResource(CommonResource):
     """API Resource for 'Vendor' model. """
 
-    productundertests = ReverseManyField(
+    productundertests = ReverseManyIncludeURIField(
         'oilserver.api.resources.ProductUnderTestResource',
         'productundertests')
 
@@ -264,9 +284,9 @@ class ReportResource(CommonResource):
     Use the reverse relation for report ui (just a link to resource, not full).
     """
 
-    productundertests = ReverseManyField(
+    productundertests = ReverseManyIncludeURIField(
         'oilserver.api.resources.ProductUnderTestResource',
-        'productundertests', use_in='all')
+        'productundertests')
 
     class Meta(CommonMeta):
         queryset = models.Report.objects.all()
