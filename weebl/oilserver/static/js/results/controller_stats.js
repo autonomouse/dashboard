@@ -206,17 +206,19 @@ app.controller('successRateController', [
                         if (angular.isDefined($scope.data.graphValues.pipeline_prepare.pass.meta))
                             console.log("prepare pass: " +
                                     $scope.data.graphValues.pipeline_prepare.pass.meta.total_count);
-                        if (angular.isDefined($scope.data.graphValues.test_bundletests.skip.meta))
+                        if (angular.isDefined($scope.data.graphValues.test_bundletests.jobtotal.meta) &&
+                            angular.isDefined($scope.data.graphValues.test_bundletests.skip.meta))
                             console.log('non-skipped bundletest (tempest) testcases = ' +
                                     ($scope.data.graphValues.test_bundletests.jobtotal.meta.total_count -
                                     $scope.data.graphValues.test_bundletests.skip.meta.total_count));
                         if (angular.isDefined($scope.data.graphValues.test_bundletests.pass.meta))
                             console.log("bundletest (tempest) passed testcases: " +
                                     $scope.data.graphValues.test_bundletests.pass.meta.total_count);
-                        if (angular.isDefined($scope.data.graphValues.test_cloud_image.skip.meta))
+                        if (angular.isDefined($scope.data.graphValues.test_cloud_image.jobtotal.meta) &&
+                            angular.isDefined($scope.data.graphValues.test_cloud_image.skip.meta))
                             console.log('non-skipped cloud image testcases = ' +
                                     ($scope.data.graphValues.test_cloud_image.jobtotal.meta.total_count -
-                                    $scope.data.graphValues.test_cloud_image.skip.meta.total_count));
+                                     $scope.data.graphValues.test_cloud_image.skip.meta.total_count));
                         if (angular.isDefined($scope.data.graphValues.test_cloud_image.pass.meta))
                             console.log("cloud image passed testcases: " +
                                     $scope.data.graphValues.test_cloud_image.pass.meta.total_count);
