@@ -4,20 +4,16 @@ from social.apps.django_app.default.models import UserSocialAuth
 from tastypie.models import ApiKey
 
 
-def create_admin_user(username, email):
-    if User.objects.filter(username=username).exists():
-        return User.objects.get(username=username)
-    user = User(username=username, email=email)
+def create_user(username, email, superuser=False):
+    user, _created = User.objects.get_or_create(username=username, email=email)
     user.is_staff = True
-    user.is_superuser = True
+    user.is_superuser = superuser
     user.save()
     return user
 
 
 def create_social_user(user, provider, uid):
-    if UserSocialAuth.objects.filter(user=user).exists():
-        return UserSocialAuth.objects.get(user=user)
-    socialuser = UserSocialAuth(user=user)
+    socialuser, _created = UserSocialAuth.objects.get_or_create(user=user)
     socialuser.provider = provider
     socialuser.uid = uid
     socialuser.save()
@@ -25,11 +21,7 @@ def create_social_user(user, provider, uid):
 
 
 def create_apikey(user, newkey):
-    if ApiKey.objects.filter(user=user).exists():
-        apikey = ApiKey.objects.get(user=user)
-    else:
-        apikey = ApiKey(user=user)
-        apikey.id = apikey.user_id
+    apikey, _created = ApiKey.objects.get_or_create(user=user)
     apikey.key = newkey
     apikey.save()
     return apikey
@@ -56,6 +48,7 @@ class Command(BaseCommand):
         parser.add_argument('provider')
         parser.add_argument('uid')
         parser.add_argument('apikey')
+        parser.add_argument('is_superuser')
 
     def handle(self, *args, **options):
         try:
@@ -64,14 +57,16 @@ class Command(BaseCommand):
             provider = options['provider']
             uid = options['uid']
             apikey = options['apikey']
+            is_superuser = options.get('is_superuser', False)
         except KeyError:
             msg = 'Please supply username, email, provider, uid, '
-            msg += 'and apikey, e.g. '
+            msg += 'apikey and is_superuser, e.g. '
             msg += 'preseed_default_superuser "CanonicalOilCiBot" '
             msg += '"oil-ci-bot@canonical.com" "ubuntu" "oil-ci-bot" '
-            msg += '"xxxxxxxxxxxxxxxxxxxxxxxxxxxx"'
+            msg += '"xxxxxxxxxxxxxxxxxxxxxxxxxxxx", "False"'
             self.feedback(msg)
             raise
-        user = create_admin_user(username, email)
+        superuser = True if is_superuser == 'True' else False
+        user = create_user(username, email, superuser)
         create_social_user(user, provider, uid)
         apikey = create_apikey(user, apikey)
