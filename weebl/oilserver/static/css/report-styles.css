@@ -225,3 +225,28 @@ header .report {
     font-size: 16px;
     padding: 10px 20px;
 }
+
+.report .shadow {
+  border-radius: 0;
+  box-shadow: 0 0 0 1px #d9d9d9;
+}
+
+.report .fail {
+    background: url(/static/img/reports/error-icon.png) no-repeat scroll 0px 5px;
+}
+
+.report .pass {
+    background: url(/static/img/reports/pass-icon.png) no-repeat scroll 0px 5px;
+}
+
+.report .skip {
+    background: url(/static/img/reports/skip-icon.png) no-repeat scroll 0px 5px;
+}
+
+.report .img-margin {
+    margin-left: 20px;
+}
+
+.report .overflow-wrap{
+    overflow-wrap: break-word;
+}

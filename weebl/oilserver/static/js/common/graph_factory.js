@@ -1,16 +1,94 @@
 app.factory('graphFactory', ['Common', function(Common) {
 
+var to_fraction = function(wedge, total) {
+    if (total === 0 || isNaN(total)) return 0;
+    return wedge / total;
+}
+
 var calcPercentage = function calcPercentage(value, total, number_of_tests_skipped) {
     var d3formatting = ',.2f';
     if (angular.isUndefined(number_of_tests_skipped))  number_of_tests_skipped = 0;
     total = total - number_of_tests_skipped;
-    var percentage = d3.format(d3formatting)(((value / total) * 100))
-    if (percentage == "NaN"){
-        return d3.format(d3formatting)(0);
-    } else {
-        return percentage;
-    }
+    return d3.format(d3formatting)((to_fraction(value, total) * 100));
 };
+
+var reportColors = {
+    pass: '#38B44A',
+    skip: '#ECA918',
+    fail: '#DF382C',
+    deployFail: '#D92511',
+    prepareFail: '#8911D9',
+    testFail: '#11C5D9',
+    tested: '#61D911'
+};
+
+var extendPieChart = function(extras) {
+    if (angular.isUndefined(extras)) extras = {};
+    var pieGraph = {
+        type: 'pieChart',
+        x: function(d){return d.key;},
+        y: function(d){return d.value;},
+        showLabels: false,
+        showLegend: false,
+        growOnHover: false,
+        duration: 500,
+        legend: {
+            width: 250,
+            height: 200,
+            maxKeyLength: 1000,
+            rightAlign: false,
+            margin: {
+                right: 0,
+                left: -10,
+            }
+        },
+        legendPosition: 'right',
+    };
+    var value = {
+        chart: angular.extend({}, pieGraph, extras),
+    };
+    return value;
+}
+
+
+var extendBarChart = function(extras) {
+    if (angular.isUndefined(extras)) extras = {};
+    var barGraph = {
+        type: 'multiBarChart',
+        stacked: true,
+        clipEdge: true,
+        showControls: false,
+        showLabels: false,
+        showLegend: false,
+        growOnHover: false,
+        duration: 500,
+        width: 800,
+        height: 300,
+        yAxis: {
+            ticks: 4,
+            tickFormat: function(d){
+                return d3.format(".0%")(d);
+            }
+        },
+        legend: {
+            width: 200,
+            height: 200,
+            maxKeyLength: 1000,
+            margin: {
+                top: 2,
+                bottom: 0,
+                right: 0,
+                left: 0,
+            }
+        },
+        legendPosition: 'top',
+    };
+    var value = {
+        chart: angular.extend({}, barGraph, extras),
+    };
+    return value;
+}
+
 
 var plot_stats_graph = function(scope, graphValues, jobDetails) {
 

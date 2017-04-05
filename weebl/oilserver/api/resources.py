@@ -290,6 +290,7 @@ class ReportResource(CommonResource):
 
     class Meta(CommonMeta):
         queryset = models.Report.objects.all()
+        excludes = ['id', 'updated_at']
         filtering = {
             'uuid': ('exact',),
             'name': ('exact',), }
@@ -772,6 +773,9 @@ class TestCaseClassResource(CommonResource):
         ProductTypeResource, 'producttypes')
     reportsection = ForeignKey(
         ReportSectionResource, 'reportsection')
+    testcases = ReverseManyField(
+        'oilserver.api.resources.TestCaseResource',
+        'testcases')
 
     class Meta(CommonMeta):
         queryset = models.TestCaseClass.objects.all()
@@ -779,6 +783,9 @@ class TestCaseClassResource(CommonResource):
             'name': ('exact'),
             'uuid': ('exact'),
             'testframework': ALL_WITH_RELATIONS,
+            'reportsection': ALL_WITH_RELATIONS,
+            'producttypes': ALL_WITH_RELATIONS,
+            'testcases': ALL_WITH_RELATIONS,
         }
 
 
@@ -802,13 +809,17 @@ class TestCaseResource(CommonResource):
 
     testcaseclass = ForeignKey(
         TestCaseClassResource, 'testcaseclass')
+    testcaseinstances = ReverseManyField(
+        'oilserver.api.resources.TestCaseInstanceResource',
+        'testcaseinstances')
 
     class Meta(CommonMeta):
         queryset = models.TestCase.objects.all()
         filtering = {
-            'name': ('exact'),
+            'name': ALL,
             'uuid': ('exact'),
             'testcaseclass': ALL_WITH_RELATIONS,
+            'testcaseinstances': ALL_WITH_RELATIONS,
         }
 
 

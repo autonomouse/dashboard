@@ -305,7 +305,7 @@ app.controller('successRateController', [
         };
 
         $scope.generatePDF = function() {
-            $scope.data.pdf_content = angular.element("#content-view").html();
+            $scope.data.pdf_content = angular.element("#content-block").html();
         };
 
         // Sorts the table by predicate.

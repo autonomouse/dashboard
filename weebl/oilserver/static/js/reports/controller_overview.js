@@ -203,6 +203,14 @@ app.controller('overviewReportController', [
             $scope.data.plot_data_loading = true;
             $scope.data.reports.overview.reportPeriod = $scope.data.reports.search.filters["date"][0].slice(1);
             $scope.data.reports.overview.reportGroup = $scope.data.reports.search.filters["report"][0].slice(1);
+            var reports = Common.arrayToObjectOnProperty($scope.data.reports.metadata.reportGroups, 'name');
+            var created = reports[$scope.data.reports.overview.reportGroup];
+            if (angular.isDefined(created)) {
+                $scope.data.reports.overview.reportGroupStarted = new Date(created['created_at']);
+            }
+            else {
+                $scope.data.reports.overview.reportGroupStarted = '';
+            }
 
             expandableFilters = getFilters($scope.data.reports.search.filters);
             console.log('expandableFilters');

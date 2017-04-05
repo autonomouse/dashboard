@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="description" content="" />
+        <meta name="keywords" content="" />
+        <meta name="author" content="Canonical webteam" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>OIL Report</title>
+        {% include "css-conf.html" %}
+        <link rel="stylesheet" href="{{ STATIC_URL }}css/report-print-overrides.css" />
+        <link rel="stylesheet" href="{{ STATIC_URL }}css/report-print-detailed.css" />
+    </head>
+
+    <body>
+        <header class="report global" role="banner">
+            <h3>Ubuntu OpenStack Interoperability Lab</h3>
+            <a href="/">
+                <img src='static/img/reports/ubuntu.svg' />
+            </a>
+            <div class="line"></div>
+        </header>
+        <div id="content-block" class="report breakable">
+            {{ content|safe }}
+        </div>
+    </body>
+</html>

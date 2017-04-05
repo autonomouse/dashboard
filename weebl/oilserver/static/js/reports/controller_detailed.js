@@ -8,10 +8,25 @@ app.filter('keylength', function(){
         return Object.keys(input).length;
     }
 });
+app.filter('namedKey', function () {
+    return function (obj, keyname) {
+        if (!(angular.isObject(obj))) {
+            return obj;
+        }
+
+        keyname = keyname || '$key';
+        return Object.keys(angular.copy(obj)).map(function (key) {
+            if (obj.hasOwnProperty('$$hashKey')) {
+                Object.defineProperty(obj, '$$hashKey', {enumerable: false});
+            }
+            return Object.defineProperty(obj[key], keyname, { enumerable: false, value: key});
+        });
+    };
+});
 
 app.controller('detailedReportController', [
-    '$scope', '$q', 'SearchFactory', 'DataService', 'Common', 'keylengthFilter',
-    function($scope, $q, SearchFactory, DataService, Common, keylengthFilter) {
+    '$scope', '$q', '$sce', 'SearchFactory', 'DataService', 'Common', 'graphFactory', 'keylengthFilter', 'namedKeyFilter',
+    function($scope, $q, $sce, SearchFactory, DataService, Common, graphFactory, keylengthFilter, namedKeyFilter) {
         $scope = Common.initialise($scope);
         if(angular.isUndefined($scope.data.reports.search)) $scope.data.reports.search = new SearchFactory.Search();
         $scope.data.reports.search.init();
@@ -35,6 +50,9 @@ app.controller('detailedReportController', [
             'Last Year': 365,
             'All Time': null
         };
+
+        var colors = graphFactory.reportColors;
+        var to_fraction = graphFactory.to_fraction;
 
         var previouslyMunged = {};
 
@@ -183,20 +201,26 @@ app.controller('detailedReportController', [
             return bins;
         }
 
-        function testcaseSum(input1, input2) {
-            var output = input2;
-            keys = Object.keys(input1);
-            for (var keyIndex in keys) {
-                var key = keys[keyIndex];
-                if (!(key in output)) {
-                    output[key] = input1[key];
-                }
-                else {
-                    var valueKeys = Object.keys(output[key]);
-                    for (var valueKeyIndex in valueKeys) {
-                        var valueKey = valueKeys[valueKeyIndex];
-                        if (!isNaN(output[key][valueKey])) {
-                            output[key][valueKey] += input1[key][valueKey];
+        function testcaseSum(aggregate, input) {
+            var output = aggregate;
+            var testclassNames = Object.keys(input);
+            for (var testclassNameIndex in testclassNames) {
+                var testclassName = testclassNames[testclassNameIndex];
+                var testclass = input[testclassName];
+                var testNames = Object.keys(testclass);
+                for (var testNameIndex in testNames) {
+                    var testName = testNames[testNameIndex];
+                    var fullTestName = testclassName + '.' + testName;
+                    if (!(fullTestName in output)) {
+                        output[fullTestName] = testclass[testName];
+                    }
+                    else {
+                        var valueKeys = Object.keys(testclass[testName]);
+                        for (var valueKeyIndex in valueKeys) {
+                            var valueKey = valueKeys[valueKeyIndex];
+                            if (!isNaN(output[fullTestName][valueKey])) {
+                                output[fullTestName][valueKey] += testclass[testName][valueKey];
+                            }
                         }
                     }
                 }
@@ -205,20 +229,17 @@ app.controller('detailedReportController', [
         }
 
         function testcaseCategorize(input) {
-            var output = {failed: 0, skipped: 0, passed: 0, total: 0};
+            var output = {count: 0, failed: 0, skipped: 0, passed: 0, total: 0};
             keys = Object.keys(input);
             for (var keyIndex in keys) {
                 var key = keys[keyIndex];
-                output.total++;
-                if (input[key].numfailed > 0) {
-                    output.failed++;
+                if (!(key.endsWith('.setUpClass') || key.endsWith('.tearDownClass'))) {
+                    output.count++;
                 }
-                else if (input[key].numskipped > 0) {
-                    output.skipped++;
-                }
-                else if (input[key].numsuccess > 0) {
-                    output.passed++;
-                }
+                output.failed += input[key].numfailed;
+                output.skipped += input[key].numskipped;
+                output.passed += input[key].numsuccess;
+                output.total = output.failed + output.skipped + output.passed;
             }
             return output;
         }
@@ -233,9 +254,12 @@ app.controller('detailedReportController', [
                     var bin = bins[binIndex];
                     if (!(bin in output)) {
                         output[bin] = input[key];
+                        if (angular.isDefined(sumFunction)) {
+                            output[bin] = sumFunction({}, input[key]);
+                        }
                     }
                     else {
-                        if (!angular.isUndefined(sumFunction)) {
+                        if (angular.isDefined(sumFunction)) {
                             output[bin] = sumFunction(output[bin], input[key]);
                         }
                         else {
@@ -330,11 +354,11 @@ app.controller('detailedReportController', [
 
             $scope.data.reports.detailed.vendorExplanation = '';
             if (data.vendorExplanation.meta.total_count > 0) {
-                $scope.data.reports.detailed.vendorExplanation = data.vendorExplanation.objects[0].specific_summary;
+                $scope.data.reports.detailed.vendorExplanation = $sce.trustAsHtml(data.vendorExplanation.objects[0].specific_summary);
             }
             $scope.data.reports.detailed.monthlyExplanation = '';
             if (data.monthlyExplanation.meta.total_count > 0) {
-                $scope.data.reports.detailed.monthlyExplanation = data.monthlyExplanation.objects[0].overall_summary;
+                $scope.data.reports.detailed.monthlyExplanation = $sce.trustAsHtml(data.monthlyExplanation.objects[0].overall_summary);
             }
 
             var sumAttributes = ['numpipelines', 'numsuccess'];
@@ -352,8 +376,8 @@ app.controller('detailedReportController', [
                 fails.push(fail);
             }
             $scope.data.reports.detailed.serviceDeploymentGraph = [
-                {key: 'passed', color: '#38B44A', values: success},
-                {key: 'failed', color: '#DF382C', values: fails},
+                {key: 'passed', color: colors.pass, values: success},
+                {key: 'failed', color: colors.fail, values: fails},
             ];
 
             layout = ['producttypename', 'productundertestname'];
@@ -365,7 +389,7 @@ app.controller('detailedReportController', [
             layout = ['groupname', 'bug'];
             $scope.data.reports.detailed.bugInfo = sumOver(data.bugs.objects, layout, ['occurrences']);
 
-            layout = ['groupname', 'subgroupname', 'testcasename'];
+            layout = ['groupname', 'subgroupname', 'testcaseclassname', 'testcasename'];
             sumAttributes = ['numtestcases', 'numsuccess', 'numskipped', 'numfailed'];
             passthrough = ['testcaseclassname', 'bug'];
             $scope.data.reports.detailed.testcaseInfo = sumOver(data.testcases.objects, layout, sumAttributes, passthrough);
@@ -382,9 +406,7 @@ app.controller('detailedReportController', [
                 //make historical graphs
                 layout = ['date'];
                 sumAttributes = ['numpipelines', 'numdeployfail', 'numtestfail', 'numpreparefail'];
-                console.log(data.historicalPipelines.objects);
                 var historicalPipelines = sumBins(sumOver(data.historicalPipelines.objects, layout, sumAttributes), historicalBinify);
-                console.log(historicalPipelines);
                 var historicalPipelinesGraph = [];
                 for (var historicalIndex in $scope.data.reports.detailed.historicalPeriods) {
                     var period = $scope.data.reports.detailed.historicalPeriods[historicalIndex].name;
@@ -397,43 +419,46 @@ app.controller('detailedReportController', [
                     historicalPipelinesGraph.push(historicalPipelines[period]);
                 }
                 $scope.data.reports.detailed.historicalPipelinesGraph = [
-                    {key: 'Testing Completed', color: '#61D911', values: historicalPipelinesGraph.map(
-                        function(val) {return {x: val.x, y: val.numpassed};})},
-                    {key: 'Unable to power on hardware and deploy OpenStack initially', color: '#D92511',
+                    {key: 'Testing Completed', color: colors.tested, values: historicalPipelinesGraph.map(
+                        function(val) {return {x: val.x, y: to_fraction(val.numpassed, val.numpipelines)};})},
+                    {key: 'Unable to power on hardware and deploy OpenStack initially', color: colors.deployFail,
                      values: historicalPipelinesGraph.map(
-                        function(val) {return {x: val.x, y: val.numdeployfail};})},
-                    {key: 'Unable to install images and set up network', color: '#8911D9',
+                        function(val) {return {x: val.x, y: to_fraction(val.numdeployfail, val.numpipelines)};})},
+                    {key: 'Unable to install images and set up network', color: colors.prepareFail,
                      values: historicalPipelinesGraph.map(
-                        function(val) {return {x: val.x, y: val.numpreparefail};})},
-                    {key: 'Unable to start testing', color: '#11C5D9',
+                        function(val) {return {x: val.x, y: to_fraction(val.numpreparefail, val.numpipelines)};})},
+                    {key: 'Unable to start testing', color: colors.testFail,
                      values: historicalPipelinesGraph.map(
-                        function(val) {return {x: val.x, y: val.numtestfail};})},
+                        function(val) {return {x: val.x, y: to_fraction(val.numtestfail, val.numpipelines)};})},
                 ];
 
 
-                layout = ['date', 'testcasename'];
+                layout = ['date', 'testcaseclassname', 'testcasename'];
                 sumAttributes = ['numsuccess', 'numskipped', 'numfailed'];
                 // need to get # of testcases that are failed/skipped/passed
                 historicalTestcases = sumBins(sumOver(data.historicalTestcases.objects, layout, sumAttributes), historicalBinify, testcaseSum);
                 var historicalTestcasesGraph = [];
                 for (var historicalIndex in $scope.data.reports.detailed.historicalPeriods) {
                     var period = $scope.data.reports.detailed.historicalPeriods[historicalIndex].name;
-                    if (!angular.isUndefined(historicalTestcases[period])) {
+                    if (angular.isDefined(historicalTestcases[period])) {
                         historicalTestcases[period] = testcaseCategorize(historicalTestcases[period]);
-                        historicalTestcases[period].x = period + ' (' + historicalTestcases[period].total + ')';
+                        historicalTestcases[period].x = period + ' (' + historicalTestcases[period].count + ')';
                         historicalTestcasesGraph.push(historicalTestcases[period]);
+                    } else {
+                        var empty = {total: 0, passed: 0, skipped: 0, failed: 0, x: period + ' (0)'};
+                        historicalTestcasesGraph.push(empty);
                     }
                 }
                 testcaseCategorize(historicalTestcases)
                 $scope.data.reports.detailed.historicalTestcasesGraph = [
-                    {key: 'Passed', color: '#38B44A', values: historicalTestcasesGraph.map(
-                        function(val) {return {x: val.x, y: val.passed};})},
-                    {key: 'Skipped', color: '#ECA918',
+                    {key: 'Passed', color: colors.pass, values: historicalTestcasesGraph.map(
+                        function(val) {return {x: val.x, y: to_fraction(val.passed, val.total)};})},
+                    {key: 'Skipped', color: colors.skip,
                      values: historicalTestcasesGraph.map(
-                        function(val) {return {x: val.x, y: val.skipped};})},
-                    {key: 'Failed', color: '#DF382C',
+                        function(val) {return {x: val.x, y: to_fraction(val.skipped, val.total)};})},
+                    {key: 'Failed', color: colors.fail,
                      values: historicalTestcasesGraph.map(
-                        function(val) {return {x: val.x, y: val.failed};})},
+                        function(val) {return {x: val.x, y: to_fraction(val.failed, val.total)};})},
                 ];
             }
 
@@ -442,78 +467,17 @@ app.controller('detailedReportController', [
             $scope.data.plot_data_loading = false;
         }
 
-        extendPieChart = function(extras) {
-            if (angular.isUndefined(extras)) extras = {};
-            var pieGraph = {
-                type: 'pieChart',
-                x: function(d){return d.key;},
-                y: function(d){return d.value;},
-                showLabels: false,
-                showLegend: false,
-                growOnHover: false,
-                duration: 500,
-                legend: {
-                    width: 200,
-                    height: 200,
-                    maxKeyLength: 1000,
-                    margin: {
-                        top: 0,
-                        bottom: 0,
-                        right: 0,
-                        left: 0,
-                    }
-                },
-                legendPosition: 'right',
-            };
-            var value = {
-                chart: angular.extend({}, pieGraph, extras),
-            };
-            return value;
-        }
-
-
-        extendBarChart = function(extras) {
-            if (angular.isUndefined(extras)) extras = {};
-            var barGraph = {
-                type: 'multiBarChart',
-                stacked: true,
-                clipEdge: true,
-                showControls: false,
-                showLabels: false,
-                showLegend: false,
-                growOnHover: false,
-                duration: 500,
-                width: 800,
-                height: 300,
-                legend: {
-                    width: 200,
-                    height: 200,
-                    maxKeyLength: 1000,
-                    margin: {
-                        top: 0,
-                        bottom: 0,
-                        right: 0,
-                        left: 0,
-                    }
-                },
-                legendPosition: 'top',
-            };
-            var value = {
-                chart: angular.extend({}, barGraph, extras),
-            };
-            return value;
-        }
-
-        $scope.data.reports.detailed.serviceBarChart = extendBarChart();
-        $scope.data.reports.detailed.historicalBarChart = extendBarChart(
+        $scope.data.reports.detailed.serviceBarChart = graphFactory.extendBarChart(
+            {'yAxis': {'ticks': 4, 'tickFormat': function(d) {return d3.format(",.2r")(d);} }});
+        $scope.data.reports.detailed.historicalBarChart = graphFactory.extendBarChart(
             {'showLegend': true});
 
-        $scope.data.reports.detailed.servicePieChart = extendPieChart(
-            {'showLegend': true, 'height': 200, 'width': 400});
-        $scope.data.reports.detailed.testcasePieChart = extendPieChart(
-            {'color': ['#38B44A', '#ECA918', '#DF382C'], 'width': 100, 'height': 100,
+        $scope.data.reports.detailed.servicePieChart = graphFactory.extendPieChart(
+            {'showLegend': true, 'height': 200, 'width': 450,
+             'margin': {'top': 0, 'bottom': 0, 'left': -20, 'right': 0}});
+        $scope.data.reports.detailed.testcasePieChart = graphFactory.extendPieChart(
+            {'color': [colors.pass, colors.skip, colors.fail], 'width': 100, 'height': 100,
              'margin': {'top': -10, 'bottom': 0, 'left': -10, 'right': 0}});
-
 
         $scope.data.reports.detailed.mungeTestcasePie = function(input) {
             jsonKey = JSON.stringify(input);
@@ -557,7 +521,7 @@ app.controller('detailedReportController', [
             if (angular.isUndefined(testcasename)) {
                 return testcasename;
             }
-            return testcasename.replace(/\[.*\]/, '');
+            return testcasename.replace(/\[.*\]/, '').replace(/test/, '').replace(/_/g, ' ');
         }
 
     }]);

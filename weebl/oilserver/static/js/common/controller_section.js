@@ -16,8 +16,8 @@ app.controller('sectionController', ['$rootScope', '$scope', '$location', 'Commo
             },
             {'url': 'reports', 'name': 'OIL Reports',
                 'tabs': [
-                    {'url': 'overview', 'name': 'Overview'},
-                    {'url': 'detailed', 'name': 'Detailed'},
+                    {'url': 'overview', 'name': 'Overview', 'template': 'report-overview.html'},
+                    {'url': 'detailed', 'name': 'Detailed', 'template': 'report-detailed.html'},
                 ]
             },
             {'url': 'throughput', 'name': 'Throughput',
@@ -50,7 +50,9 @@ app.controller('sectionController', ['$rootScope', '$scope', '$location', 'Commo
             $rootScope.activeSection = $scope.activeSection;
             $scope.tabs = common.arrayToObjectOnProperty($scope.sections, 'url')[$scope.activeSection].tabs;
             $scope.activeTab = cleanedLocation.split('/')[1];
+            $rootScope.activeTab = $scope.activeTab;
             $rootScope.title = common.arrayToObjectOnProperty($scope.tabs, 'url')[$scope.activeTab].name;
+            $rootScope.template = common.arrayToObjectOnProperty($scope.tabs, 'url')[$scope.activeTab].template;
         };
 
         $scope.$on("$locationChangeSuccess", function (event, newUrl, oldUrl) {

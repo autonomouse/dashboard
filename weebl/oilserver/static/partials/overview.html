@@ -1,10 +1,10 @@
 
-<div id="content" class="nine-col last-col report">
+<div id="content-block" class="nine-col last-col report">
         <section class="row report-intro">
             <div class="twelve-col">
                 <h1>{$ data.reports.overview.reportGroup $} - {$ data.reports.overview.reportPeriod $}</h1>
                 <h2>{$ data.reports.overview.testcasesPeriod $}+ tests this period</h2>
-                <h2>{$ data.reports.overview.testcasesTotal $}+ tests since partnership started in April 2015</h2>
+                <h2>{$ data.reports.overview.testcasesTotal $}+ tests since partnership started {$ data.reports.overview.reportGroupStarted | date: 'in MMMM yyyy' : 'GMT' $}</h2>
             </div>
         </section>
         <section class="info-graphic row no-border-bottom">
@@ -23,7 +23,7 @@
             </div>
             <div class="six-col last-col align-center border-left">
                 <img src="/static/img/reports/operating-systems.png" alt="" length="134">
-                <h3>Running Ubuntu 12.04 and 14.04, Redhat 7.1 and Oracle guest OSes.</h3>
+                <h3>Running Ubuntu 14.04 and 16.04, Redhat 7.1 and Oracle guest OSes.</h3>
             </div>
         </section>
         <section class="versions-tested row no-border-bottom">

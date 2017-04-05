@@ -43,7 +43,7 @@ def pdf_view(request):
     base_url = "http://%s/" % request.get_host()
     template_url = request.POST['template']
     force_one_page = request.POST.get('force-one-page', False)
-    allowed_templates = ['report-summary.html']
+    allowed_templates = ['report-overview.html', 'report-detailed.html']
     if template_url not in allowed_templates:
         raise ValueError("%s is not an allowed template" % template_url)
 
@@ -54,6 +54,13 @@ def pdf_view(request):
         svgs = root.findall('.//nvd3')
         for svg in svgs:
             child = svg.getchildren()[0]
+            for text in child.findall('.//ns0:text',
+                                      {'ns0': 'http://www.w3.org/2000/svg'}):
+                if text.text is None or not \
+                    any([check in text.text.lower()
+                         for check in ('testing', 'success', 'unable')]):
+                    continue
+                text.set('font-size', '8')
             encoded = b64encode(etree.tostring(child)).decode()
             encoded_data = "data:image/svg+xml;charset=utf-8;base64," + encoded
             encoded_child = etree.fromstring('<img src="%s"/>' % encoded_data)
@@ -66,6 +73,7 @@ def pdf_view(request):
     rendered = svg_embed(HTML(string=html, base_url=base_url)).render()
     if force_one_page and len(rendered.pages) > 1:
         rendered = rendered.copy([rendered.pages[1]])
+    print(etree.tostring(svg_embed(HTML(string=html, base_url=base_url)).root_element).decode())
     pdf_file = rendered.write_pdf()
     http_response = HttpResponse(pdf_file, content_type='application/pdf')
     http_response['Content-Disposition'] = \

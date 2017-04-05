@@ -58,6 +58,8 @@ AS WITH
             report.name as report_name
         FROM
             oilserver_testcaseinstance testcaseinstance,
+            oilserver_testcase testcase,
+            oilserver_testcaseclass_producttypes testcaseclass_producttypes,
             oilserver_build build,
             oilserver_pipeline pipeline,
             oilserver_jujuservicedeployment jujuservicedeployment,
@@ -69,12 +71,15 @@ AS WITH
             oilserver_report report
         WHERE
             testcaseinstance.build_id = build.id AND
+            testcaseinstance.testcase_id = testcase.id AND
+            testcase.testcaseclass_id = testcaseclass_producttypes.testcaseclass_id AND
             build.pipeline_id = pipeline.id AND
             pipeline.id = jujuservicedeployment.pipeline_id AND
             jujuservicedeployment.id = unit.jujuservicedeployment_id AND
             unit.machineconfiguration_id = machineconfiguration_productundertests.machineconfiguration_id AND
             machineconfiguration_productundertests.productundertest_id = productundertest.id AND
             jujuservicedeployment.productundertest_id = productundertest2.id AND
+            testcaseclass_producttypes.producttype_id = productundertest2.producttype_id AND
             (
                 productundertest.id = productundertest_reports.productundertest_id OR
                 productundertest2.id = productundertest_reports.productundertest_id
@@ -177,7 +182,7 @@ GROUP BY
     testcaseclassname,
     testframeworkname,
     bug_id
-;
+WITH NO DATA;
     """
 
     operations = [

@@ -1,7 +1,8 @@
+@page {
+  margin: 1cm !important;
+}
+
 @media print {
-  @page {
-    margin: 1cm !important;
-  }
   h1 {
     padding-top: 10px;
     font-size: 18pt;
@@ -29,4 +30,9 @@
     box-sizing: border-box;
   }
 
+  .nobreak {
+    break-inside: avoid;
+    break-before: auto;
+    break-after: auto;
+  }
 }

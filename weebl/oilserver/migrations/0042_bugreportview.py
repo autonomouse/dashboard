@@ -67,7 +67,8 @@ WHERE
          productundertestR2.id = productundertest_reportsR.productundertest_id) AND
         productundertest_reportsR.report_id = reportR.id
     )
-GROUP BY reportname, date, environmentname, groupname, bug.id;
+GROUP BY reportname, date, environmentname, groupname, bug.id
+WITH NO DATA;
     """
 
     operations = [

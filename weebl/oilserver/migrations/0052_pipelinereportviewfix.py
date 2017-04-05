@@ -89,7 +89,7 @@ GROUP BY
     report_name,
     date,
     environment_name
-;
+WITH NO DATA;
     """
 
     operations = [

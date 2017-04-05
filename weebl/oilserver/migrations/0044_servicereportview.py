@@ -87,7 +87,7 @@ GROUP BY
     environmentname,
     producttypename,
     productundertestname
-;
+WITH NO DATA;
     """
 
     operations = [

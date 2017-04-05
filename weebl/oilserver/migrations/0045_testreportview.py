@@ -154,7 +154,7 @@ GROUP BY
     testcaseclassname,
     testframeworkname,
     bug_id
-;
+WITH NO DATA;
     """
 
     operations = [

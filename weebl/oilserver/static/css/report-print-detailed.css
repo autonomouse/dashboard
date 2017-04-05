@@ -1,0 +1,101 @@
+@page {
+    margin: 2cm !important;
+}
+header h3
+{
+    position: fixed;
+    left: 0;
+    top: 0;
+    margin-top: -8mm;
+    height: 10mm;
+    text-align: left;
+    font-size: 10px;
+}
+header img
+{
+    position: fixed;
+    right: 0;
+    top: 0;
+    margin-top: -10mm;
+    height: 6mm;
+}
+.line {
+    position: fixed;
+    border-bottom: 1px solid #cdcdcd;
+    padding: 0;
+    top: -2mm;
+    height: 0px;
+    position: fixed;
+    width: 17cm;
+}
+.one-col,.two-col,.three-col,.four-col,.five-col,.six-col,.seven-col,.eight-col,.nine-col,.ten-col,.eleven-col,.twelve-col,.col {
+    float:left
+}
+.one-col {
+    width:6.38297%
+}
+.two-col {
+    width:14.89361%
+}
+.six-col {
+    width:48.93617%
+}
+.eight-col {
+    width:65.95744%
+}
+.eight-col .one-col {
+    width:9.56375%;
+    margin-right:3.3557%
+}
+.eight-col .two-col {
+    width:25.83892%;
+    margin-right:3.3557%
+}
+.eight-col .six-col {
+    width:74.16107%;
+    margin-right:0
+}
+.eight-col .seven-col {
+    width:84.16107%;
+    margin-right:0
+}
+.two-col .one-col {
+    width:42.53731%;
+    margin-right:14.92537%
+}
+.eight-col .last-col {
+    margin-right:0
+}
+.six-col .last-col {
+    margin-right:0
+}
+.two-col .last-col {
+    margin-right:0
+}
+.one-col .last-col {
+    margin-right:0
+}
+.row,#context-footer {
+    -webkit-border-radius:0;
+    -moz-border-radius:0;
+    border-radius:0;
+    margin:0;
+    padding:40px 40px 20px
+}
+.row:after {
+    content:".";
+    visibility:hidden;
+    display:block;
+    height:0;
+    clear:both
+}
+.row-feature {
+    background:none
+}
+.container {
+    -webkit-box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    box-sizing:border-box;
+    margin:20px 20px 0;
+    width:100%
+}
