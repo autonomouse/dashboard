@@ -78,16 +78,10 @@ app.controller('overviewReportController', [
                     'vendor', $scope.data.user, $scope.data.apikey).query({});
         }
 
-        function getProperties(object, property) {
-            return object.map(function(o) {
-                return o[property];
-            });
-        }
-
         function waitForResolve(promisedResources, callback) {
             resourceKeys = Object.keys(promisedResources);
             resources = resourceKeys.map(function(key) {return promisedResources[key];});
-            promises = getProperties(resources, '$promise');
+            promises = Common.getProperties(resources, '$promise');
             $q.all(promises).then(function(data) {
                 resolved = {};
                 for (i = 0; i < data.length; i++){
@@ -242,8 +236,8 @@ app.controller('overviewReportController', [
 
         function resolveOverviewData(data) {
             console.log(data);
-            $scope.data.reports.overview.productsUnderTest = getProperties(data.productsUnderTest.objects, "name").join(", ");
-            $scope.data.reports.overview.servicesTested = getProperties(data.servicesTested.objects, "name").join(", ");
+            $scope.data.reports.overview.productsUnderTest = Common.getProperties(data.productsUnderTest.objects, "name").join(", ");
+            $scope.data.reports.overview.servicesTested = Common.getProperties(data.servicesTested.objects, "name").join(", ");
             $scope.data.reports.overview.testcasesTotal = data.testcasesTotal.meta.total_count;
             $scope.data.reports.overview.pipelinesTotal = data.pipelinesTotal.meta.total_count;
             $scope.data.reports.overview.testcasesPeriod = data.testcasesPeriod.meta.total_count;
@@ -253,7 +247,7 @@ app.controller('overviewReportController', [
             $scope.data.reports.overview.cloudConfigs = data.configs.meta.total_count;
             versionCrossProduct = crossProduct(data.versions.objects);
             $scope.data.reports.overview.ubuntuCrossOpenstack = versionCrossProduct;
-            $scope.data.reports.overview.productTypes = getProperties(data.productTypes.objects, "name");
+            $scope.data.reports.overview.productTypes = Common.getProperties(data.productTypes.objects, "name");
             $scope.data.reports.overview.testedSwift = data.testedSwift.meta.total_count > 0;
 
             $scope.data.plot_data_loading = false;

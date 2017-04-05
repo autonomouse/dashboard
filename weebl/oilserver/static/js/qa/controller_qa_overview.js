@@ -9,7 +9,8 @@ app.controller('qaOverviewController', [
         binding.user = $scope.data.user;
         binding.apikey = $scope.data.apikey;
 
-        $scope.data.qa.solutiontags = DataService.refresh('solutiontag', $scope.data.user, $scope.data.apikey).get({});
+        $scope.data.qa.solutiontags = DataService.refresh(
+                'solutiontag', $scope.data.user, $scope.data.apikey).get({});
         if ($scope.data.qa.search === undefined)
             $scope.data.qa.search = new SearchFactory.Search();
         defaultFilters = {

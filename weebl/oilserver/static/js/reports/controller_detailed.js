@@ -70,12 +70,6 @@ app.controller('detailedReportController', [
                     'report', $scope.data.user, $scope.data.apikey).query({});
         }
 
-        function getProperties(object, property) {
-            return object.map(function(o) {
-                return o[property];
-            });
-        }
-
         function renameValues(object, renameMap) {
             /* extract only given items and rename them */
             var values = [];
@@ -98,7 +92,7 @@ app.controller('detailedReportController', [
         function waitForResolve(promisedResources, callback) {
             var resourceKeys = Object.keys(promisedResources);
             var resources = resourceKeys.map(function(key) {return promisedResources[key];});
-            var promises = getProperties(resources, '$promise');
+            var promises = Common.getProperties(resources, '$promise');
             $q.all(promises).then(function(data) {
                 resolved = {};
                 for (i = 0; i < data.length; i++){
@@ -170,7 +164,7 @@ app.controller('detailedReportController', [
                 if (a.start > b.start) return 1;
                 return 0;
             });
-            var periodNames = getProperties(periods, 'name');
+            var periodNames = Common.getProperties(periods, 'name');
             var selectedPeriodIndex = periodNames.indexOf(period) + 1;
             if (selectedPeriodIndex == 0) selectedPeriodIndex = period.length;
             var pastPeriods = periods.slice(Math.max(selectedPeriodIndex - historyLength, 0),

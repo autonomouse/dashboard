@@ -1,6 +1,6 @@
 var app = angular.module('weebl');
 app.controller('sectionController', ['$rootScope', '$scope', '$location', 'Common',
-    function($rootScope, $scope, $location, common) {
+    function($rootScope, $scope, $location, Common) {
         $scope.sections = [
             {'url': 'qa', 'name': 'Integrated QA',
                 'tabs': [
@@ -48,11 +48,12 @@ app.controller('sectionController', ['$rootScope', '$scope', '$location', 'Commo
             }
             $scope.activeSection = cleanedLocation.split('/')[0];
             $rootScope.activeSection = $scope.activeSection;
-            $scope.tabs = common.arrayToObjectOnProperty($scope.sections, 'url')[$scope.activeSection].tabs;
+            $scope.tabs = Common.arrayToObjectOnProperty($scope.sections, 'url')[$scope.activeSection].tabs;
             $scope.activeTab = cleanedLocation.split('/')[1];
             $rootScope.activeTab = $scope.activeTab;
-            $rootScope.title = common.arrayToObjectOnProperty($scope.tabs, 'url')[$scope.activeTab].name;
-            $rootScope.template = common.arrayToObjectOnProperty($scope.tabs, 'url')[$scope.activeTab].template;
+            $rootScope.title = Common.arrayToObjectOnProperty($scope.tabs, 'url')[$scope.activeTab].name;
+            $rootScope.template = Common.arrayToObjectOnProperty($scope.tabs, 'url')[$scope.activeTab].template;
+            $rootScope.title = Common.arrayToObjectOnProperty($scope.tabs, 'url')[$scope.activeTab].name;
         };
 
         $scope.$on("$locationChangeSuccess", function (event, newUrl, oldUrl) {

@@ -121,8 +121,7 @@ app.controller('successRateController', [
         }
         $scope.data.results.search.individualFilters = ["start_date", "finish_date"];
         $scope.data.results.search.runOnUpdate = updateSearch;
-        //$scope.data.results.search._setURLParams();
-        // FIXME: Changing tabs loses filters, but need it to read from URLs when changing sections
+        $scope.data.results.search._setURLParams();
         $scope.data.results.search.init();
 
         function getMetadata($scope) {

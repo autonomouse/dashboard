@@ -177,6 +177,13 @@ app.factory('Common', ['$rootScope', '$location', 'DataService', function($rootS
         return base.replace(/\/+$/, "") + "/" + suffix;
     };
 
+    function getProperties(object, property) {
+        return object.map(function(o) {
+            return o[property];
+        });
+    }
+
+
     return {
         abbreviateUUID: abbreviateUUID,
         arrayToObjectOnProperty: arrayToObjectOnProperty,
@@ -186,6 +193,7 @@ app.factory('Common', ['$rootScope', '$location', 'DataService', function($rootS
         getBundleImageLocation: getBundleImageLocation,
         getJobsList: getJobsList,
         getLogoURL: getLogoURL,
+        getProperties: getProperties,
         humaniseDate: humaniseDate,
         initialise: initialise,
         makeJobDetailsDict: makeJobDetailsDict,

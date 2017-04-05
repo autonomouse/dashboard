@@ -55,11 +55,13 @@ app.factory('FilterFactory', ['DataService', 'Common', function(DataService, Com
 
     function fetchTestDataForJobname(jobname, $scope, tag, meta_only) {
         var model = 'testcaseinstance';
-        if (angular.isUndefined(meta_only)) meta_only === true;
+        if (angular.isUndefined(meta_only))
+            meta_only = true;
         var local_filters = metaWith(generateActiveFilters($scope, model), meta_only);
         local_filters['build__jobtype__name'] = jobname;
         local_filters['successful_jobtype'] = jobname;
-        if ((angular.isDefined(tag)) && (tag != null)) local_filters['build__pipeline__solution__solutiontag__name'] = tag;
+        if ((angular.isDefined(tag)) && (tag != null))
+            local_filters['build__pipeline__solution__solutiontag__name'] = tag;
         local_filters['testcaseinstancestatus__name'] = 'success';
         var pass = DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(local_filters);
         local_filters['testcaseinstancestatus__name'] = 'skipped';
@@ -152,8 +154,12 @@ app.factory('FilterFactory', ['DataService', 'Common', function(DataService, Com
     };
 
     function metaWith(object, meta_only) {
-        if (angular.isUndefined(meta_only)) meta_only === true;
-        dict = {'meta_only': meta_only, 'limit': 1, 'max_limit': 1};
+        if (angular.isUndefined(meta_only))
+            meta_only = true;
+        dict = {'limit': 1, 'max_limit': 1};
+        if (meta_only)
+            // Adding "dict['meta_only'] = false" to the params still makes it act as if you supplied "dict['meta_only'] = true"
+            dict['meta_only'] = true;
         return angular.extend({}, dict, object);
     }
 
