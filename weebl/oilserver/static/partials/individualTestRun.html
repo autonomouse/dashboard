@@ -1,58 +1,110 @@
 <div class="row">
-    <div class="four-col">
-        <p>Test run ID: {$ data.testRunId $}</p>
-        <p>Test run completed at: {$ data.humaniseDate(data.individual_testRun.completed_at != null ? data.individual_testRun.completed_at : "(Test run not yet complete)"); $}</p>
-        <p data-ng-show="data.individual_testRun.buildexecutor.jenkins.environment.name != null">Environment: <a href="{$ data.individual_testRun.buildexecutor.jenkins.external_access_url $}">{$ data.individual_testRun.buildexecutor.jenkins.environment.name $}</a></p>
-        <p>OpenStack Version: {$ (data.individual_testRun.versionconfiguration != null) ? data.individual_testRun.versionconfiguration.openstackversion.name : "Unknown"; $} </p>
-        <p>Ubuntu Version: {$ (data.individual_testRun.versionconfiguration != null) ? data.individual_testRun.versionconfiguration.ubuntuversion.name : "Unknown"; $} </p>
-        <p data-ng-show="data.individual_testRun.solution.solutiontag.name != null">Solution: {$ data.individual_testRun.solution.solutiontag.name $}</p>
-        <p data-ng-show="data.individual_testRun.buildexecutor.jenkins.environment.data_archive_url != ''">
-            <a href="{$ data.joinURLs(data.individual_testRun.buildexecutor.jenkins.environment.data_archive_url, data.testRunId) $}" class="external">
-                Link to artifacts repository for this test run</a>
-        </p>
-    </div>
 
-    <div id="content" class="five-col last-col">
+
+    <div id="content" class="nine-col last-col">
         <a ng-href="{$ data.image $}">
-            <img class="centered" data-ng-src="{$ data.image $}" id ="bundle_svg" />
+            <img class="jujusvg" data-ng-src="{$ data.image $}" id ="bundle_svg" />
         </a>
-    </div>
-</div>
-
-<div class="row">
-    <div id="content" class="nine-col last-col">
-        <div data-ng-show="data.pipeline_machines.meta.total_count">
-    </div>
-
-    <div id="content" class="nine-col last-col">
-        {$ data.pipeline_machines.meta.total_count $} <ng-pluralize count="data.pipeline_machines.meta.total_count" when="{'0': 'machines', '1': 'machine', 'other': 'machines'}"></ng-pluralize> <ng-pluralize count="data.pipeline_machines.meta.total_count" when="{'0': 'were', '1': 'was', 'other': 'were'}"></ng-pluralize> used in this OpenStack deployment
-        <span data-ng-if="data.pipeline_machines.meta.total_count > 0 ">
-            : <span data-ng-repeat="machine in data.pipeline_machines.objects">{$ $first ? '' : $last ? ' and ' : ', ' $}{$ machine.hostname $}</span>
-        </span>
+        <p class="testrun_header">
+            <h2>Test Run {$ data.testRunId $}</h2>
+        </p>
     </div>
 
     <div id="content" class="nine-col last-col">
         <table class="table-listing">
             <thead>
                 <tr class="table-listing__row">
-                    <th class="table-listing__header">
-                        Component Type
-                    </th>
-                    <th class="table-listing__header">
-                        Name
-                    </th>
-                    <!--
-                    <th class="table-listing__header">
-                        Deploy Time
-                    </th>
-                -->
+                    <th class="table-listing__header">Completed At</th>
+                    <th class="table-listing__header">Environment</th>
+                    <th class="table-listing__header"><img height"15" src="{$ data.getLogoURL('maas.svg'); $}" alt="MAAS" title="MAAS" /></th>
+                    <th class="table-listing__header"><img height"15" src="{$ data.getLogoURL('juju.svg'); $}" alt="Juju" title="Juju" /></th>
+                    <th class="table-listing__header"><img height"15" src="{$ data.getLogoURL('openstack.svg'); $}" alt="OpenStack" title="OpenStack" /></th>
+                    <th class="table-listing__header"><img height"15" src="{$ data.getLogoURL('ubuntu.svg'); $}" alt="Ubuntu" title="Ubuntu" /></th>
                 </tr>
             </thead>
             <tbody>
-                <tr class="table-listing__row" data-ng-repeat="product in data.producttypes" data-ng-show="product.name != ''">
-                    <td class="table-listing__cell">{$ product.type $}</td>
-                    <td class="table-listing__cell"><span data-ng-repeat="name in product.name">{$ $first ? '' : $last ? ' and ' : ', ' $}{$ name $}</span></td>
-                    <!-- <td class="table-listing__cell">{$ product.deploy_time $}</td> -->
+                <tr class="table-listing__row">
+                    <td class="table-listing__cell"><p>{$ data.humaniseDate(data.individual_testRun.completed_at != null ? data.individual_testRun.completed_at : "(Test run not yet complete)"); $}</p></td>
+                    <td class="table-listing__cell">
+                        <p data-ng-show="data.individual_testRun.buildexecutor.jenkins.environment.name != null">
+                            <a href="{$ data.individual_testRun.buildexecutor.jenkins.external_access_url $}" data-ng-show="data.individual_testRun.buildexecutor.jenkins.external_access_url != ''">
+                                {$ data.individual_testRun.buildexecutor.jenkins.environment.name $}
+                            </a>
+                            <span data-ng-show="data.individual_testRun.buildexecutor.jenkins.external_access_url === ''">
+                                {$ data.individual_testRun.buildexecutor.jenkins.environment.name $}
+                            </span>
+                        </p>
+                    </td>
+                    <td class="table-listing__cell"><p>{$ data.producttypes.maas.name[0] $}</p></td>
+                    <td class="table-listing__cell"><p>{$ data.producttypes.juju.name[0] $}</p></td>
+                    <td class="table-listing__cell"><p>{$ (data.individual_testRun.versionconfiguration != null) ? data.individual_testRun.versionconfiguration.openstackversion.name : "Unknown"; $}</p></td>
+                    <td class="table-listing__cell"><p>{$ (data.individual_testRun.versionconfiguration != null) ? data.individual_testRun.versionconfiguration.ubuntuversion.name : "Unknown"; $}</p><td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="content" class="nine-col last-col">
+        {$ data.pipeline_builds.meta.total_count $} <ng-pluralize count="data.pipeline_builds.meta.total_count" when="{'0': 'jobs', '1': 'job', 'other': 'jobs'}"></ng-pluralize> run during this test.
+
+        <table class="table-listing" data-ng-if="data.pipeline_builds.meta.total_count > 0 ">
+            <thead>
+                <tr class="table-listing__row">
+                    <th class="table-listing__header">
+                        Job Type
+                    </th>
+                    <th class="table-listing__header">
+                        Build Number
+                    </th>
+                    <th class="table-listing__header">
+                        Job Status
+                    </th>
+                    <th class="table-listing__header">
+                        Tests Passed
+                    </th>
+                    <th class="table-listing__header">
+                        Tests Failed
+                    </th>
+                    <th class="table-listing__header">
+                        Tests Skipped
+                    </th>
+                    <th class="table-listing__header">
+                        Tests In Error
+                    </th>
+                    <th class="table-listing__header">
+                        Tests Aborted
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="table-listing__row" data-ng-repeat="job in data.orderedJobsList" data-ng-show="data.job_build_outcome[job].jobtype_description != null" >
+                    <td class="table-listing__cell">
+                        {$ data.job_build_outcome[job].jobtype_description; $}
+                    </td>
+                    <td class="table-listing__cell">
+                        <span data-ng-if="data.job_build_outcome[job].jenkinsBuildUrl">
+                            <a href="{$ data.job_build_outcome[job].jenkinsBuildUrl; $}" class="external">{$ data.job_build_outcome[job].build_number; $}</a>
+                        </span>
+                        <span data-ng-if="!data.job_build_outcome[job].jenkinsBuildUrl">{$ data.job_build_outcome[job].build_number; $}</span>
+                    </td>
+                    <td class="table-listing__cell">
+                        <font color="{$ data.colourStatus(data.job_build_outcome[job].jobstatus); $}">{$ data.job_build_outcome[job].jobstatus; $}</font>
+                    </td>
+                    <td class="table-listing__cell">
+                        {$ data.test_results[job].pass_count; $}
+                    </td>
+                    <td class="table-listing__cell">
+                        {$ data.test_results[job].fail_count; $}
+                    </td>
+                    <td class="table-listing__cell">
+                        {$ data.test_results[job].skip_count; $}
+                    </td>
+                    <td class="table-listing__cell">
+                        {$ data.test_results[job].err_count; $}
+                    </td>
+                    <td class="table-listing__cell">
+                        {$ data.test_results[job].abort_count; $}
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -102,71 +154,47 @@
     </div>
 
     <div id="content" class="nine-col last-col">
-        {$ data.pipeline_builds.meta.total_count $} <ng-pluralize count="data.pipeline_builds.meta.total_count" when="{'0': 'jobs', '1': 'job', 'other': 'jobs'}"></ng-pluralize> run during this test.
-        <span data-ng-if="data.pipeline_builds.meta.total_count > 0 ">
-            <table class="table-listing">
-                <thead>
-                    <tr class="table-listing__row">
-                        <th class="table-listing__header">
-                            Job Type
-                        </th>
-                        <th class="table-listing__header">
-                            Build Number
-                        </th>
-                        <th class="table-listing__header">
-                            Job Status
-                        </th>
-                        <th class="table-listing__header">
-                            Tests Passed
-                        </th>
-                        <th class="table-listing__header">
-                            Tests Failed
-                        </th>
-                        <th class="table-listing__header">
-                            Tests Skipped
-                        </th>
-                        <th class="table-listing__header">
-                            Tests In Error
-                        </th>
-                        <th class="table-listing__header">
-                            Tests Aborted
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="table-listing__row" data-ng-repeat="job in data.orderedJobsList" data-ng-show="data.job_build_outcome[job].jobtype_description != null" >
-                        <td class="table-listing__cell">
-                            {$ data.job_build_outcome[job].jobtype_description; $}
-                        </td>
-                        <td class="table-listing__cell">
-                            <span data-ng-if="data.job_build_outcome[job].jenkinsBuildUrl">
-                                <a href="{$ data.job_build_outcome[job].jenkinsBuildUrl; $}" class="external">{$ data.job_build_outcome[job].build_number; $}</a>
-                            </span>
-                            <span data-ng-if="!data.job_build_outcome[job].jenkinsBuildUrl">{$ data.job_build_outcome[job].build_number; $}</span>
-                        </td>
-                        <td class="table-listing__cell">
-                            <font color="{$ data.colourStatus(data.job_build_outcome[job].jobstatus); $}">{$ data.job_build_outcome[job].jobstatus; $}</font>
-                        </td>
-                        <td class="table-listing__cell">
-                            {$ data.test_results[job].pass_count; $}
-                        </td>
-                        <td class="table-listing__cell">
-                            {$ data.test_results[job].fail_count; $}
-                        </td>
-                        <td class="table-listing__cell">
-                            {$ data.test_results[job].skip_count; $}
-                        </td>
-                        <td class="table-listing__cell">
-                            {$ data.test_results[job].err_count; $}
-                        </td>
-                        <td class="table-listing__cell">
-                            {$ data.test_results[job].abort_count; $}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </span>
+        <div data-ng-show="data.pipeline_machines.meta.total_count">
+    </div>
 
+    <div id="content" class="nine-col last-col">
+        {$ data.pipeline_machines.meta.total_count $} <ng-pluralize count="data.pipeline_machines.meta.total_count" when="{'0': 'machines', '1': 'machine', 'other': 'machines'}"></ng-pluralize> <ng-pluralize count="data.pipeline_machines.meta.total_count" when="{'0': 'were', '1': 'was', 'other': 'were'}"></ng-pluralize> used in this OpenStack deployment
+        <span data-ng-if="data.pipeline_machines.meta.total_count > 0 ">
+            : <span data-ng-repeat="machine in data.pipeline_machines.objects">{$ $first ? '' : $last ? ' and ' : ', ' $}{$ machine.hostname $}</span>
+        </span>
+    </div>
+
+    <div id="content" class="nine-col last-col">
+        <table class="table-listing">
+            <thead>
+                <tr class="table-listing__row">
+                    <th class="table-listing__header">
+                        Component Type
+                    </th>
+                    <th class="table-listing__header">
+                        Name
+                    </th>
+                    <!--
+                    <th class="table-listing__header">
+                        Deploy Time
+                    </th>
+                -->
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="table-listing__row" data-ng-repeat="product in data.producttypes" data-ng-show="product.name != ''">
+                    <td class="table-listing__cell">{$ product.type $}</td>
+                    <td class="table-listing__cell"><span data-ng-repeat="name in product.name">{$ $first ? '' : $last ? ' and ' : ', ' $}{$ name $}</span></td>
+                    <!-- <td class="table-listing__cell">{$ product.deploy_time $}</td> -->
+                </tr>
+            </tbody>
+        </table>
+
+        <span data-ng-if="data.individual_testRun.buildexecutor.jenkins.environment.data_archive_url != ''">
+            <a href="{$ data.joinURLs(data.individual_testRun.buildexecutor.jenkins.environment.data_archive_url, data.testRunId) $}" class="external" data-ng-show="data.individual_testRun.buildexecutor.jenkins.environment.data_archive_url != null">
+                Click here to view full artifacts repository for this test run
+            </a>
+        </span>
     </div>
 
     <div id="content" class="nine-col last-col">
@@ -209,4 +237,5 @@
 
         </div>
     </div>
+
 </div>
