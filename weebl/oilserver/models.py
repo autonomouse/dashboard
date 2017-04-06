@@ -700,7 +700,7 @@ class ReportSection(TimeStampedBaseModel):
         unique_together = (('name', 'functionalgroup'),)
 
     def __str__(self):
-        return self.section + ':' + self.functionalgroup
+        return self.name + ':' + self.functionalgroup
 
 
 class TestCaseClass(TimeStampedBaseModel):
