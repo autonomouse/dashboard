@@ -54,6 +54,7 @@ app.factory('FilterFactory', ['DataService', 'Common', function(DataService, Com
     };
 
     function fetchTestDataForJobname(jobname, $scope, tag, meta_only) {
+        // TODO: Also include an autopilot_only arg
         var model = 'testcaseinstance';
         if (angular.isUndefined(meta_only))
             meta_only = true;
@@ -79,12 +80,12 @@ app.factory('FilterFactory', ['DataService', 'Common', function(DataService, Com
         var active_filters = {};
         var field_to_filter = generateFilterPaths(origin);
 
-        for (var enum_field in scope.data.results.search.filters) {
+        for (var enum_field in scope.data.search.filters) {
             if (!(enum_field in scope.data.metadata))
                 continue;
 
             enum_values = [];
-            scope.data.results.search.filters[enum_field].forEach(function(enum_value) {
+            scope.data.search.filters[enum_field].forEach(function(enum_value) {
                 enum_values.push(enum_value.substr(1));
             });
 

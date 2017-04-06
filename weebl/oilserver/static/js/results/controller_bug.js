@@ -7,10 +7,8 @@ app.controller('bugController', [
         $scope.data.individualBug = {};
         $scope.data.individualBug.bugId = $routeParams.bugId;
         $scope.data.reports.show_filters = false;
-        $scope.data.results.show_filters = false;
-        $scope.data.qa.show_filters = false;
-        $scope.data.results.show_search = false;
-        $scope.data.qa.show_search = false;
+        $scope.data.show_filters = false;
+        $scope.data.show_search = false;
 
         $scope.data.individualBug.plotData = {};
         $scope.data.individualBug.regex = DataService.refresh(

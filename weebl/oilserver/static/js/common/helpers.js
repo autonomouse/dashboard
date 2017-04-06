@@ -111,10 +111,11 @@ app.factory('Common', ['$rootScope', '$location', 'DataService', function($rootS
         return jobsList;
     };
 
-    function humaniseDate(datestr) {
-        if (angular.isUndefined(datestr) || (datestr === null)) {
+    function humaniseDate(datestr, dateOnly) {
+        if (angular.isUndefined(datestr) || (datestr === null))
             return "";
-        };
+        if (angular.isUndefined(dateOnly))
+            dateOnly = false;
         var date_obj = new Date(datestr);
         // Return an empty string if the date is invalid:
         if (date_obj == "Invalid Date") {
@@ -128,6 +129,8 @@ app.factory('Common', ['$rootScope', '$location', 'DataService', function($rootS
         var hours = ('0' + date_obj.getUTCHours()).slice(-2);
         var minutes = ('0' + date_obj.getUTCMinutes()).slice(-2);
         var seconds = ('0' + date_obj.getUTCSeconds()).slice(-2);
+        if (dateOnly)
+            return (day + "-" + month_name + "-" + year);
         return (day + "-" + month_name + "-" + year + " at " + hours + ":" + minutes + ":" + seconds);
     };
 

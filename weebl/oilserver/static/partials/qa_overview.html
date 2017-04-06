@@ -1,8 +1,4 @@
 <div id="content" class="nine-col last-col">
-        <div class="twelve-col">
-            <h1>{$ data.qa.overview.qaReportPeriod $}</h1>
-
-        </div>
 
         <h4>Solutions Tested:</h4>
 
@@ -28,15 +24,15 @@
                 </tr>
             </thead>
             <tbody>
-                <tr class="table-listing__row" ng-repeat="solution in data.qa.overview.tablevalues">
+                <tr class="table-listing__row" ng-repeat="solution in data.overview.tablevalues">
                     <td class="table-listing__cell">
-                        <a href="#/results/testRuns?solutiontag={$ solution.name $}" title="{$ solution.testrun $}">
+                        <a href="#/results/testRuns?solutiontag={$ solution.name $}&start_date=Dawn%20of%20Time&finish_date=Now" title="{$ solution.testrun $}">
                             {$ solution.name; $}
                         </a>
                     </td>
                     <td class="table-listing__cell">
                         <a href="#/results/testRun/{$ solution.testrun $}" title="{$ solution.testrun $}">
-                            {$ data.humaniseDate(solution.date); $}
+                            {$ data.humaniseDate(solution.date, true); $}
                         </a>
                     </td>
                     <td class="table-listing__cell">{$ solution.deploystatus; $}</td>
@@ -48,20 +44,4 @@
                 </tr>
             </tbody>
         </table>
-
-        <h4>Success Rate:</h4>
-
-        <nvd3 options="qaOverview.qa_stack_bar_options"
-              data="qaOverview.qa_stack_bar_data"
-              config="qaOverview.qa_stack_bar_config"
-        ></nvd3>
-
-        <!--
-        <center><form name="myForm">
-            <label>Only show solutions deployed by Autopilot:
-                <input type="checkbox" ng-model="data.qa.deployedByAutopilot">
-            </label>
-        </form></center>
-        -->
-
 </div>

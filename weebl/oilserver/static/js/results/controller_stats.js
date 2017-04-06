@@ -12,7 +12,6 @@ app.controller('successRateController', [
         binding.user = $scope.data.user;
         binding.apikey = $scope.data.apikey;
 
-
         $scope = Common.initialise($scope);
         $scope.batch_size = 20;
         $scope.batch_start = 0;
@@ -22,10 +21,8 @@ app.controller('successRateController', [
         $scope.data.graphValues = {"ready": false};
 
         $scope.data.reports.show_filters = false;
-        $scope.data.results.show_filters = true;
-        $scope.data.qa.show_filters = false;
-        $scope.data.results.show_search = true;
-        $scope.data.qa.show_search = false;
+        $scope.data.show_filters = true;
+        $scope.data.show_search = true;
 
         $scope.data.default_tab = 'successRate';
         $scope.data.default_section = 'results';
@@ -36,8 +33,10 @@ app.controller('successRateController', [
                 ($scope.batch_end === end)) return;
             if (start < 0) start = 0;
             $scope.data.plot_data_loading = true;
-            $scope.data.testRuns = update('pipeline', $scope.batch_size, start);
-            $q.all([$scope.data.testRuns.$promise]).then(function([testRuns]) {
+            $q.all([
+                update('pipeline', $scope.batch_size, start).$promise]
+            ).then(function([testRuns]) {
+                $scope.data.testRuns = testRuns;
                 if (end > testRuns.meta.total_count) end = testRuns.meta.total_count;
                 $scope.data.plot_data_loading = false;
                 $scope.batch_start = start;
@@ -100,8 +99,8 @@ app.controller('successRateController', [
             getNewTestRuns(start, end);
         };
 
-        if (angular.isUndefined($scope.data.results.search))
-            $scope.data.results.search = new SearchFactory.Search();
+        if (angular.isUndefined($scope.data.search))
+            $scope.data.search = new SearchFactory.Search();
 
         $scope.data.start_dates = [
             '24 Hours Ago',
@@ -115,14 +114,14 @@ app.controller('successRateController', [
             'Now'
         ];
 
-        $scope.data.results.search.defaultFilters = {
+        $scope.data.search.defaultFilters = {
             "start_date": '24 Hours Ago',
             "finish_date": 'Now',
         }
-        $scope.data.results.search.individualFilters = ["start_date", "finish_date"];
-        $scope.data.results.search.runOnUpdate = updateSearch;
-        $scope.data.results.search._setURLParams();
-        $scope.data.results.search.init();
+        $scope.data.search.individualFilters = ["start_date", "finish_date"];
+        $scope.data.search.runOnUpdate = updateSearch;
+        $scope.data.search._setURLParams();
+        $scope.data.search.init();
 
         function getMetadata($scope) {
             var enum_fields = FilterFactory.getFilterModels();
@@ -191,8 +190,8 @@ app.controller('successRateController', [
 
                         console.log('----------------------------');
                         console.log("Stats from " +
-                                    $scope.data.results.search.filters["start_date"][0].slice(1) +
-                                    " to " + $scope.data.results.search.filters["finish_date"][0].slice(1) +
+                                    $scope.data.search.filters["start_date"][0].slice(1) +
+                                    " to " + $scope.data.search.filters["finish_date"][0].slice(1) +
                                     ":");
                         if (angular.isDefined($scope.data.graphValues.pipeline_deploy.jobtotal.meta))
                             console.log("deploy total: " +
@@ -281,18 +280,16 @@ app.controller('successRateController', [
 
         function updateSearch() {
             // slicing to pull off the prepended '=' for exact searches
-            updateStartDate($scope.data.results.search.filters["start_date"][0].slice(1));
-            updateFinishDate($scope.data.results.search.filters["finish_date"][0].slice(1));
+            updateStartDate($scope.data.search.filters["start_date"][0].slice(1));
+            updateFinishDate($scope.data.search.filters["finish_date"][0].slice(1));
             updateFromServer();
         }
 
-        today = new Date();
-        yesterday = new Date(new Date().setDate(today.getDate() - 1));
         // set the first search to 24 hours
         // if not doing that run update() instead to apply the above changes
-        if($scope.data.results.search.search == "") {
-            $scope.data.results.search.toggleFilter("start_date", "24 Hours Ago", true);
-            $scope.data.results.search.toggleFilter("finish_date", "Now", true);
+        if($scope.data.search.search == "") {
+            $scope.data.search.toggleFilter("start_date", "24 Hours Ago", true);
+            $scope.data.search.toggleFilter("finish_date", "Now", true);
         }
 
         $scope.data.highlightTab = function(tab) {
@@ -375,6 +372,7 @@ app.controller('successRateController', [
             $scope.data.getMaasVersionForTestRun(testrun.uuid);
             $scope.data.getJujuVersionForTestRun(testrun.uuid);
             $scope.data.getDeployStatusForTestRun(testrun.uuid);
+
             if ((angular.isDefined(testrun.versionconfiguration)) && (testrun.versionconfiguration === null)) {
                 $scope.data.testRunsWithData[testrun.uuid].openstackversion = "Unknown";
                 $scope.data.testRunsWithData[testrun.uuid].ubuntuversion = "Unknown";
@@ -391,6 +389,7 @@ app.controller('successRateController', [
                 };
             };
         };
+
 
         $scope.data.first_batch();
         updateGraphValues();

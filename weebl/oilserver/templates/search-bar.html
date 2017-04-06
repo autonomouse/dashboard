@@ -1,11 +1,11 @@
-                                <div id="content" class="nine-col last-col" data-ng-show="data.results.show_search">
+                                <div id="content" class="nine-col last-col" data-ng-show="data.show_search">
                                     <div id="search-bar" class="search">
                                         <input
                                             type="search" placeholder="Search test runs" class="search__input"
-                                            data-ng-model="data.results.search.search" data-ng-change="data.results.search.update()"
-                                            data-ng-class="{ errors: !data.results.search.isValid }"/>
+                                            data-ng-model="data.search.search" data-ng-change="data.search.update()"
+                                            data-ng-class="{ errors: !data.search.isValid }"/>
                                         <input type="submit" class="search__submit"
-                                            data-ng-class="{ close: data.results.search.search.length > 0 }"
-                                            data-ng-click="data.results.search.reset()" />
+                                            data-ng-class="{ close: data.search.search.length > 0 }"
+                                            data-ng-click="data.search.reset()" />
                                     </div>
                                 </div>
