@@ -255,6 +255,10 @@ app.factory('graphFactory', ['Common', function(Common) {
     };
 
     return {
+        to_fraction: to_fraction,
+        reportColors: reportColors,
+        extendBarChart: extendBarChart,
+        extendPieChart: extendPieChart,
         plot_stats_graph: plot_stats_graph,
         plotBugHistoryGraph: plotBugHistoryGraph,
         calcPercentage: calcPercentage
