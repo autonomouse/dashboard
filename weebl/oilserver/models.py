@@ -535,7 +535,7 @@ class JobType(models.Model):
         null=False,
         help_text="Order in which jobs are run/should be displayed in UI.")
     plot = models.BooleanField(
-        default=True,
+        default=False,
         help_text="Show on plots (e.g. success rate and trends graphs).")
 
     def __str__(self):
