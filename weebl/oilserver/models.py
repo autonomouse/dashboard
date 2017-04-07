@@ -397,6 +397,9 @@ class SolutionTag(TimeStampedBaseModel):
         max_length=6,
         default="56334b",
         help_text="HTML colour code (excluding the '#' prefix).")
+    show = models.BooleanField(
+        default=True,
+        help_text="Show on front page.")
 
     def __str__(self):
         return self.name

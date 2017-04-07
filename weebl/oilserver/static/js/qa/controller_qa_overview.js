@@ -35,8 +35,12 @@ app.controller('qaOverviewController', [
                     pass.meta.total_count,
                     jobtotal.meta.total_count,
                     skip.meta.total_count);
-                // only plot when have all data available:
                 $q.all([$scope.data.solutiontags.$promise]).then(function([solutiontags]) {
+                     overview.tablevalues[tag].show = true;
+                     for (var obj_idx in solutiontags.objects) {
+                        if (solutiontags.objects[obj_idx].name === tag)
+                            overview.tablevalues[tag].show = solutiontags.objects[obj_idx].show;
+                    };
                     $q.all([
                         DataService.refresh('solution', $scope.data.user, $scope.data.apikey).get({
                             'solutiontag__name': tag}).$promise

@@ -337,6 +337,13 @@ class JenkinsAdmin(admin.ModelAdmin):
 admin.site.register(models.Jenkins, JenkinsAdmin)
 
 
+class SolutionTagAdmin(admin.ModelAdmin):
+    list_display = ['name', 'show', 'colour']
+    search_fields = ['name']
+
+admin.site.register(models.SolutionTag, SolutionTagAdmin)
+
+
 # Register any remaining models that have not been explicitly registered:
 for model in get_models(get_app('oilserver')):
     try:

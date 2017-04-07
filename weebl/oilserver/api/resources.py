@@ -386,7 +386,8 @@ class SolutionTagResource(CommonResource):
     class Meta(CommonMeta):
         queryset = models.SolutionTag.objects.all()
         filtering = {'name': ALL,
-                     'colour': ('exact'), }
+                     'colour': ('exact'),
+                     'show': ('exact'), }
         detail_uri_name = 'name'
 
 
