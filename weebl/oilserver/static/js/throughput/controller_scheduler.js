@@ -1,11 +1,11 @@
 var app = angular.module('weebl');
 app.controller('schedulerController', [
-    '$scope', '$q', 'DataService',
-    function($scope, $q, DataService) {
+    '$scope', '$rootScope', '$q', 'DataService',
+    function($scope, $rootScope, $q, DataService) {
         binding = this;
 
         $scope.data.reports.show_filters = false;
-        $scope.data.show_filters = false;
+        $rootScope.data.show_filters = false;
         $scope.data.show_search = false;
         $scope.data.throughput = {};
         $scope.data.throughput.scheduler = {};

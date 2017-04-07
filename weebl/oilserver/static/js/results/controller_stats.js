@@ -1,7 +1,7 @@
 var app = angular.module('weebl');
 app.controller('successRateController', [
-    '$scope', '$q', 'data', 'SearchFactory', 'graphFactory', 'DataService', 'Common', 'FilterFactory',
-    function($scope, $q, data, SearchFactory, graphFactory, DataService, Common, FilterFactory) {
+    '$scope', '$rootScope', '$q', 'data', 'SearchFactory', 'graphFactory', 'DataService', 'Common', 'FilterFactory',
+    function($scope, $rootScope, $q, data, SearchFactory, graphFactory, DataService, Common, FilterFactory) {
         for (var datum in $scope.data) {
             data[datum] = $scope.data[datum]
         };
@@ -21,7 +21,7 @@ app.controller('successRateController', [
         $scope.data.graphValues = {"ready": false};
 
         $scope.data.reports.show_filters = false;
-        $scope.data.show_filters = true;
+        $rootScope.data.show_filters = true;
         $scope.data.show_search = true;
 
         $scope.data.default_tab = 'successRate';

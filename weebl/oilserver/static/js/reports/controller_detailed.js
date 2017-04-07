@@ -25,15 +25,15 @@ app.filter('namedKey', function () {
 });
 
 app.controller('detailedReportController', [
-    '$scope', '$q', '$sce', 'SearchFactory', 'DataService', 'Common', 'graphFactory', 'keylengthFilter', 'namedKeyFilter',
-    function($scope, $q, $sce, SearchFactory, DataService, Common, graphFactory, keylengthFilter, namedKeyFilter) {
+    '$scope', '$rootScope', '$q', '$sce', 'SearchFactory', 'DataService', 'Common', 'graphFactory', 'keylengthFilter', 'namedKeyFilter',
+    function($scope, $rootScope, $q, $sce, SearchFactory, DataService, Common, graphFactory, keylengthFilter, namedKeyFilter) {
         $scope = Common.initialise($scope);
         if(angular.isUndefined($scope.data.reports.search)) $scope.data.reports.search = new SearchFactory.Search();
         $scope.data.reports.search.init();
         if(angular.isUndefined($scope.data.reports.metadata)) $scope.data.reports.metadata = {};
         if(angular.isUndefined($scope.data.reports.detailed)) $scope.data.reports.detailed = {};
         $scope.data.reports.show_filters = true;
-        $scope.data.show_filters = false;
+        $rootScope.data.show_filters = false;
         $scope.data.show_search = false;
 
         $scope.data.reports.search.defaultFilters = {"date": "Last 30 Days", "report": "Overall"};

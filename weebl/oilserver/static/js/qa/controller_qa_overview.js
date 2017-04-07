@@ -1,7 +1,7 @@
 var app = angular.module('weebl');
 app.controller('qaOverviewController', [
-    '$scope', '$q', 'data', 'SearchFactory', 'graphFactory', 'DataService', 'Common', 'FilterFactory',
-    function($scope, $q, data, SearchFactory, graphFactory, DataService, Common, FilterFactory) {
+    '$scope', '$rootScope', '$q', 'data', 'SearchFactory', 'graphFactory', 'DataService', 'Common', 'FilterFactory',
+    function($scope, $rootScope, $q, data, SearchFactory, graphFactory, DataService, Common, FilterFactory) {
         binding = this;
         binding.user = $scope.data.user;
         binding.apikey = $scope.data.apikey;
@@ -19,7 +19,7 @@ app.controller('qaOverviewController', [
         $scope.data.search.init(defaultFilters);
 
         $scope.data.reports.show_filters = false;
-        $scope.data.show_filters = false;
+        $rootScope.data.show_filters = false;
         $scope.data.show_search = false;
 
         $scope.data.default_tab = 'qa';

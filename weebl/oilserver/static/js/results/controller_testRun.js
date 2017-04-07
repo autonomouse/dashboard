@@ -1,7 +1,7 @@
 var app = angular.module('weebl');
 app.controller('testRunController', [
-    '$scope', '$q', '$rootScope', '$routeParams', 'data', 'DataService', 'Common', 'FilterFactory',
-    function($scope, $q, $rootScope, $routeParams, data, DataService, Common, FilterFactory) {
+    '$scope', '$rootScope', '$q', '$rootScope', '$routeParams', 'data', 'DataService', 'Common', 'FilterFactory',
+    function($scope, $rootScope, $q, $rootScope, $routeParams, data, DataService, Common, FilterFactory) {
 
         for (var datum in $scope.data) {
             data[datum] = $scope.data[datum]
@@ -19,7 +19,7 @@ app.controller('testRunController', [
 
         $scope.data.testRunId = $routeParams.testRunId;
         $scope.data.reports.show_filters = false;
-        $scope.data.show_filters = false;
+        $rootScope.data.show_filters = false;
         $scope.data.show_search = false;
         $scope.data.producttypes = {}
         $q.all([

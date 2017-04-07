@@ -1,13 +1,13 @@
 var app = angular.module('weebl');
 app.controller('bugController', [
-    '$scope', '$q', '$rootScope', '$routeParams', 'data', 'DataService', 'graphFactory', 'Common',
-    function($scope, $q, $rootScope, $routeParams, data, DataService, graphFactory, Common) {
+    '$scope', '$rootScope', '$q', '$rootScope', '$routeParams', 'data', 'DataService', 'graphFactory', 'Common',
+    function($scope, $rootScope, $q, $rootScope, $routeParams, data, DataService, graphFactory, Common) {
         binding = this;
 
         $scope.data.individualBug = {};
         $scope.data.individualBug.bugId = $routeParams.bugId;
         $scope.data.reports.show_filters = false;
-        $scope.data.show_filters = false;
+        $rootScope.data.show_filters = false;
         $scope.data.show_search = false;
 
         $scope.data.individualBug.plotData = {};
