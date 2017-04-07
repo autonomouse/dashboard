@@ -49,12 +49,14 @@ app.controller('qaOverviewController', [
                             DataService.refresh('testcaseinstance', $scope.data.user, $scope.data.apikey).query({
                                 'build__pipeline__solution__solutiontag__name': tag,
                                 'testcase__testcaseclass__testframework__name': 'pipeline_deploy',
-                                'limit':1,
+                                'limit':10,
                                 'order_by': '-build__pipeline__completed_at'}).$promise
-                        ]).then(function([latest_pipeline_tci]) {
-                            if (latest_pipeline_tci.length) {
-                                overview.tablevalues[tag].deploystatus = latest_pipeline_tci[0].testcaseinstancestatus.name;
-                                var latest_pipeline = latest_pipeline_tci[0].build.pipeline
+                        ]).then(function([latest_pipeline_tcis]) {
+                            if (latest_pipeline_tcis.length) {
+                                overview.tablevalues[tag].last_ten_pipelines = latest_pipeline_tcis
+                                latest_pipeline_tci = latest_pipeline_tcis[0]
+                                overview.tablevalues[tag].deploystatus = latest_pipeline_tci.testcaseinstancestatus.name;
+                                var latest_pipeline = latest_pipeline_tci.build.pipeline
                                 overview.tablevalues[tag].date = latest_pipeline.completed_at != null ? latest_pipeline.completed_at : "In progress";
                                 overview.tablevalues[tag].testrun = latest_pipeline.uuid;
                                 overview.tablevalues[tag].openstackversion = (

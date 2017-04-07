@@ -20,7 +20,7 @@
                     <th class="table-listing__header">
                         <img height"15" src="{$ data.getLogoURL('ubuntu.svg'); $}" alt="Ubuntu" title="Ubuntu" />
                     </th>
-                    <th class="table-listing__header">Success Rate</th>
+                    <th class="table-listing__header">Run History</th>
                 </tr>
             </thead>
             <tbody>
@@ -40,7 +40,13 @@
                     <td class="table-listing__cell">{$ solution.jujuversion; $}</td>
                     <td class="table-listing__cell">{$ solution.openstackversion; $}</td>
                     <td class="table-listing__cell">{$ solution.ubuntuversion; $}</td>
-                    <td class="table-listing__cell">{$ solution.success_rate; $}%</td>
+                    <td class="table-listing__cell">
+                        <span ng-repeat="testrun in solution.last_ten_pipelines">
+                            <a href="#/results/testRun/{$ testrun.build.pipeline.uuid $}">
+                                <font size="5" color="{$ testrun.testcaseinstancestatus.name === 'success' ? 'green' : 'red' $}">|</font>
+                            </a>
+                        </span>
+                    </td>
                 </tr>
             </tbody>
         </table>
