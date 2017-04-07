@@ -45,7 +45,8 @@ app.controller('qaOverviewController', [
                             DataService.refresh('testcaseinstance', $scope.data.user, $scope.data.apikey).query({
                                 'build__pipeline__solution__solutiontag__name': tag,
                                 'testcase__testcaseclass__testframework__name': 'pipeline_deploy',
-                                'limit':1}).$promise
+                                'limit':1,
+                                'order_by': '-build__pipeline__completed_at'}).$promise
                         ]).then(function([latest_pipeline_tci]) {
                             if (latest_pipeline_tci.length) {
                                 overview.tablevalues[tag].deploystatus = latest_pipeline_tci[0].testcaseinstancestatus.name;

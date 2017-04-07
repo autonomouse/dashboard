@@ -430,12 +430,13 @@ class PipelineResource(CommonResource):
         queryset = models.Pipeline.objects.all().order_by('-completed_at')
         filtering = {'uuid': ALL,
                      'builds': ALL_WITH_RELATIONS,
-                     'completed_at': ALL,
+                     'completed_at': ALL_WITH_RELATIONS,
                      'solution': ALL_WITH_RELATIONS,
                      'versionconfiguration': ALL_WITH_RELATIONS,
                      'configurationchoices': ALL_WITH_RELATIONS,
                      'jujuservicedeployments': ALL_WITH_RELATIONS,
                      'buildexecutor': ALL_WITH_RELATIONS, }
+        ordering = ['completed_at']
 
     def build_filters(self, filters=None, ignore_bad_filters=True):
         if filters is None:
@@ -689,7 +690,7 @@ class BuildResource(CommonResource):
                      'jobtype': ALL_WITH_RELATIONS,
                      'pipeline': ALL_WITH_RELATIONS,
                      'testcaseinstances': ALL_WITH_RELATIONS, }
-        ordering = ['build_started_at']
+        ordering = ['pipeline', 'build_started_at']
 
     def dehydrate(self, bundle):
         bundle = super(BuildResource, self).dehydrate(bundle)
@@ -848,6 +849,7 @@ class TestCaseInstanceResource(CommonResource):
             'testcase': ALL_WITH_RELATIONS,
             'bugoccurrences': ALL_WITH_RELATIONS,
         }
+        ordering = ['build']
 
 
 class TargetFileGlobResource(CommonResource):
