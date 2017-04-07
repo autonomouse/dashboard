@@ -300,10 +300,6 @@ app.controller('successRateController', [
             Common.highlightSection($scope, section);
         };
 
-        $scope.generatePDF = function() {
-            $scope.data.pdf_content = angular.element("#content-block").html();
-        };
-
         // Sorts the table by predicate.
         $scope.data.sortTable = function(predicate, tab) {
             if (predicate === $scope.data.tabs[tab].predicate) {
