@@ -37,7 +37,8 @@ app.controller('successRateController', [
                 update('pipeline', $scope.batch_size, start).$promise]
             ).then(function([testRuns]) {
                 $scope.data.testRuns = testRuns;
-                if (end > testRuns.meta.total_count) end = testRuns.meta.total_count;
+                if (end > testRuns.meta.total_count)
+                    end = testRuns.meta.total_count;
                 $scope.data.plot_data_loading = false;
                 $scope.batch_start = start;
                 $scope.batch_end = end;
@@ -356,6 +357,14 @@ app.controller('successRateController', [
             ]).then(function([testcaseinstance]) {
                 if ((testcaseinstance.objects.length > 0) && (angular.isDefined(testcaseinstance.objects[0].testcaseinstancestatus.name))) {
                     $scope.data.testRunsWithData[pipeline].deploystatus = testcaseinstance.objects[0].testcaseinstancestatus.name;
+                     $q.all([
+                        DataService.refresh('bugoccurrence', $scope.data.user, $scope.data.apikey).get({
+                            'testcaseinstance__uuid': testcaseinstance.objects[0].uuid}).$promise
+                    ]).then(function([bugoccurrence]) {
+                        if (bugoccurrence.objects.length > 0) {
+                            $scope.data.testRunsWithData[pipeline].blockers = bugoccurrence.objects;
+                        };
+                    });
                 };
             });
         };

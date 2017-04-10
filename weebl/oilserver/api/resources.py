@@ -966,7 +966,8 @@ class KnownBugRegexResource(CommonResource):
 class BugOccurrenceResource(CommonResource):
     """API Resource for 'BugTrackerBug' model. """
 
-    knownbugregex = ForeignKey(KnownBugRegexResource, 'knownbugregex')
+    knownbugregex = ForeignKey(
+        KnownBugRegexResource, 'knownbugregex', full_list=True)
     testcaseinstance = ForeignKey(TestCaseInstanceResource, 'testcaseinstance')
     created_at = fields.DateTimeField('created_at', readonly=True)
     updated_at = fields.DateTimeField('updated_at', readonly=True)

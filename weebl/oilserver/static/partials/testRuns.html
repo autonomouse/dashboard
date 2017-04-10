@@ -1,6 +1,9 @@
 
 <div id="content" class="nine-col last-col">
-    <p>{$ data.testRuns.meta.total_count $} <ng-pluralize count="data.testRuns.meta.total_count" when="{'0': 'matching test runs', '1': 'matching test run', 'other': 'matching test runs'}"></ng-pluralize>
+    <p>{$ data.testRuns.meta.total_count $}
+        <ng-pluralize count="data.testRuns.meta.total_count"
+         when="{'0': 'matching test runs', '1': 'matching test run', 'other': 'matching test runs'}">
+        </ng-pluralize>
         <span ng-if="data.testRuns.meta.total_count > data.testRuns.meta.limit ">
             (displaying batches of {$ data.testRuns.meta.limit $} test runs).
             <p>
@@ -32,18 +35,29 @@
                                         'sort-asc': data.tabs.testRuns.reverse === false,
                                         'sort-desc': data.tabs.nodes.reverse === true}">Completed At</a>
                 </th>
-                <th class="table-listing__header"><img height"15" src="{$ data.getLogoURL('maas.svg'); $}" alt="MAAS" title="MAAS" /></th>
-                <th class="table-listing__header"><img height"15" src="{$ data.getLogoURL('juju.svg'); $}" alt="Juju" title="Juju" /></th>
-                <th class="table-listing__header"><img height"15" src="{$ data.getLogoURL('openstack.svg'); $}" alt="OpenStack" title="OpenStack" /></th>
-                <th class="table-listing__header"><img height"15" src="{$ data.getLogoURL('ubuntu.svg'); $}" alt="Ubuntu" title="Ubuntu" /></th>
+                <th class="table-listing__header">
+                    <img height"15" src="{$ data.getLogoURL('maas.svg'); $}" alt="MAAS" title="MAAS" />
+                </th>
+                <th class="table-listing__header">
+                    <img height"15" src="{$ data.getLogoURL('juju.svg'); $}" alt="Juju" title="Juju" />
+                </th>
+                <th class="table-listing__header">
+                    <img height"15" src="{$ data.getLogoURL('openstack.svg'); $}" alt="OpenStack" title="OpenStack" />
+                </th>
+                <th class="table-listing__header">
+                    <img height"15" src="{$ data.getLogoURL('ubuntu.svg'); $}" alt="Ubuntu" title="Ubuntu" />
+                </th>
                 <th class="table-listing__header">Deploy Status</th>
+                <th class="table-listing__header">Blockers</th>
             </tr>
         </thead>
         <tbody>
             <tr class="table-listing__row" ng-repeat="testRun in data.testRuns.objects | orderBy:data.tabs.testRuns.predicate:data.tabs.testRuns.reverse">
                 <td class="table-listing__cell">
                     <a href="#/results/testRun/{$ testRun.uuid $}" title="{$ testRun.uuid $}">
-                        {$ data.getExtraDataForTestRun(testRun); data.abbreviateUUID(testRun.uuid) $}<span data-ng-show="testRun.solution.solutiontag.name != null"> ({$ testRun.solution.solutiontag.name $}) </span>
+                        {$ data.getExtraDataForTestRun(testRun); data.abbreviateUUID(testRun.uuid) $}
+                        <span data-ng-show="testRun.solution.solutiontag.name != null"> ({$ testRun.solution.solutiontag.name $})
+                        </span>
                     </a>
                 </td>
                 <td class="table-listing__cell">{$ data.humaniseDate(testRun.completed_at) $}</td>
@@ -52,7 +66,17 @@
                 <td class="table-listing__cell">{$ data.testRunsWithData[testRun.uuid].openstackversion $}</td>
                 <td class="table-listing__cell">{$ data.testRunsWithData[testRun.uuid].ubuntuversion $}</td>
                 <td class="table-listing__cell">
-                    <font color="{$ data.colourStatus(data.testRunsWithData[testRun.uuid].deploystatus); $}">{$ data.testRunsWithData[testRun.uuid].deploystatus; $}</font>
+                    <font color="{$ data.colourStatus(data.testRunsWithData[testRun.uuid].deploystatus); $}">
+                        {$ data.testRunsWithData[testRun.uuid].deploystatus; $}
+                    </font>
+                </td>
+                <td class="table-listing__cell">
+                    <span data-ng-repeat="blocker in data.testRunsWithData[testRun.uuid].blockers">
+                        {$ $first ? '' : $last ? ' and ' : ', ' $}
+                        <a href="#/results/bug/{$ blocker.knownbugregex.bug.bugtrackerbug.bug_number $}" title="{$ blocker.knownbugregex.bug.bugtrackerbug.bug_number $}">
+                            {$ blocker.knownbugregex.bug.bugtrackerbug.bug_number $}
+                        </a>
+                    </span>
                 </td>
             </tr>
         </tbody>
