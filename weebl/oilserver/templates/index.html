@@ -14,7 +14,6 @@
         <![endif]-->
         <link rel="shortcut icon" href="{{ STATIC_URL }}img/favicon.ico" type="image/x-icon" />
         {% include "css-conf.html" %}
-        {% include "js-conf.html" %}
     </head>
 
     <body data-ng-init="data.site = 'OIL'; data.user = '{{ user.username }}'; data.apikey = '{{ user.api_key.key }}'">
@@ -137,3 +136,5 @@
         </div>
     </body>
 </html>
+
+{% include "js-conf.html" %}
