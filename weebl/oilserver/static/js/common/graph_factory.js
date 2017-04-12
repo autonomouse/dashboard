@@ -62,7 +62,7 @@ app.factory('graphFactory', ['Common', function(Common) {
             showLegend: false,
             growOnHover: false,
             duration: 500,
-            width: 800,
+            width: 700,
             height: 300,
             yAxis: {
                 ticks: 4,
