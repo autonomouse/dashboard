@@ -7,11 +7,11 @@
         <span ng-if="data.testRuns.meta.total_count > data.testRuns.meta.limit ">
             (displaying batches of {$ data.testRuns.meta.limit $} test runs).
             <p>
-                <a href="" data-ng-click="data.first_batch()">|<</a>
-                <a href="" data-ng-click="data.prev_batch()"><</a>
+                <a data-ng-href="" data-ng-click="data.first_batch()">|<</a>
+                <a data-ng-href="" data-ng-click="data.prev_batch()"><</a>
                 <span>{$ batch_start $}-{$ batch_end $}</span>
-                <a href="" data-ng-click="data.next_batch()">></a>
-                <a href="" data-ng-click="data.last_batch()">>|</a>
+                <a data-ng-href="" data-ng-click="data.next_batch()">></a>
+                <a data-ng-href="" data-ng-click="data.last_batch()">>|</a>
             </p>
         </span>
     </p>
@@ -20,7 +20,7 @@
         <thead>
             <tr class="table-listing__row">
                 <th class="table-listing__header">
-                    <a href=""
+                    <a data-ng-href=""
                         class="table-listing__header-link sort-asc"
                         data-ng-click="data.sortTable('testRun.uuid', 'testRuns')"
                         data-ng-class="{sort: data.tabs.testRuns.predicate === 'testRun.uuid',
@@ -28,7 +28,7 @@
                                         'sort-desc': data.tabs.nodes.reverse === true}">Test Run ID</a>
                 </th>
                 <th class="table-listing__header">
-                    <a href=""
+                    <a data-ng-href=""
                         class="table-listing__header-link sort-desc"
                         data-ng-click="data.sortTable('completed_at', 'testRuns')"
                         data-ng-class="{sort: data.tabs.testRuns.predicate === 'completed_at',
@@ -54,7 +54,7 @@
         <tbody>
             <tr class="table-listing__row" ng-repeat="testRun in data.testRuns.objects | orderBy:data.tabs.testRuns.predicate:data.tabs.testRuns.reverse">
                 <td class="table-listing__cell">
-                    <a href="#/results/testRun/{$ testRun.uuid $}" title="{$ testRun.uuid $}">
+                    <a data-ng-href="#/results/testRun/{$ testRun.uuid $}" title="{$ testRun.uuid $}">
                         {$ data.getExtraDataForTestRun(testRun); data.abbreviateUUID(testRun.uuid) $}
                         <span data-ng-show="testRun.solution.solutiontag.name != null"> ({$ testRun.solution.solutiontag.name $})
                         </span>
@@ -73,7 +73,7 @@
                 <td class="table-listing__cell">
                     <span data-ng-repeat="blocker in data.testRunsWithData[testRun.uuid].blockers">
                         {$ $first ? '' : $last ? ' and ' : ', ' $}
-                        <a href="#/results/bug/{$ blocker.knownbugregex.bug.bugtrackerbug.bug_number $}" title="{$ blocker.knownbugregex.bug.bugtrackerbug.bug_number $}">
+                        <a data-ng-href="#/results/bug/{$ blocker.knownbugregex.bug.bugtrackerbug.bug_number $}" title="{$ blocker.knownbugregex.bug.bugtrackerbug.bug_number $}">
                             {$ blocker.knownbugregex.bug.bugtrackerbug.bug_number $}
                         </a>
                     </span>

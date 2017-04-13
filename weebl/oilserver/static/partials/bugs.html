@@ -4,24 +4,24 @@
         <thead>
             <tr class="table-listing__row">
                 <th class="table-listing__header">
-                    <a href="" class="table-listing__header-link sort-asc" data-ng-click="data.sortTable('bugtrackerbug.bug_number', 'bugs')" data-ng-class="{sort: data.tabs.bugs.predicate === 'bugtrackerbug.bug_number', 'sort-asc': data.tabs.bugs.reverse === false, 'sort-desc': data.tabs.nodes.reverse === true}">Number</a>
+                    <a data-ng-href="" class="table-listing__header-link sort-asc" data-ng-click="data.sortTable('bugtrackerbug.bug_number', 'bugs')" data-ng-class="{sort: data.tabs.bugs.predicate === 'bugtrackerbug.bug_number', 'sort-asc': data.tabs.bugs.reverse === false, 'sort-desc': data.tabs.nodes.reverse === true}">Number</a>
                 </th>
                 <th class="table-listing__header">Affected Products</th>
                 <th class="table-listing__header">
-                    <a href="" class="table-listing__header-link sort-asc" data-ng-click="data.sortTable('summary', 'bugs')" data-ng-class="{sort: data.tabs.bugs.predicate === 'summary', 'sort-asc': data.tabs.bugs.reverse === false, 'sort-desc': data.tabs.nodes.reverse === true}">Summary</a>
+                    <a data-ng-href="" class="table-listing__header-link sort-asc" data-ng-click="data.sortTable('summary', 'bugs')" data-ng-class="{sort: data.tabs.bugs.predicate === 'summary', 'sort-asc': data.tabs.bugs.reverse === false, 'sort-desc': data.tabs.nodes.reverse === true}">Summary</a>
                 </th>
                 <th class="table-listing__header">
-                    <a href="" class="table-listing__header-link sort-asc" data-ng-click="data.sortTable('occurrence_count', 'bugs')" data-ng-class="{sort: data.tabs.bugs.predicate === 'occurrence_count', 'sort-asc': data.tabs.bugs.reverse === false, 'sort-desc': data.tabs.nodes.reverse === true}">Occurrences</a>
+                    <a data-ng-href="" class="table-listing__header-link sort-asc" data-ng-click="data.sortTable('occurrence_count', 'bugs')" data-ng-class="{sort: data.tabs.bugs.predicate === 'occurrence_count', 'sort-asc': data.tabs.bugs.reverse === false, 'sort-desc': data.tabs.nodes.reverse === true}">Occurrences</a>
                 </th>
                 <th class="table-listing__header">
-                    <a href="" class="table-listing__header-link sort-asc" data-ng-click="data.sortTable('last_seen', 'bugs')" data-ng-class="{sort: data.tabs.bugs.predicate === 'last_seen', 'sort-asc': data.tabs.bugs.reverse === false, 'sort-desc': data.tabs.nodes.reverse === true}">Last Seen (UTC)</a>
+                    <a data-ng-href="" class="table-listing__header-link sort-asc" data-ng-click="data.sortTable('last_seen', 'bugs')" data-ng-class="{sort: data.tabs.bugs.predicate === 'last_seen', 'sort-asc': data.tabs.bugs.reverse === false, 'sort-desc': data.tabs.nodes.reverse === true}">Last Seen (UTC)</a>
                 </th>
             </tr>
         </thead>
         <tbody>
             <tr class="table-listing__row" data-ng-repeat="bug in data.bugs.objects | orderBy:data.tabs.bugs.predicate:data.tabs.bugs.reverse">
                 <td class="table-listing__cell">
-                    <a href="#/results/bug/{$ bug.bugtrackerbug.bug_number $}" title="{$ bug.bugtrackerbug.bug_number $}">
+                    <a data-ng-href="#/results/bug/{$ bug.bugtrackerbug.bug_number $}" title="{$ bug.bugtrackerbug.bug_number $}">
                         {$ bug.bugtrackerbug.bug_number $}
                     </a>
                 </td>

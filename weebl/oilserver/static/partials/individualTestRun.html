@@ -26,7 +26,7 @@
                     <td class="table-listing__cell"><p>{$ data.humaniseDate(data.individual_testRun.completed_at != null ? data.individual_testRun.completed_at : "(Test run not yet complete)"); $}</p></td>
                     <td class="table-listing__cell">
                         <p data-ng-show="data.individual_testRun.buildexecutor.jenkins.environment.name != null">
-                            <a href="{$ data.individual_testRun.buildexecutor.jenkins.external_access_url $}" data-ng-show="data.individual_testRun.buildexecutor.jenkins.external_access_url != ''">
+                            <a data-ng-href="{$ data.individual_testRun.buildexecutor.jenkins.external_access_url $}" data-ng-show="data.individual_testRun.buildexecutor.jenkins.external_access_url != ''">
                                 {$ data.individual_testRun.buildexecutor.jenkins.environment.name $}
                             </a>
                             <span data-ng-show="data.individual_testRun.buildexecutor.jenkins.external_access_url === ''">
@@ -82,7 +82,7 @@
                     </td>
                     <td class="table-listing__cell">
                         <span data-ng-if="data.job_build_outcome[job].jenkinsBuildUrl">
-                            <a href="{$ data.job_build_outcome[job].jenkinsBuildUrl; $}" class="external">{$ data.job_build_outcome[job].build_number; $}</a>
+                            <a data-ng-href="{$ data.job_build_outcome[job].jenkinsBuildUrl; $}" class="external">{$ data.job_build_outcome[job].build_number; $}</a>
                         </span>
                         <span data-ng-if="!data.job_build_outcome[job].jenkinsBuildUrl">{$ data.job_build_outcome[job].build_number; $}</span>
                     </td>
@@ -117,24 +117,24 @@
                 <thead>
                     <tr class="table-listing__row">
                         <th class="table-listing__header">
-                            <a href="" class="table-listing__header-link sort-asc" data-ng-click="data.sortTable('bugtrackerbug.bug_number', 'bugs')" data-ng-class="{sort: data.tabs.bugs.predicate === 'bugtrackerbug.bug_number', 'sort-asc': data.tabs.bugs.reverse === false, 'sort-desc': data.tabs.nodes.reverse === true}">Number</a>
+                            <a data-ng-href="" class="table-listing__header-link sort-asc" data-ng-click="data.sortTable('bugtrackerbug.bug_number', 'bugs')" data-ng-class="{sort: data.tabs.bugs.predicate === 'bugtrackerbug.bug_number', 'sort-asc': data.tabs.bugs.reverse === false, 'sort-desc': data.tabs.nodes.reverse === true}">Number</a>
                         </th>
                         <th class="table-listing__header">Affected Products</th>
                         <th class="table-listing__header">
-                            <a href="" class="table-listing__header-link sort-asc" data-ng-click="data.sortTable('summary', 'bugs')" data-ng-class="{sort: data.tabs.bugs.predicate === 'summary', 'sort-asc': data.tabs.bugs.reverse === false, 'sort-desc': data.tabs.nodes.reverse === true}">Summary</a>
+                            <a data-ng-href="" class="table-listing__header-link sort-asc" data-ng-click="data.sortTable('summary', 'bugs')" data-ng-class="{sort: data.tabs.bugs.predicate === 'summary', 'sort-asc': data.tabs.bugs.reverse === false, 'sort-desc': data.tabs.nodes.reverse === true}">Summary</a>
                         </th>
                         <th class="table-listing__header">
-                            <a href="" class="table-listing__header-link sort sort-asc" data-ng-click="data.sortTable('occurrence_count', 'bugs')" data-ng-class="{sort: data.tabs.bugs.predicate === 'occurrence_count', 'sort-asc': data.tabs.bugs.reverse === false, 'sort-desc': data.tabs.nodes.reverse === true}">Occurrences</a>
+                            <a data-ng-href="" class="table-listing__header-link sort sort-asc" data-ng-click="data.sortTable('occurrence_count', 'bugs')" data-ng-class="{sort: data.tabs.bugs.predicate === 'occurrence_count', 'sort-asc': data.tabs.bugs.reverse === false, 'sort-desc': data.tabs.nodes.reverse === true}">Occurrences</a>
                         </th>
                         <th class="table-listing__header">
-                            <a href="" class="table-listing__header-link sort-asc" data-ng-click="data.sortTable('last_seen', 'bugs')" data-ng-class="{sort: data.tabs.bugs.predicate === 'last_seen', 'sort-asc': data.tabs.bugs.reverse === false, 'sort-desc': data.tabs.nodes.reverse === true}">Last Seen (UTC)</a>
+                            <a data-ng-href="" class="table-listing__header-link sort-asc" data-ng-click="data.sortTable('last_seen', 'bugs')" data-ng-class="{sort: data.tabs.bugs.predicate === 'last_seen', 'sort-asc': data.tabs.bugs.reverse === false, 'sort-desc': data.tabs.nodes.reverse === true}">Last Seen (UTC)</a>
                         </th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr class="table-listing__row" data-ng-repeat="bug_fx_pl in data.bugs_affecting_pipeline.objects | orderBy:data.tabs.bugs.predicate:data.tabs.bugs.reverse">
                         <td class="table-listing__cell">
-                            <a href="#/results/bug/{$ bug_fx_pl.bugtrackerbug.bug_number $}" title="{$ bug_fx_pl.bugtrackerbug.bug_number $}">
+                            <a data-ng-href="#/results/bug/{$ bug_fx_pl.bugtrackerbug.bug_number $}" title="{$ bug_fx_pl.bugtrackerbug.bug_number $}">
                                 {$ bug_fx_pl.bugtrackerbug.bug_number $}
                             </a>
                         </td>
@@ -190,7 +190,7 @@
         </table>
 
         <span data-ng-if="data.individual_testRun.buildexecutor.jenkins.environment.data_archive_url != ''">
-            <a href="{$ data.joinURLs(data.individual_testRun.buildexecutor.jenkins.environment.data_archive_url, data.testRunId) $}" class="external" data-ng-show="data.individual_testRun.buildexecutor.jenkins.environment.data_archive_url != null">
+            <a data-ng-href="{$ data.joinURLs(data.individual_testRun.buildexecutor.jenkins.environment.data_archive_url, data.testRunId) $}" class="external" data-ng-show="data.individual_testRun.buildexecutor.jenkins.environment.data_archive_url != null">
                 Click here to view full artifacts repository for this test run
             </a>
         </span>

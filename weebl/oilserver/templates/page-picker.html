@@ -1,5 +1,5 @@
 <ng-repeat ng-repeat="tab in tabs">
-    <a href="#/{$ activeSection $}/{$ tab.url $}" data-ng-class="{ active: activeTab === tab.url }">{$ tab.name $}</a>
+    <a data-ng-href="#/{$ activeSection $}/{$ tab.url $}" data-ng-class="{ active: activeTab === tab.url }">{$ tab.name $}</a>
     <span class="divide" data-ng-if="!$last"></span>
 </ng-repeat>
 {% include 'spinner.html' %}

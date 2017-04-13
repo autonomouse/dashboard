@@ -1,7 +1,7 @@
 <span class="page-header__title--identicator" id="bulk-actions">
     <ul id="main-nav" class="nav">
         <li data-ng-repeat="section in sections">
-            <a href="#/{$ section.url $}" data-ng-class="{ active: activeSection === section.url }">{$ section.name $}</a>
+            <a data-ng-href="#/{$ section.url $}" data-ng-class="{ active: activeSection === section.url }">{$ section.name $}</a>
         </li>
     </ul>
 </span>
