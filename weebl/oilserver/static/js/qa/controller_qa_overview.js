@@ -18,9 +18,9 @@ app.controller('qaOverviewController', [
         $scope = Common.initialise($scope);
         $scope.data.search.init(defaultFilters);
 
-        $scope.data.reports.show_filters = false;
+        $rootScope.data.show_reports_filters = false;
         $rootScope.data.show_filters = false;
-        $scope.data.show_search = false;
+        $rootScope.data.show_search = false;
 
         $scope.data.default_tab = 'qa';
         $scope.data.default_section = 'overview';

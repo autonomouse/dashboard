@@ -4,9 +4,9 @@ app.controller('schedulerController', [
     function($scope, $rootScope, $q, DataService) {
         binding = this;
 
-        $scope.data.reports.show_filters = false;
+        $rootScope.data.show_reports_filters = false;
         $rootScope.data.show_filters = false;
-        $scope.data.show_search = false;
+        $rootScope.data.show_search = false;
         $scope.data.throughput = {};
         $scope.data.throughput.scheduler = {};
         $scope.data.throughput.scheduler.job_starts = {};

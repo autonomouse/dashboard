@@ -32,9 +32,9 @@ app.controller('detailedReportController', [
         $scope.data.reports.search.init();
         if(angular.isUndefined($scope.data.reports.metadata)) $scope.data.reports.metadata = {};
         if(angular.isUndefined($scope.data.reports.detailed)) $scope.data.reports.detailed = {};
-        $scope.data.reports.show_filters = true;
+        $rootScope.data.show_reports_filters = true;
         $rootScope.data.show_filters = false;
-        $scope.data.show_search = false;
+        $rootScope.data.show_search = false;
 
         $scope.data.reports.search.defaultFilters = {"date": "Last 30 Days", "report": "Overall"};
         $scope.data.reports.search.individualFilters = ["date", "report"];

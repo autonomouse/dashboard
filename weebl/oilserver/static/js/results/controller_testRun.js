@@ -18,9 +18,9 @@ app.controller('testRunController', [
         $scope.data.plot_data_loading = true;
 
         $scope.data.testRunId = $routeParams.testRunId;
-        $scope.data.reports.show_filters = false;
+        $rootScope.data.show_reports_filters = false;
         $rootScope.data.show_filters = false;
-        $scope.data.show_search = false;
+        $rootScope.data.show_search = false;
         $scope.data.producttypes = {}
         $q.all([
             DataService.refresh('producttype', $scope.data.user, $scope.data.apikey).query({}).$promise

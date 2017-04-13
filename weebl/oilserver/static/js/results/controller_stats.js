@@ -20,9 +20,9 @@ app.controller('successRateController', [
 
         $scope.data.graphValues = {"ready": false};
 
-        $scope.data.reports.show_filters = false;
+        $rootScope.data.show_reports_filters = false;
         $rootScope.data.show_filters = true;
-        $scope.data.show_search = true;
+        $rootScope.data.show_search = true;
 
         $scope.data.default_tab = 'successRate';
         $scope.data.default_section = 'results';
