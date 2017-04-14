@@ -64,63 +64,51 @@
                 </div>
             </header>
             <main id="body">
-                {% if user.is_staff or user.is_superuser %}
-                    <div data-ng-controller="pdfReportController as pdf">
-                        <header class="page-header margin-bottom" data-maas-sticky-header>
-                            <div class="inner-wrapper">
-                                <h1 class="page-header__title">
-                                    <span class="page-header__title--identicator" id="bulk-actions">
-                                        {% include 'page-picker.html' %}
-                                    </span>
-                                </h1>
-                                <div class="page-header__actions" data-ng-show="activeSection === 'reports'">
-                                    <div class="page-header__cta">
-                                        <div class="cta-group">
-                                            <a ng-click="showActions=!showActions" ng-init="showActions=false" class="cta-group__link">Reporting Tools</a>
-                                            <div class="cta-group__dropdown ng-hide" ng-show="showActions">
-                                                <form class="cta-group__item" ng-submit="generatePDF()" action="pdf" target="_blank" method="post">
-                                                    <input type="text" name="template" data-ng-model="template" style="display: none;"/>
-                                                    <input type="text" name="content" data-ng-model="data.pdf_content" style="display: none;"/>
-                                                    <input type="hidden" name="force-one-page" data-ng-if="activeTab === 'overview'" value="True"/>
-                                                    <input type="hidden" name="filename" value="filename.pdf"/>
-                                                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-                                                    <input class="linkcamo" type="submit" name="submit" value="Save to PDF"/>
-                                                </form>
-                                                <a class="cta-group__item" target="_blank" href="/admin/oilserver/reportinstance/">Edit/Create Vendor</a>
-                                                <a class="cta-group__item" target="_blank" href="/admin/oilserver/reportperiod/">Edit/Create Period</a>
-                                                <a class="cta-group__item" href="/refresh" target="_blank">Refresh Backend Data</a>
-                                            </div>
+                <div data-ng-controller="pdfReportController as pdf">
+                    <header class="page-header margin-bottom" data-maas-sticky-header>
+                        <div class="inner-wrapper">
+                            <h1 class="page-header__title">
+                                <span class="page-header__title--identicator" id="bulk-actions">
+                                    {% include 'page-picker.html' %}
+                                </span>
+                            </h1>
+                            <div class="page-header__actions" data-ng-show="activeSection === 'reports'">
+                                <div class="page-header__cta">
+                                    <div class="cta-group">
+                                        <a ng-click="showActions=!showActions" ng-init="showActions=false" class="cta-group__link">Reporting Tools</a>
+                                        <div class="cta-group__dropdown ng-hide" ng-show="showActions">
+                                            <form class="cta-group__item" ng-submit="generatePDF()" action="pdf" target="_blank" method="post">
+                                                <input type="text" name="template" data-ng-model="template" style="display: none;"/>
+                                                <input type="text" name="content" data-ng-model="data.pdf_content" style="display: none;"/>
+                                                <input type="hidden" name="force-one-page" data-ng-if="activeTab === 'overview'" value="True"/>
+                                                <input type="hidden" name="filename" value="filename.pdf"/>
+                                                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                                                <input class="linkcamo" type="submit" name="submit" value="Save to PDF"/>
+                                            </form>
+                                            <a class="cta-group__item" target="_blank" href="/admin/oilserver/reportinstance/">Edit/Create Vendor</a>
+                                            <a class="cta-group__item" target="_blank" href="/admin/oilserver/reportperiod/">Edit/Create Period</a>
+                                            <a class="cta-group__item" href="/refresh" target="_blank">Refresh Backend Data</a>
                                         </div>
                                     </div>
                                 </div>
-                        </header>
-
-                        <div class="inner-wrapper">
-
-                            <!-- accordion -->
-                            {% if user.is_authenticated %}
-                            {% include 'accordion.html' %}
-                            {% endif %}
-
-                            <!-- main content -->
-                            <div id="main-content" data-maas-error-overlay>
-                                <!------------------------------------------------>
-                                {% include 'search-bar.html' %}
-                                <!------------------------------------------------>
-                                <div id="content-view" data-ng-view></div>
-                                <!------------------------------------------------>
                             </div>
+                    </header>
+
+                    <div class="inner-wrapper">
+
+                        <!-- accordion -->
+                        {% include 'accordion.html' %}
+
+                        <!-- main content -->
+                        <div id="main-content" data-maas-error-overlay>
+                            <!------------------------------------------------>
+                            {% include 'search-bar.html' %}
+                            <!------------------------------------------------>
+                            <div id="content-view" data-ng-view></div>
+                            <!------------------------------------------------>
                         </div>
                     </div>
-                {% elif user.is_authenticated %}
-                    <div id="content">
-                        <p>You are not authorised to see this content. If you feel that this is not correct, please request access from a member of the OIL team.</p>
-                    </div>
-                {% else %}
-                    <div id="content">
-                        <p>Please <a data-ng-href="{{ site }}{% url 'social:begin' 'ubuntu' %}?next={$ data.absURI $}">log in</a> to see data.</p>
-                    </div>
-                {% endif %}
+                </div>
             </main>
 
             <div class="footer-wrapper" data-maas-error-toggle>
