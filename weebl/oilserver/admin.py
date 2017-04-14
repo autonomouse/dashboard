@@ -24,7 +24,6 @@ admin.site.register(models.Charm, DefaultAdmin)
 admin.site.register(models.InternalContact, DefaultAdmin)
 admin.site.register(models.JujuService, DefaultAdmin)
 admin.site.register(models.ProductType, DefaultAdmin)
-admin.site.register(models.Report, DefaultAdmin)
 
 
 # Register models with custom settings:
@@ -342,6 +341,54 @@ class SolutionTagAdmin(admin.ModelAdmin):
     search_fields = ['name']
 
 admin.site.register(models.SolutionTag, SolutionTagAdmin)
+
+
+class ReportAdmin(admin.ModelAdmin):
+    list_display = ['name', 'uuid']
+    search_fields = ['name', 'uuid']
+
+
+admin.site.register(models.Report, ReportAdmin)
+
+
+class ReportPeriodAdmin(admin.ModelAdmin):
+    list_display = ['name', 'uuid', 'start_date', 'end_date']
+    search_fields = ['name', 'uuid']
+
+
+admin.site.register(models.ReportPeriod, ReportPeriodAdmin)
+
+
+class ReportInstanceForm(forms.ModelForm):
+    report = CustomModelChoiceFieldName(
+        queryset=models.Report.objects.all())
+    reportperiod = CustomModelChoiceFieldName(
+        queryset=models.ReportPeriod.objects.all())
+
+    class Meta:
+        model = models.ReportInstance
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super(ReportInstanceForm, self).__init__(*args, **kwargs)
+        add_related_field_wrapper(self, 'report')
+        add_related_field_wrapper(self, 'reportperiod')
+
+
+class ReportInstanceAdmin(admin.ModelAdmin):
+    list_display = ['report_name', 'reportperiod_name', 'uuid']
+
+    def report_name(self, obj):
+        return get_obj_attribute(obj, 'name', 'report')
+
+    def reportperiod_name(self, obj):
+        return get_obj_attribute(obj, 'name', 'reportperiod')
+
+    search_fields = ['uuid']
+    form = ReportInstanceForm
+
+
+admin.site.register(models.ReportInstance, ReportInstanceAdmin)
 
 
 # Register any remaining models that have not been explicitly registered:
