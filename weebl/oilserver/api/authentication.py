@@ -6,5 +6,5 @@ class WorldReadableApiKeyAuthentication(ApiKeyAuthentication):
         if request.method == 'GET':
             return True
         
-        return super(GlobalReadApiKeyAuthentication, self).is_authenticated(
+        return super(WorldReadableApiKeyAuthentication, self).is_authenticated(
             request, **kwargs)
