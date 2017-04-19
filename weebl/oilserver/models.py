@@ -315,6 +315,30 @@ class ProductType(TimeStampedBaseModel):
         return self.uuid
 
 
+class ProductTypeVersion(TimeStampedBaseModel):
+    """The type of product under test."""
+    producttype = models.ForeignKey(
+        ProductType,
+        null=True,
+        blank=True,
+        default=None,
+        related_name='producttypeversions')
+    version = models.CharField(
+        max_length=255,
+        unique=True,
+        help_text="The version number of product.")
+    uuid = models.CharField(
+        max_length=36,
+        default=utils.generate_uuid,
+        unique=True,
+        blank=False,
+        null=False,
+        help_text="UUID of this type of product.")
+
+    def __str__(self):
+        return self.producttype.name + self.version
+
+
 class ProductUnderTest(TimeStampedBaseModel):
     """The product that is undergoing testing, such as a piece of hardware
     sold by a vendor.
@@ -338,8 +362,8 @@ class ProductUnderTest(TimeStampedBaseModel):
         related_name='productundertests')
     internalcontact = models.ForeignKey(
         InternalContact, null=True, blank=True, default=None)
-    producttype = models.ForeignKey(
-        ProductType, null=True, blank=True, default=None,
+    producttypeversion = models.ForeignKey(
+        ProductTypeVersion, null=True, blank=True, default=None,
         related_name='productundertests')
     reports = models.ManyToManyField(
         Report, null=True, blank=True, default=None,
@@ -347,6 +371,82 @@ class ProductUnderTest(TimeStampedBaseModel):
 
     class Meta:
         unique_together = (('name', 'vendor'),)
+
+    def __str__(self):
+        return self.uuid
+
+
+class ReleaseType(TimeStampedBaseModel):
+    """The type of release (e.g. beta, RC, final). """
+    name = models.CharField(
+        max_length=255,
+        default="final",
+        unique=True,
+        help_text="The type of release.")
+
+    def __str__(self):
+        return self.name
+
+
+class Release(TimeStampedBaseModel):
+    """The release of a Canonical product, so it's planned/actual release dates
+    can be tracked.
+    """
+    producttypeversion = models.ForeignKey(
+        ProductTypeVersion,
+        null=True,
+        blank=True,
+        default=None,
+        related_name='releases')
+    releasetype = models.ForeignKey(
+        ReleaseType,
+        null=True,
+        blank=True,
+        default=None,
+        related_name='releases')
+    tracking = models.TextField(
+        default=None,
+        blank=True,
+        null=True,
+        help_text="URL to where this release is tracked.")
+    show = models.BooleanField(
+        default=True,
+        help_text="Show in release tracker.")
+    releasedate = models.DateField(
+        default=utils.time_now,
+        help_text="Date the pipeline was completed.")
+    actualrelease = models.BooleanField(
+        help_text="This was the actual release of the product.")
+    uuid = models.CharField(
+        max_length=36,
+        default=utils.generate_uuid,
+        unique=True,
+        blank=False,
+        null=False,
+        help_text="UUID of this type of product.")
+
+    def save(self, *args, **kwargs):
+        '''Only allow one instance where actualrelease == True for each
+        releasetype (can't use unique_together as must allow for multiple
+        actualrelease=False's)
+        '''
+        conflict = Release.objects.filter(
+                releasetype=self.releasetype,
+                producttypeversion=self.producttypeversion,
+                actualrelease=True).exists()
+        if conflict:
+            conflicting_instance = Release.objects.get(
+                releasetype=self.releasetype,
+                producttypeversion=self.producttypeversion,
+                actualrelease=True)
+            if self.actualrelease and (conflicting_instance.uuid != self.uuid):
+                raise Exception(
+                    'There can only be 1 actualrelease per Product/ReleaseType')
+        super(Release, self).save(*args, **kwargs)
+
+    class Meta:
+        unique_together = (('producttypeversion', 'releasetype',
+                            'actualrelease', 'releasedate'), )
 
     def __str__(self):
         return self.uuid

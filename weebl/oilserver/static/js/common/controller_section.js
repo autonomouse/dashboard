@@ -7,6 +7,11 @@ app.controller('sectionController', ['$rootScope', '$scope', '$location', 'Commo
                     {'url': 'overview', 'name': 'Overview'},
                 ]
             },
+            {'url': 'releases', 'name': 'Releases',
+                'tabs': [
+                    {'url': 'releasetracker', 'name': 'Release Tracker'},
+                ]
+            },
             {'url': 'results', 'name': 'Results',
                 'tabs': [
                     {'url': 'successRate', 'name': 'Success Rate'},

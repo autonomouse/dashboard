@@ -65,6 +65,11 @@ class CustomModelChoiceFieldHostname(forms.ModelChoiceField):
         return obj.hostname
 
 
+class CustomModelChoiceFieldProductTypeAndVersion(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.producttypeversion.name
+
+
 class UserModelAdmin(UserAdmin):
     list_display = ['username', 'email', 'first_name', 'last_name', 'is_staff',
                     'is_superuser']
@@ -389,6 +394,37 @@ class ReportInstanceAdmin(admin.ModelAdmin):
 
 
 admin.site.register(models.ReportInstance, ReportInstanceAdmin)
+
+
+class ReleaseForm(forms.ModelForm):
+    '''releasetype = CustomModelChoiceFieldName(
+        queryset=models.ReleaseType.objects.all(), required=True)
+    productundertest = CustomModelChoiceFieldName(
+        queryset=models.ProductUnderTest.objects.all(), required=True)'''
+
+    class Meta:
+        model = models.Release
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super(ReleaseForm, self).__init__(*args, **kwargs)
+        '''add_related_field_wrapper(self, 'producttype')
+        add_related_field_wrapper(self, 'productundertest')'''
+
+
+class ReleaseAdmin(admin.ModelAdmin):
+    '''list_display = [
+        'releasetype_name', 'productundertest_name', 'show']
+
+    def releasetype_name(self, obj):
+        return get_obj_attribute(obj, 'name', 'releasetype')
+
+    def productundertest_name(self, obj):
+        return get_obj_attribute(obj, 'name', 'productundertest')'''
+
+    form = ReleaseForm
+
+admin.site.register(models.Release, ReleaseAdmin)
 
 
 # Register any remaining models that have not been explicitly registered:

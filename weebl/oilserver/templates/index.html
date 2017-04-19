@@ -40,9 +40,6 @@
                                         <li>
                                             <a data-ng-href="{{ site }}/admin/">Admin</a>
                                         </li>
-                                        <li>
-                                            <a data-ng-href="{{ site }}/admin/oilserver/bug/add/">Add bug to DB</a>
-                                        </li>
                                     {% endif %}
                                     <li>
                                         <a data-ng-href='{{ site }}/logout'>Log out</a>
@@ -64,7 +61,7 @@
                 </div>
             </header>
             <main id="body">
-                <div data-ng-controller="pdfReportController as pdf">
+                <div>
                     <header class="page-header margin-bottom" data-maas-sticky-header>
                         <div class="inner-wrapper">
                             <h1 class="page-header__title">
@@ -72,7 +69,7 @@
                                     {% include 'page-picker.html' %}
                                 </span>
                             </h1>
-                            <div class="page-header__actions" data-ng-show="activeSection === 'reports'">
+                            <div class="page-header__actions" data-ng-controller="pdfReportController as pdf" data-ng-show="activeSection === 'reports'">
                                 <div class="page-header__cta">
                                     <div class="cta-group">
                                         <a ng-click="showActions=!showActions" ng-init="showActions=false" class="cta-group__link">Reporting Tools</a>
@@ -92,7 +89,34 @@
                                     </div>
                                 </div>
                             </div>
-                    </header>
+
+                            <div class="page-header__actions" data-ng-show="activeSection === 'results'">
+                                <div class="page-header__actions">
+                                    <div class="page-header__cta">
+                                        <div class="cta-group">
+                                            <a ng-click="showActions=!showActions" ng-init="showActions=false" class="cta-group__link">Bug Tools</a>
+                                            <div class="cta-group__dropdown ng-hide" ng-show="showActions">
+                                                <a class="cta-group__item" target="_blank" href="{{ site }}/admin/oilserver/bug/add/">Add bug to DB</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="page-header__actions" data-ng-show="activeSection === 'releases'">
+                                <div class="page-header__actions">
+                                    <div class="page-header__cta">
+                                        <div class="cta-group">
+                                            <a ng-click="showActions=!showActions" ng-init="showActions=false" class="cta-group__link">Release Tools</a>
+                                            <div class="cta-group__dropdown ng-hide" ng-show="showActions">
+                                                <a class="cta-group__item" target="_blank" href="{{ site }}/admin/oilserver/release/add/">Add a new release</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </header>
 
                     <div class="inner-wrapper">
 

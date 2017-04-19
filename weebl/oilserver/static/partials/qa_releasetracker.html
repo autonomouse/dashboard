@@ -1,0 +1,54 @@
+<div id="content" class="nine-col last-col">
+
+
+    <span data-ng-repeat="chart in data.reportCalendarCharts">
+        <div google-chart chart="chart"></div>
+    </span>
+</div>
+
+<div id="content" class="nine-col last-col">
+    <table class="table-listing">
+        <thead>
+            <tr class="darktable-listing__row">
+                <th class="table-listing__header">Product</th>
+                <th class="table-listing__header">Version</th>
+                <th class="table-listing__header">Beta Release Estimates</th>
+                <th class="table-listing__header">Beta Release</th>
+                <th class="table-listing__header">Release Estimates</th>
+                <th class="table-listing__header">Release</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="table-listing__row"
+             data-ng-repeat="product in data.qa.tracked_products"
+             data-ng-show="{$ product.show === true; $}">
+                <td class="table-listing__cell">
+                    <span data-ng-show="{$ product.tracking; $}"><a href="{$ product.tracking; $}"
+                        >{$ product.name; $}</a></span>
+                    <span data-ng-show="{$ !product.tracking; $}"
+                        >{$ product.name; $}</span>
+                </td>
+                <td class="table-listing__cell">
+                    {$ product.trackedversion; $}
+                </td>
+                    <td class="table-listing__cell">
+                    <span ng-repeat="betareleasedate in product.releases.beta.releasedates">
+                        <p>{$ data.humaniseDate(betareleasedate[0], true) $}</p>
+                    </span>
+                </td>
+                <td class="table-listing__cell">
+                    {$ data.humaniseDate(product.releases.beta.actualrelease, true) $}
+                </td>
+                <td class="table-listing__cell">
+                    <span ng-repeat="finalreleasedate in product.releases.final.releasedates">
+                        <p>{$ data.humaniseDate(finalreleasedate[0], true) $}</p>
+                    </span>
+                </td>
+                <td class="table-listing__cell">
+                    {$ data.humaniseDate(product.releases.final.actualrelease, true) $}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>

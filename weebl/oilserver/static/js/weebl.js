@@ -1,4 +1,4 @@
-var app = angular.module('weebl', ['nvd3', 'ngResource', 'ngRoute']);
+var app = angular.module('weebl', ['nvd3', 'ngResource', 'ngRoute', 'googlechart']);
 
 app.directive('onErrorSrc', function() {
     return {
@@ -11,3 +11,10 @@ app.directive('onErrorSrc', function() {
         }
     }
 });
+
+app.value('googleChartApiConfig', {
+    version: '1.1',
+    optionalSettings: {
+        packages: ['calendar']
+    }
+})

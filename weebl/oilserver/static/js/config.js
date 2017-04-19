@@ -73,6 +73,16 @@ app.config(function ($routeProvider) {
             controller: 'qaOverviewController',
             controllerAs:'qaOverview'
         })
+        .when('/releases/releasetracker', {
+            reloadOnSearch: false,
+            templateUrl: '/static/partials/qa_releasetracker.html',
+            controller: 'qaReleaseController',
+            controllerAs:'qaRelease'
+        })
+        .when('/releases', {
+            reloadOnSearch: false,
+            redirectTo: '/releases/releasetracker'
+        })
         .otherwise({
             redirectTo: '/qa/overview'
         });

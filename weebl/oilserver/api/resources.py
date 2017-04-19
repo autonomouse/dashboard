@@ -291,7 +291,6 @@ class ReportResource(CommonResource):
 
     class Meta(CommonMeta):
         queryset = models.Report.objects.all()
-        excludes = ['id', 'updated_at']
         filtering = {
             'uuid': ('exact',),
             'name': ('exact',), }
@@ -314,6 +313,19 @@ class ProductTypeResource(CommonResource):
             'uuid': ('exact',),
             'name': ('exact', 'in',),
             'productundertests': ALL_WITH_RELATIONS, }
+
+
+class ProductTypeVersionResource(CommonResource):
+    """API Resource for 'ProductTypeVersion' model. """
+
+    producttype = ForeignKey(ProductTypeResource, 'producttype', full_list=True)
+
+    class Meta(CommonMeta):
+        queryset = models.ProductTypeVersion.objects.all()
+        filtering = {
+            'producttype': ALL_WITH_RELATIONS,
+            'version': ('exact', 'in',),
+            'uuid': ('exact',), }
 
 
 class ProductUnderTestResource(CommonResource):
@@ -348,6 +360,35 @@ class ProductUnderTestResource(CommonResource):
             'name': ('exact', 'in',),
             'producttype': ALL_WITH_RELATIONS,
             'project': ALL_WITH_RELATIONS, }
+
+
+class ReleaseTypeResource(CommonResource):
+    """API Resource for 'ReleaseType' model. """
+
+    class Meta(CommonMeta):
+        queryset = models.ReleaseType.objects.all()
+        filtering = {
+            'name': ('exact', 'in', ), }
+
+
+class ReleaseResource(CommonResource):
+    """API Resource for 'Release' model. """
+
+    producttypeversion = ForeignKey(
+        ProductTypeVersionResource, 'producttypeversion', full_list=True)
+    releasetype = ForeignKey(ReleaseTypeResource, 'releasetype', full_list=True)
+
+    class Meta(CommonMeta):
+        queryset = models.Release.objects.all()
+        filtering = {
+            'producttypeversion': ALL_WITH_RELATIONS,
+            'releasetype': ALL_WITH_RELATIONS,
+            'trackedversion': ('exact',),
+            'tracking': ('exact',),
+            'show': ('exact'),
+            'releasedate': ('exact',),
+            'actualrelease': ('exact',),
+            'uuid': ('exact',), }
 
 
 class OpenstackVersionResource(CommonResource):
@@ -387,8 +428,7 @@ class SolutionTagResource(CommonResource):
     class Meta(CommonMeta):
         queryset = models.SolutionTag.objects.all()
         filtering = {'name': ALL,
-                     'colour': ('exact'),
-                     'show': ('exact'), }
+                     'colour': ('exact'), }
         detail_uri_name = 'name'
 
 
@@ -453,13 +493,12 @@ class PipelineResource(CommonResource):
         queryset = models.Pipeline.objects.all().order_by('-completed_at')
         filtering = {'uuid': ALL,
                      'builds': ALL_WITH_RELATIONS,
-                     'completed_at': ALL_WITH_RELATIONS,
+                     'completed_at': ALL,
                      'solution': ALL_WITH_RELATIONS,
                      'versionconfiguration': ALL_WITH_RELATIONS,
                      'configurationchoices': ALL_WITH_RELATIONS,
                      'jujuservicedeployments': ALL_WITH_RELATIONS,
                      'buildexecutor': ALL_WITH_RELATIONS, }
-        ordering = ['completed_at']
 
     def build_filters(self, filters=None, ignore_bad_filters=True):
         if filters is None:
@@ -713,7 +752,7 @@ class BuildResource(CommonResource):
                      'jobtype': ALL_WITH_RELATIONS,
                      'pipeline': ALL_WITH_RELATIONS,
                      'testcaseinstances': ALL_WITH_RELATIONS, }
-        ordering = ['pipeline', 'build_started_at']
+        ordering = ['build_started_at']
 
     def dehydrate(self, bundle):
         bundle = super(BuildResource, self).dehydrate(bundle)
@@ -797,9 +836,6 @@ class TestCaseClassResource(CommonResource):
         ProductTypeResource, 'producttypes')
     reportsection = ForeignKey(
         ReportSectionResource, 'reportsection')
-    testcases = ReverseManyField(
-        'oilserver.api.resources.TestCaseResource',
-        'testcases')
 
     class Meta(CommonMeta):
         queryset = models.TestCaseClass.objects.all()
@@ -807,9 +843,6 @@ class TestCaseClassResource(CommonResource):
             'name': ('exact'),
             'uuid': ('exact'),
             'testframework': ALL_WITH_RELATIONS,
-            'reportsection': ALL_WITH_RELATIONS,
-            'producttypes': ALL_WITH_RELATIONS,
-            'testcases': ALL_WITH_RELATIONS,
         }
 
 
@@ -833,17 +866,13 @@ class TestCaseResource(CommonResource):
 
     testcaseclass = ForeignKey(
         TestCaseClassResource, 'testcaseclass')
-    testcaseinstances = ReverseManyField(
-        'oilserver.api.resources.TestCaseInstanceResource',
-        'testcaseinstances')
 
     class Meta(CommonMeta):
         queryset = models.TestCase.objects.all()
         filtering = {
-            'name': ALL,
+            'name': ('exact'),
             'uuid': ('exact'),
             'testcaseclass': ALL_WITH_RELATIONS,
-            'testcaseinstances': ALL_WITH_RELATIONS,
         }
 
 
@@ -872,7 +901,6 @@ class TestCaseInstanceResource(CommonResource):
             'testcase': ALL_WITH_RELATIONS,
             'bugoccurrences': ALL_WITH_RELATIONS,
         }
-        ordering = ['build']
 
 
 class TargetFileGlobResource(CommonResource):
@@ -988,8 +1016,7 @@ class KnownBugRegexResource(CommonResource):
 class BugOccurrenceResource(CommonResource):
     """API Resource for 'BugTrackerBug' model. """
 
-    knownbugregex = ForeignKey(
-        KnownBugRegexResource, 'knownbugregex', full_list=True)
+    knownbugregex = ForeignKey(KnownBugRegexResource, 'knownbugregex')
     testcaseinstance = ForeignKey(TestCaseInstanceResource, 'testcaseinstance')
     created_at = fields.DateTimeField('created_at', readonly=True)
     updated_at = fields.DateTimeField('updated_at', readonly=True)

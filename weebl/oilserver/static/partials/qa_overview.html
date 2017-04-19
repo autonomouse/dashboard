@@ -1,55 +1,56 @@
 <div id="content" class="twelve-col">
 
-        <h4>Solutions Tested:</h4>
+    <h4>Solutions Tested:</h4>
 
-        <table class="table-listing">
-            <thead>
-                <tr class="darktable-listing__row">
-                    <th class="table-listing__header">Source</th>
-                    <th class="table-listing__header">Last Deployed</th>
-                    <th class="table-listing__header">Last Status</th>
-                    <th class="table-listing__header">
-                        <img height"15" src="{$ data.getLogoURL('maas.svg'); $}" alt="MAAS" title="MAAS" />
-                    </th>
-                    <th class="table-listing__header">
-                        <img height"15" src="{$ data.getLogoURL('juju.svg'); $}" alt="Juju" title="Juju" />
-                    </th>
-                    <th class="table-listing__header">
-                        <img height"15" src="{$ data.getLogoURL('openstack.svg'); $}" alt="OpenStack" title="OpenStack" />
-                    </th>
-                    <th class="table-listing__header">
-                        <img height"15" src="{$ data.getLogoURL('ubuntu.svg'); $}" alt="Ubuntu" title="Ubuntu" />
-                    </th>
-                    <th class="table-listing__header">Run History</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="table-listing__row" ng-repeat="solution in data.overview.tablevalues | showTagFilter">
-                    <td class="table-listing__cell">
-                        <a data-ng-href="#/results/testRuns?solutiontag={$ solution.name $}&start_date=Dawn%20of%20Time&finish_date=Now" title="{$ solution.testrun $}">
-                            {$ solution.name; $}
+    <table class="table-listing">
+        <thead>
+            <tr class="darktable-listing__row">
+                <th class="table-listing__header">Source</th>
+                <th class="table-listing__header">Last Deployed</th>
+                <th class="table-listing__header">Last Status</th>
+                <th class="table-listing__header">
+                    <img height"15" src="{$ data.getLogoURL('maas.svg'); $}" alt="MAAS" title="MAAS" />
+                </th>
+                <th class="table-listing__header">
+                    <img height"15" src="{$ data.getLogoURL('juju.svg'); $}" alt="Juju" title="Juju" />
+                </th>
+                <th class="table-listing__header">
+                    <img height"15" src="{$ data.getLogoURL('openstack.svg'); $}" alt="OpenStack" title="OpenStack" />
+                </th>
+                <th class="table-listing__header">
+                    <img height"15" src="{$ data.getLogoURL('ubuntu.svg'); $}" alt="Ubuntu" title="Ubuntu" />
+                </th>
+                <th class="table-listing__header">Run History</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="table-listing__row" ng-repeat="solution in data.overview.tablevalues | showTagFilter">
+                <td class="table-listing__cell">
+                    <a href="#/results/testRuns?solutiontag={$ solution.name $}&start_date=Dawn%20of%20Time&finish_date=Now"
+                     title="{$ solution.testrun $}">
+                        {$ solution.name; $}
+                    </a>
+                </td>
+                <td class="table-listing__cell">
+                    <a data-ng-href="#/results/testRun/{$ solution.testrun $}" title="{$ solution.testrun $}">
+                        {$ data.humaniseDate(solution.date, true); $}
+                    </a>
+                </td>
+                <td class="table-listing__cell">{$ solution.deploystatus; $}</td>
+                <td class="table-listing__cell">{$ solution.maasversion; $}</td>
+                <td class="table-listing__cell">{$ solution.jujuversion; $}</td>
+                <td class="table-listing__cell">{$ solution.openstackversion; $}</td>
+                <td class="table-listing__cell">{$ solution.ubuntuversion; $}</td>
+                <td class="table-listing__cell">
+                    <span ng-repeat="testrun in solution.last_ten_pipelines">
+                        <a data-ng-href="#/results/testRun/{$ testrun.build.pipeline.uuid $}">
+                            <font size="5"
+                                color="{$ testrun.testcaseinstancestatus.name === 'success' ? 'green' : 'red' $}"
+                                data-ng-show="{$ testrun.build.pipeline.solution.superseded == null $}">|</font>
                         </a>
-                    </td>
-                    <td class="table-listing__cell">
-                        <a data-ng-href="#/results/testRun/{$ solution.testrun $}" title="{$ solution.testrun $}">
-                            {$ data.humaniseDate(solution.date, true); $}
-                        </a>
-                    </td>
-                    <td class="table-listing__cell">{$ solution.deploystatus; $}</td>
-                    <td class="table-listing__cell">{$ solution.maasversion; $}</td>
-                    <td class="table-listing__cell">{$ solution.jujuversion; $}</td>
-                    <td class="table-listing__cell">{$ solution.openstackversion; $}</td>
-                    <td class="table-listing__cell">{$ solution.ubuntuversion; $}</td>
-                    <td class="table-listing__cell">
-                        <span ng-repeat="testrun in solution.last_ten_pipelines">
-                            <a data-ng-href="#/results/testRun/{$ testrun.build.pipeline.uuid $}">
-                                <font size="5"
-                                 color="{$ testrun.testcaseinstancestatus.name === 'success' ? 'green' : 'red' $}"
-                                 data-ng-show="{$ testrun.build.pipeline.solution.superseded == null $}">|</font>
-                            </a>
-                        </span>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                    </span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </div>
