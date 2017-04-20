@@ -45,29 +45,16 @@ def get_obj_attribute(obj, field, *args):
             return attr
 
 
-class CustomModelChoiceFieldUUID(forms.ModelChoiceField):
+class CustomModelChoiceField(forms.ModelChoiceField):
+    def __init__(self, *args, **kwargs):
+        self.field_to_return = kwargs.pop('field_to_return')
+        super(CustomModelChoiceField, self).__init__(*args, **kwargs)
+
     def label_from_instance(self, obj):
-        return obj.uuid
-
-
-class CustomModelChoiceFieldName(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-        return obj.name
-
-
-class CustomModelChoiceFieldBugNumber(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-        return obj.bug_number
-
-
-class CustomModelChoiceFieldHostname(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-        return obj.hostname
-
-
-class CustomModelChoiceFieldProductTypeAndVersion(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-        return obj.producttypeversion.name
+        # The following allows to both 'obj.name' and 'obj.relatedobj.name':
+        for lvl in self.field_to_return.split('.'):
+            obj = getattr(obj, lvl)
+        return obj
 
 
 class UserModelAdmin(UserAdmin):
@@ -87,8 +74,8 @@ admin.site.register(ApiKey, ApiKeyAdmin)
 
 
 class PipelineForm(forms.ModelForm):
-    buildexecutor = CustomModelChoiceFieldName(
-        queryset=models.BuildExecutor.objects.all())
+    buildexecutor = CustomModelChoiceField(
+        field_to_return='name', queryset=models.BuildExecutor.objects.all())
 
     class Meta:
         model = models.Pipeline
@@ -121,14 +108,18 @@ admin.site.register(models.Build, BuildAdmin)
 
 
 class ProductUnderTestForm(forms.ModelForm):
-    project = CustomModelChoiceFieldName(
-        queryset=models.Project.objects.all(), required=False)
-    vendor = CustomModelChoiceFieldName(
-        queryset=models.Vendor.objects.all(), required=False)
-    internalcontact = CustomModelChoiceFieldName(
-        queryset=models.InternalContact.objects.all(), required=False)
-    producttype = CustomModelChoiceFieldName(
-        queryset=models.ProductType.objects.all(), required=False)
+    project = CustomModelChoiceField(
+        field_to_return='name', queryset=models.Project.objects.all(),
+        required=False)
+    vendor = CustomModelChoiceField(
+        field_to_return='name', queryset=models.Vendor.objects.all(),
+        required=False)
+    internalcontact = CustomModelChoiceField(
+        field_to_return='name', queryset=models.InternalContact.objects.all(),
+        required=False)
+    producttype = CustomModelChoiceField(
+        field_to_return='name', queryset=models.ProductType.objects.all(),
+        required=False)
 
     class Meta:
         model = models.ProductUnderTest
@@ -159,8 +150,8 @@ admin.site.register(models.ProductUnderTest, ProductUnderTestAdmin)
 
 
 class BugTrackerBugForm(forms.ModelForm):
-    project = CustomModelChoiceFieldName(
-        queryset=models.Project.objects.all())
+    project = CustomModelChoiceField(
+        field_to_return='name', queryset=models.Project.objects.all())
 
     class Meta:
         model = models.BugTrackerBug
@@ -202,7 +193,8 @@ class KnownBugRegexInline(admin.StackedInline):
 
 
 class BugForm(forms.ModelForm):
-    bugtrackerbug = CustomModelChoiceFieldBugNumber(
+    bugtrackerbug = CustomModelChoiceField(
+        field_to_return='bug_number',
         queryset=models.BugTrackerBug.objects.all())
 
     class Meta:
@@ -240,8 +232,8 @@ admin.site.register(models.Machine, MachineAdmin)
 
 
 class MachineConfigurationForm(forms.ModelForm):
-    machine = CustomModelChoiceFieldHostname(
-        queryset=models.Machine.objects.all())
+    machine = CustomModelChoiceField(
+        field_to_return='hostname', queryset=models.Machine.objects.all())
 
     class Meta:
         model = models.MachineConfiguration
@@ -289,14 +281,14 @@ admin.site.register(models.TestFramework, TestFrameworkAdmin)
 
 
 class JujuServiceDeploymentForm(forms.ModelForm):
-    pipeline = CustomModelChoiceFieldUUID(
-        queryset=models.Pipeline.objects.all())
-    productundertest = CustomModelChoiceFieldName(
-        queryset=models.ProductUnderTest.objects.all())
-    charm = CustomModelChoiceFieldName(
-        queryset=models.Charm.objects.all())
-    jujuservice = CustomModelChoiceFieldName(
-        queryset=models.JujuService.objects.all())
+    pipeline = CustomModelChoiceField(
+        field_to_return='uuid', queryset=models.Pipeline.objects.all())
+    productundertest = CustomModelChoiceField(
+        field_to_return='name', queryset=models.ProductUnderTest.objects.all())
+    charm = CustomModelChoiceField(
+        field_to_return='name', queryset=models.Charm.objects.all())
+    jujuservice = CustomModelChoiceField(
+        field_to_return='name', queryset=models.JujuService.objects.all())
 
     class Meta:
         model = models.JujuServiceDeployment
@@ -365,10 +357,10 @@ admin.site.register(models.ReportPeriod, ReportPeriodAdmin)
 
 
 class ReportInstanceForm(forms.ModelForm):
-    report = CustomModelChoiceFieldName(
-        queryset=models.Report.objects.all())
-    reportperiod = CustomModelChoiceFieldName(
-        queryset=models.ReportPeriod.objects.all())
+    report = CustomModelChoiceField(
+        field_to_return='name', queryset=models.Report.objects.all())
+    reportperiod = CustomModelChoiceField(
+        field_to_return='name', queryset=models.ReportPeriod.objects.all())
 
     class Meta:
         model = models.ReportInstance
@@ -397,10 +389,12 @@ admin.site.register(models.ReportInstance, ReportInstanceAdmin)
 
 
 class ReleaseForm(forms.ModelForm):
-    '''releasetype = CustomModelChoiceFieldName(
-        queryset=models.ReleaseType.objects.all(), required=True)
-    productundertest = CustomModelChoiceFieldName(
-        queryset=models.ProductUnderTest.objects.all(), required=True)'''
+    releasetype = CustomModelChoiceField(
+        field_to_return='name', queryset=models.ReleaseType.objects.all(),
+        required=True)
+    producttype = CustomModelChoiceField(
+        field_to_return='producttype.name',
+        queryset=models.ProductTypeVersion.objects.all())
 
     class Meta:
         model = models.Release
@@ -408,19 +402,19 @@ class ReleaseForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ReleaseForm, self).__init__(*args, **kwargs)
-        '''add_related_field_wrapper(self, 'producttype')
-        add_related_field_wrapper(self, 'productundertest')'''
+        add_related_field_wrapper(self, 'releasetype')
 
 
 class ReleaseAdmin(admin.ModelAdmin):
-    '''list_display = [
-        'releasetype_name', 'productundertest_name', 'show']
+    list_display = ['releasetype_name', 'releasedate',
+                    'producttype_name', 'actualrelease', 'show']
 
     def releasetype_name(self, obj):
         return get_obj_attribute(obj, 'name', 'releasetype')
 
-    def productundertest_name(self, obj):
-        return get_obj_attribute(obj, 'name', 'productundertest')'''
+    def producttype_name(self, obj):
+        return get_obj_attribute(
+            obj, 'name', 'producttypeversion', 'producttype')
 
     form = ReleaseForm
 
