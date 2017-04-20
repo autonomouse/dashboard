@@ -392,9 +392,6 @@ class ReleaseForm(forms.ModelForm):
     releasetype = CustomModelChoiceField(
         field_to_return='name', queryset=models.ReleaseType.objects.all(),
         required=True)
-    producttype = CustomModelChoiceField(
-        field_to_return='producttype.name',
-        queryset=models.ProductTypeVersion.objects.all())
 
     class Meta:
         model = models.Release
