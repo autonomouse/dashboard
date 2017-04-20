@@ -18,6 +18,7 @@ from crosstab(
                 oilserver_openstackversion.name as openstackversion,
                 oilserver_ubuntuversion.name as ubuntuversion,
                 oilserver_producttype.name as product_type,
+                oilserver_producttypeversion.version as product_type_version,
                 oilserver_productundertest.name as product_name
         from
                 oilserver_openstackversion,
@@ -26,6 +27,7 @@ from crosstab(
                 oilserver_pipeline,
                 oilserver_jujuservicedeployment,
                 oilserver_productundertest,
+                oilserver_producttypeversion,
                 oilserver_producttype
         where
                 oilserver_versionconfiguration.openstackversion_id = oilserver_openstackversion.id and
