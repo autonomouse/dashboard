@@ -16,7 +16,7 @@ app.controller('qaOverviewController', [
             "finish_date": 'Now',
         };
         $scope = Common.initialise($scope);
-        $scope.data.search.init(defaultFilters);
+        $scope.data.search.initialPageLoad(defaultFilters);
 
         $rootScope.data.show_reports_filters = false;
         $rootScope.data.show_filters = false;

@@ -4,7 +4,7 @@ app.controller('overviewReportController', [
     function($scope, $rootScope, $q, SearchFactory, DataService, Common, FilterFactory) {
         $scope = Common.initialise($scope);
         if(angular.isUndefined($scope.data.reports.search)) $scope.data.reports.search = new SearchFactory.Search();
-        $scope.data.reports.search.init();
+        $scope.data.reports.search.initialPageLoad();
         if(angular.isUndefined($scope.data.reports.metadata)) $scope.data.reports.metadata = {};
         if(angular.isUndefined($scope.data.reports.overview)) $scope.data.reports.overview = {};
         $rootScope.data.show_reports_filters = true;

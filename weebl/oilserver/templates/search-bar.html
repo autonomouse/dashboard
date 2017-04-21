@@ -2,10 +2,10 @@
                                     <div id="search-bar" class="search">
                                         <input
                                             type="search" placeholder="Search test runs" class="search__input"
-                                            data-ng-model="data.search.search" data-ng-change="data.search.update()"
+                                            data-ng-model="data.search.search" data-ng-change="data.search.searchBarChanged()"
                                             data-ng-class="{ errors: !data.search.isValid }"/>
                                         <input type="submit" class="search__submit"
                                             data-ng-class="{ close: data.search.search.length > 0 }"
-                                            data-ng-click="data.search.reset()" />
+                                            data-ng-click="data.search.searchBarReset()" />
                                     </div>
                                 </div>

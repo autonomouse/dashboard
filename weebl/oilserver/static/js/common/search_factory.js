@@ -62,7 +62,7 @@ app.factory('SearchFactory', ['$location', 'Common', function($location, Common)
             angular.forEach(this.defaultFilters, function(value, key) {
                 if(angular.isUndefined(this.filters[key])) {
                     //defaults are assumed to be exact for now
-                    this.toggleFilter(key, value, true, false);
+                    this.toggleFilter(key, value, true);
                 }
             }, this);
         };
@@ -80,15 +80,9 @@ app.factory('SearchFactory', ['$location', 'Common', function($location, Common)
         this._setFiltersFromURL = function () {
             this.filters = this.getEmptyFilter();
             angular.forEach($location.search(), function(value, key) {
-                this.toggleFilter(key, value, true, false);
+                this.toggleFilter(key, value, true);
             }, this);
             this._filtersToString();
-        };
-
-        this.reset = function() {
-            this.search = "";
-            this.update();
-            this._setURLParams(true);
         };
 
         var _countParens = function (input) {
@@ -238,21 +232,21 @@ app.factory('SearchFactory', ['$location', 'Common', function($location, Common)
             return this._getFilterValueIndex(key, value) !== -1;
         };
 
-        // Toggles a filter on or off based on key and value.
-        this.toggleFilter = function(key, value, exact, runUpdate) {
+        this.toggleFilter = function(key, value, exact) {
             if (Array.isArray(value)) {
                 for (var idx in value) {
-                    this.toggleIndividualFilter(key, value[idx], exact, runUpdate);
+                    this.toggleIndividualFilter(key, value[idx], exact);
                 }
             } else {
-                this.toggleIndividualFilter(key, value, exact, runUpdate);
+                this.toggleIndividualFilter(key, value, exact);
             };
+            this._filtersToString();
+            this.update();
         };
 
         // Toggles a filter on or off based on key and value.
-        this.toggleIndividualFilter = function(key, value, exact, runUpdate) {
+        this.toggleIndividualFilter = function(key, value, exact) {
             console.log('toggling: ' + key + ' ' + value);
-            angular.isUndefined(runUpdate) ? runUpdate=true : runUpdate=runUpdate;
             if(angular.isUndefined(this.filters[key])) {
                 this.filters[key] = [];
             }
@@ -280,13 +274,12 @@ app.factory('SearchFactory', ['$location', 'Common', function($location, Common)
                     this.filters[key].splice(idx, 1);
                 }
             }
-            this._filtersToString();
-            if(runUpdate) {
-                this.update();
-            }
         };
 
-        this.init = function(defaultFilters) {
+        this.initialPageLoad = function(defaultFilters) {
+            console.log("*** Initial Page Load - using filters specified in URL" +
+                        " params or defaults, if not in URL.");
+            this._setURLParams();
             if (angular.isDefined(defaultFilters))
                 this.defaultFilters = defaultFilters;
             this.search = "";
@@ -294,6 +287,25 @@ app.factory('SearchFactory', ['$location', 'Common', function($location, Common)
             this._setDefaults();
             this.runOnUpdate();
         };
+
+        this.filterClicked = function(key, value, exact) {
+            console.log("*** Filter clicked");
+            this.toggleFilter(key, value, exact);
+        };
+
+        this.searchBarChanged = function() {
+            console.log("*** Search Bar Changed");
+            this.update();
+        };
+
+        this.searchBarReset = function() {
+            console.log("*** Search Bar Reset - Filters have been reset.");
+            this.search = "";
+            this.update();
+            this._setURLParams(true);
+        };
+
+
     };
     return {
         Search: Search,

@@ -7,7 +7,7 @@
         <div class="accordion__tab-content">
             <ul class="accordion__tab-list">
                 <li class="accordion__tab-item" data-ng-repeat="date in data.start_dates"  data-ng-class="{ active: data.search.isFilterActive('start_date', date, true) }">
-                    <a class="accordion__tab-link" href="" data-ng-click="data.search.toggleFilter('start_date', date, true)">{$ date $}</a>
+                    <a class="accordion__tab-link" href="" data-ng-click="data.search.filterClicked('start_date', date, true)">{$ date $}</a>
                 </li>
             </ul>
         </div>
@@ -17,7 +17,7 @@
         <div class="accordion__tab-content">
             <ul class="accordion__tab-list">
                 <li class="accordion__tab-item" data-ng-repeat="date in data.finish_dates"  data-ng-class="{ active: data.search.isFilterActive('finish_date', date, true) }">
-                    <a class="accordion__tab-link" href="" data-ng-click="data.search.toggleFilter('finish_date', date, true)">{$ date $}</a>
+                    <a class="accordion__tab-link" href="" data-ng-click="data.search.filterClicked('finish_date', date, true)">{$ date $}</a>
                 </li>
             </ul>
         </div>
@@ -27,7 +27,7 @@
         <div class="accordion__tab-content">
             <ul class="accordion__tab-list">
                 <li class="accordion__tab-item" data-ng-repeat="opstackvers in data.metadata.openstackversion | orderBy:['name']"  data-ng-class="{ active: data.search.isFilterActive('openstackversion', opstackvers.name, true) }">
-                    <a class="accordion__tab-link" href="" data-ng-click="data.search.toggleFilter('openstackversion', opstackvers.name, true)">{$ opstackvers.name $}</a>
+                    <a class="accordion__tab-link" href="" data-ng-click="data.search.filterClicked('openstackversion', opstackvers.name, true)">{$ opstackvers.name $}</a>
                 </li>
             </ul>
         </div>
@@ -37,7 +37,7 @@
         <div class="accordion__tab-content">
             <ul class="accordion__tab-list">
                 <li class="accordion__tab-item" data-ng-repeat="env in data.metadata.environment | orderBy:['name']"  data-ng-class="{ active: data.search.isFilterActive('environment', env.name, true) }">
-                    <a class="accordion__tab-link" href="" data-ng-click="data.search.toggleFilter('environment', env.name, true)">{$ env.name $}</a>
+                    <a class="accordion__tab-link" href="" data-ng-click="data.search.filterClicked('environment', env.name, true)">{$ env.name $}</a>
                 </li>
             </ul>
         </div>
@@ -47,7 +47,7 @@
         <div class="accordion__tab-content">
             <ul class="accordion__tab-list">
                 <li class="accordion__tab-item" data-ng-repeat="ubuvers in data.metadata.ubuntuversion | orderBy:['name']"  data-ng-class="{ active: data.search.isFilterActive('ubuntuversion', ubuvers.name, true) }">
-                    <a class="accordion__tab-link" href="" data-ng-click="data.search.toggleFilter('ubuntuversion', ubuvers.name, true)">{$ ubuvers.name $} ({$ ubuvers.number $})</a>
+                    <a class="accordion__tab-link" href="" data-ng-click="data.search.filterClicked('ubuntuversion', ubuvers.name, true)">{$ ubuvers.name $} ({$ ubuvers.number $})</a>
                 </li>
             </ul>
         </div>
@@ -57,7 +57,7 @@
         <div class="accordion__tab-content">
             <ul class="accordion__tab-list">
                 <li class="accordion__tab-item" data-ng-repeat="compute in data.metadata.compute | orderBy:['name']"  data-ng-class="{ active: data.search.isFilterActive('compute', compute.name, true) }">
-                    <a class="accordion__tab-link" href="" data-ng-click="data.search.toggleFilter('compute', compute.name, true)">{$ compute.name $}</a>
+                    <a class="accordion__tab-link" href="" data-ng-click="data.search.filterClicked('compute', compute.name, true)">{$ compute.name $}</a>
                 </li>
             </ul>
         </div>
@@ -67,7 +67,7 @@
         <div class="accordion__tab-content">
             <ul class="accordion__tab-list">
                 <li class="accordion__tab-item" data-ng-repeat="sdn in data.metadata.sdn | orderBy:['name']"  data-ng-class="{ active: data.search.isFilterActive('sdn', sdn.name, true) }">
-                    <a class="accordion__tab-link" href="" data-ng-click="data.search.toggleFilter('sdn', sdn.name, true)">{$ sdn.name $}</a>
+                    <a class="accordion__tab-link" href="" data-ng-click="data.search.filterClicked('sdn', sdn.name, true)">{$ sdn.name $}</a>
                 </li>
             </ul>
         </div>
@@ -77,7 +77,7 @@
         <div class="accordion__tab-content">
             <ul class="accordion__tab-list">
                 <li class="accordion__tab-item" data-ng-repeat="blockstorage in data.metadata.blockstorage | orderBy:['name']"  data-ng-class="{ active: data.search.isFilterActive('blockstorage', blockstorage.name, true) }">
-                    <a class="accordion__tab-link" href="" data-ng-click="data.search.toggleFilter('blockstorage', blockstorage.name, true)">{$ blockstorage.name $}</a>
+                    <a class="accordion__tab-link" href="" data-ng-click="data.search.filterClicked('blockstorage', blockstorage.name, true)">{$ blockstorage.name $}</a>
                 </li>
             </ul>
         </div>
@@ -87,7 +87,7 @@
         <div class="accordion__tab-content">
             <ul class="accordion__tab-list">
                 <li class="accordion__tab-item" data-ng-repeat="imagestorage in data.metadata.imagestorage | orderBy:['name']"  data-ng-class="{ active: data.search.isFilterActive('imagestorage', imagestorage.name, true) }">
-                    <a class="accordion__tab-link" href="" data-ng-click="data.search.toggleFilter('imagestorage', imagestorage.name, true)">{$ imagestorage.name $}</a>
+                    <a class="accordion__tab-link" href="" data-ng-click="data.search.filterClicked('imagestorage', imagestorage.name, true)">{$ imagestorage.name $}</a>
                 </li>
             </ul>
         </div>
@@ -97,7 +97,7 @@
         <div class="accordion__tab-content">
             <ul class="accordion__tab-list">
                 <li class="accordion__tab-item" data-ng-repeat="database in data.metadata.database | orderBy:['name']"  data-ng-class="{ active: data.search.isFilterActive('database', database.name, true) }">
-                    <a class="accordion__tab-link" href="" data-ng-click="data.search.toggleFilter('database', database.name, true)">{$ database.name $}</a>
+                    <a class="accordion__tab-link" href="" data-ng-click="data.search.filterClicked('database', database.name, true)">{$ database.name $}</a>
                 </li>
             </ul>
         </div>
@@ -107,7 +107,7 @@
         <div class="accordion__tab-content">
             <ul class="accordion__tab-list">
                 <li class="accordion__tab-item" data-ng-repeat="machine in data.metadata.machine | orderBy:['hostname']"  data-ng-class="{ active: data.search.isFilterActive('machine', machine.hostname, true) }">
-                    <a class="accordion__tab-link" href="" data-ng-click="data.search.toggleFilter('machine', machine.hostname, true)">{$ machine.hostname $}</a>
+                    <a class="accordion__tab-link" href="" data-ng-click="data.search.filterClicked('machine', machine.hostname, true)">{$ machine.hostname $}</a>
                 </li>
             </ul>
         </div>
@@ -117,7 +117,7 @@
         <div class="accordion__tab-content">
             <ul class="accordion__tab-list">
                 <li class="accordion__tab-item" data-ng-repeat="productundertest in data.metadata.productundertest | orderBy:['name']"  data-ng-class="{ active: data.search.isFilterActive('productundertest', productundertest.name, true) }">
-                    <a class="accordion__tab-link" href="" data-ng-click="data.search.toggleFilter('productundertest', productundertest.name, true)">{$ productundertest.name $}</a>
+                    <a class="accordion__tab-link" href="" data-ng-click="data.search.filterClicked('productundertest', productundertest.name, true)">{$ productundertest.name $}</a>
                 </li>
             </ul>
         </div>
@@ -127,7 +127,7 @@
         <div class="accordion__tab-content">
             <ul class="accordion__tab-list">
                 <li class="accordion__tab-item" data-ng-repeat="solutiontag in data.metadata.solutiontag | orderBy:['name']"  data-ng-class="{ active: data.search.isFilterActive('solutiontag', solutiontag.name, true) }">
-                    <a class="accordion__tab-link" href="" data-ng-click="data.search.toggleFilter('solutiontag', solutiontag.name, true)">{$ solutiontag.name $}</a>
+                    <a class="accordion__tab-link" href="" data-ng-click="data.search.filterClicked('solutiontag', solutiontag.name, true)">{$ solutiontag.name $}</a>
                 </li>
             </ul>
         </div>
@@ -137,7 +137,7 @@
         <div class="accordion__tab-content">
             <ul class="accordion__tab-list">
                 <li class="accordion__tab-item" data-ng-repeat="failedjobs in data.metadata.failedjobs | orderBy:['name']"  data-ng-class="{ active: data.search.isFilterActive('failedjobs', failedjobs.name, true) }">
-                    <a class="accordion__tab-link" href="" data-ng-click="data.search.toggleFilter('failedjobs', failedjobs.name, true)">{$ data.jobtypeLookup[failedjobs.name].description $}</a>
+                    <a class="accordion__tab-link" href="" data-ng-click="data.search.filterClicked('failedjobs', failedjobs.name, true)">{$ data.jobtypeLookup[failedjobs.name].description $}</a>
                 </li>
             </ul>
         </div>
@@ -156,10 +156,10 @@
                 <div class="accordion__tab-content">
                     <ul class="accordion__tab-list">
                         <li class="accordion__tab-item" data-ng-repeat="date in ['Last 24 Hours', 'Last 7 Days', 'Last 30 Days', 'Last Year', 'All Time']"  data-ng-class="{ active: data.reports.search.isFilterActive('date', date, true) }">
-                            <a class="accordion__tab-link" href="" data-ng-click="data.reports.search.toggleFilter('date', date, true)">{$ date $}</a>
+                            <a class="accordion__tab-link" href="" data-ng-click="data.reports.search.filterClicked('date', date, true)">{$ date $}</a>
                         </li>
                         <li class="accordion__tab-item" data-ng-repeat="reportPeriod in data.reports.metadata.reportPeriods | orderBy:'-end_date'"  data-ng-class="{ active: data.reports.search.isFilterActive('date', reportPeriod.name, true) }">
-                            <a class="accordion__tab-link" href="" data-ng-click="data.reports.search.toggleFilter('date', reportPeriod.name, true)">{$ reportPeriod.name $}</a>
+                            <a class="accordion__tab-link" href="" data-ng-click="data.reports.search.filterClicked('date', reportPeriod.name, true)">{$ reportPeriod.name $}</a>
                         </li>
                     </ul>
                 </div>
@@ -169,7 +169,7 @@
                 <div class="accordion__tab-content">
                     <ul class="accordion__tab-list">
                         <li class="accordion__tab-item" data-ng-repeat="env in data.reports.metadata.environments | orderBy:['name']"  data-ng-class="{ active: data.reports.search.isFilterActive('environment', env.name, false) }">
-                            <a class="accordion__tab-link" href="" data-ng-click="data.reports.search.toggleFilter('environment', env.name, false)">{$ env.name $}</a>
+                            <a class="accordion__tab-link" href="" data-ng-click="data.reports.search.filterClicked('environment', env.name, false)">{$ env.name $}</a>
                         </li>
                     </ul>
                 </div>
@@ -179,7 +179,7 @@
                 <div class="accordion__tab-content">
                     <ul class="accordion__tab-list">
                         <li class="accordion__tab-item" data-ng-repeat="reportGroup in data.reports.metadata.reportGroups | orderBy:['name']"  data-ng-class="{ active: data.reports.search.isFilterActive('report', reportGroup.name, true) }">
-                            <a class="accordion__tab-link" href="" data-ng-click="data.reports.search.toggleFilter('report', reportGroup.name, true)">{$ reportGroup.name $}</a>
+                            <a class="accordion__tab-link" href="" data-ng-click="data.reports.search.filterClicked('report', reportGroup.name, true)">{$ reportGroup.name $}</a>
                         </li>
                     </ul>
                 </div>

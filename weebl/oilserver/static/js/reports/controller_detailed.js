@@ -29,7 +29,7 @@ app.controller('detailedReportController', [
     function($scope, $rootScope, $q, $sce, SearchFactory, DataService, Common, graphFactory, keylengthFilter, namedKeyFilter) {
         $scope = Common.initialise($scope);
         if(angular.isUndefined($scope.data.reports.search)) $scope.data.reports.search = new SearchFactory.Search();
-        $scope.data.reports.search.init();
+        $scope.data.reports.search.initialPageLoad();
         if(angular.isUndefined($scope.data.reports.metadata)) $scope.data.reports.metadata = {};
         if(angular.isUndefined($scope.data.reports.detailed)) $scope.data.reports.detailed = {};
         $rootScope.data.show_reports_filters = true;

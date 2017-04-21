@@ -121,8 +121,7 @@ app.controller('successRateController', [
         }
         $scope.data.search.individualFilters = ["start_date", "finish_date"];
         $scope.data.search.runOnUpdate = updateSearch;
-        $scope.data.search._setURLParams();
-        $scope.data.search.init();
+        $scope.data.search.initialPageLoad();
 
         function getMetadata($scope) {
             var enum_fields = FilterFactory.getFilterModels();
@@ -284,13 +283,6 @@ app.controller('successRateController', [
             updateStartDate($scope.data.search.filters["start_date"][0].slice(1));
             updateFinishDate($scope.data.search.filters["finish_date"][0].slice(1));
             updateFromServer();
-        }
-
-        // set the first search to 24 hours
-        // if not doing that run update() instead to apply the above changes
-        if($scope.data.search.search == "") {
-            $scope.data.search.toggleFilter("start_date", "24 Hours Ago", true);
-            $scope.data.search.toggleFilter("finish_date", "Now", true);
         }
 
         $scope.data.highlightTab = function(tab) {
