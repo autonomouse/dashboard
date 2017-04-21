@@ -28,9 +28,6 @@ app.controller('successRateController', [
         $scope.data.default_section = 'results';
 
         function getNewTestRuns(start, end) {
-            if ((angular.isDefined($scope.data.testRuns)) &&
-                ($scope.batch_start === start) &&
-                ($scope.batch_end === end)) return;
             if (start < 0) start = 0;
             $scope.data.plot_data_loading = true;
             $q.all([
@@ -58,6 +55,7 @@ app.controller('successRateController', [
             };
             getNewTestRuns(start, end);
         };
+
         $scope.data.prev_batch = function() {
             if ((angular.isUndefined($scope.data.testRuns)) ||
                 (angular.isUndefined($scope.data.testRuns.meta)) ||
@@ -73,6 +71,7 @@ app.controller('successRateController', [
                 getNewTestRuns(start, end);
             };
         };
+
         $scope.data.next_batch = function() {
             if ((angular.isUndefined($scope.data.testRuns)) ||
                 (angular.isUndefined($scope.data.testRuns.meta)) ||
@@ -88,6 +87,7 @@ app.controller('successRateController', [
                 getNewTestRuns(start, end);
             };
         };
+
         $scope.data.last_batch = function() {
             if ((angular.isUndefined($scope.data.testRuns)) ||
                 (angular.isUndefined($scope.data.testRuns.meta)) ||
@@ -272,7 +272,6 @@ app.controller('successRateController', [
         };
 
         function updateFromServer() {
-            $scope.data.plot_data_loading = true;
             $scope.data.bugs = update('bug');
             $scope.data.first_batch();
             updateGraphValues();
@@ -280,7 +279,8 @@ app.controller('successRateController', [
         }
 
         function updateSearch() {
-            // slicing to pull off the prepended '=' for exact searches
+            $scope.data.plot_data_loading = true;
+            // slicing to pull off the prepended '=' for exact searches:
             updateStartDate($scope.data.search.filters["start_date"][0].slice(1));
             updateFinishDate($scope.data.search.filters["finish_date"][0].slice(1));
             updateFromServer();
