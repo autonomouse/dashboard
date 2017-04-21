@@ -12,7 +12,7 @@ app.controller('qaOverviewController', [
         if ($scope.data.search === undefined)
             $scope.data.search = new SearchFactory.Search();
         defaultFilters = {
-            "start_date": 'Dawn of Time',
+            "start_date": 'One Year Ago',
             "finish_date": 'Now',
         };
         $scope = Common.initialise($scope);

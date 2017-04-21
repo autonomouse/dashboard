@@ -28,9 +28,6 @@ app.controller('successRateController', [
         $scope.data.default_section = 'results';
 
         function getNewTestRuns(start, end) {
-            if ((angular.isDefined($scope.data.testRuns)) &&
-                ($scope.batch_start === start) &&
-                ($scope.batch_end === end)) return;
             if (start < 0) start = 0;
             $scope.data.plot_data_loading = true;
             $q.all([
@@ -39,7 +36,6 @@ app.controller('successRateController', [
                 $scope.data.testRuns = testRuns;
                 if (end > testRuns.meta.total_count)
                     end = testRuns.meta.total_count;
-                $scope.data.plot_data_loading = false;
                 $scope.batch_start = start;
                 $scope.batch_end = end;
             });
@@ -58,6 +54,7 @@ app.controller('successRateController', [
             };
             getNewTestRuns(start, end);
         };
+
         $scope.data.prev_batch = function() {
             if ((angular.isUndefined($scope.data.testRuns)) ||
                 (angular.isUndefined($scope.data.testRuns.meta)) ||
@@ -73,6 +70,7 @@ app.controller('successRateController', [
                 getNewTestRuns(start, end);
             };
         };
+
         $scope.data.next_batch = function() {
             if ((angular.isUndefined($scope.data.testRuns)) ||
                 (angular.isUndefined($scope.data.testRuns.meta)) ||
@@ -88,6 +86,7 @@ app.controller('successRateController', [
                 getNewTestRuns(start, end);
             };
         };
+
         $scope.data.last_batch = function() {
             if ((angular.isUndefined($scope.data.testRuns)) ||
                 (angular.isUndefined($scope.data.testRuns.meta)) ||
@@ -107,8 +106,7 @@ app.controller('successRateController', [
             '24 Hours Ago',
             '7 Days Ago',
             '30 Days Ago',
-            'One Year Ago',
-            'Dawn of Time'
+            'One Year Ago'
         ];
 
         $scope.data.finish_dates = [
@@ -279,7 +277,8 @@ app.controller('successRateController', [
         }
 
         function updateSearch() {
-            // slicing to pull off the prepended '=' for exact searches
+            $scope.data.plot_data_loading = true;
+            // slicing to pull off the prepended '=' for exact searches:
             updateStartDate($scope.data.search.filters["start_date"][0].slice(1));
             updateFinishDate($scope.data.search.filters["finish_date"][0].slice(1));
             updateFromServer();
@@ -340,6 +339,7 @@ app.controller('successRateController', [
         };
 
         $scope.data.getDeployStatusForTestRun = function(pipeline) {
+            $scope.data.plot_data_loading = true;
             if (angular.isDefined($scope.data.testRunsWithData[pipeline].deploystatus)) return;
             $scope.data.testRunsWithData[pipeline].deploystatus = ''
             $q.all([
@@ -356,6 +356,7 @@ app.controller('successRateController', [
                         if (bugoccurrence.objects.length > 0) {
                             $scope.data.testRunsWithData[pipeline].blockers = bugoccurrence.objects;
                         };
+                        $scope.data.plot_data_loading = false;
                     });
                 };
             });
@@ -385,6 +386,7 @@ app.controller('successRateController', [
                     $scope.data.testRunsWithData[testrun.uuid].ubuntuversion = "Unknown";
                 };
             };
+            $scope.data.plot_data_loading = false;
         };
 
 
