@@ -272,6 +272,7 @@ app.controller('successRateController', [
         };
 
         function updateFromServer() {
+            $scope.data.plot_data_loading = true;
             $scope.data.bugs = update('bug');
             $scope.data.first_batch();
             updateGraphValues();
