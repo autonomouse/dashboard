@@ -8,7 +8,7 @@ import oilserver.utils
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('oilserver', '0058_auto_20170410_0957'),
+        ('oilserver', '0059_materialized_configurationchoices'),
     ]
 
     operations = [

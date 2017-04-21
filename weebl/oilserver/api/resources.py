@@ -234,7 +234,9 @@ class ProjectResource(CommonResource):
         for uri in bundle.data['productundertests']:
             put_uuid = uri.rstrip('/').split('/')[-1]
             put = models.ProductUnderTest.objects.get(uuid=put_uuid)
-            associated_products.append(put.producttype.name)
+            if hasattr(put, 'producttypeversion') and put.producttypeversion:
+                associated_products.append(
+                    put.producttypeversion.producttype.name)
         bundle.data['associated_products'] = list(set(associated_products))
         return bundle
 
@@ -335,8 +337,8 @@ class ProductUnderTestResource(CommonResource):
     project = ForeignKey(ProjectResource, 'project', full_list=True)
     internalcontact = ForeignKey(
         InternalContactResource, 'internalcontact', full_list=True)
-    producttype = ForeignKey(
-        ProductTypeResource, 'producttype', full_list=True)
+    producttypeversion = ForeignKey(
+        ProductTypeVersionResource, 'producttypeversion', full_list=True)
     project = ForeignKey(ProjectResource, 'project', full_list=True)
     reports = ToManyField(ReportResource, 'reports')
     machineconfigurations = ReverseManyField(
@@ -348,7 +350,7 @@ class ProductUnderTestResource(CommonResource):
 
     class Meta(CommonMeta):
         queryset = models.ProductUnderTest.objects.select_related(
-            'vendor', 'project', 'internalcontact', 'producttype').all()
+            'vendor', 'project', 'internalcontact', 'producttypeversion').all()
         filtering = {
             'project': ('exact',),
             'internalcontact': ('exact',),
@@ -358,7 +360,7 @@ class ProductUnderTestResource(CommonResource):
             'jujuservicedeployments': ALL_WITH_RELATIONS,
             'uuid': ('exact',),
             'name': ('exact', 'in',),
-            'producttype': ALL_WITH_RELATIONS,
+            'producttypeversion': ALL_WITH_RELATIONS,
             'project': ALL_WITH_RELATIONS, }
 
 

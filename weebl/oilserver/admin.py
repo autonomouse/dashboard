@@ -418,6 +418,26 @@ class ReleaseAdmin(admin.ModelAdmin):
 admin.site.register(models.Release, ReleaseAdmin)
 
 
+class ProductTypeVersionForm(forms.ModelForm):
+    producttype = CustomModelChoiceField(
+        field_to_return='name', queryset=models.ProductType.objects.all(),
+        required=True)
+
+    class Meta:
+        model = models.ProductTypeVersion
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super(ProductTypeVersionForm, self).__init__(*args, **kwargs)
+        add_related_field_wrapper(self, 'producttype')
+
+
+class ProductTypeVersionAdmin(admin.ModelAdmin):
+    form = ProductTypeVersionForm
+
+admin.site.register(models.ProductTypeVersion, ProductTypeVersionAdmin)
+
+
 # Register any remaining models that have not been explicitly registered:
 for model in get_models(get_app('oilserver')):
     try:
