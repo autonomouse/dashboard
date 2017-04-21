@@ -43,7 +43,9 @@
                     <td class="table-listing__cell">
                         <span ng-repeat="testrun in solution.last_ten_pipelines">
                             <a data-ng-href="#/results/testRun/{$ testrun.build.pipeline.uuid $}">
-                                <font size="5" color="{$ testrun.testcaseinstancestatus.name === 'success' ? 'green' : 'red' $}">|</font>
+                                <font size="5"
+                                 color="{$ testrun.testcaseinstancestatus.name === 'success' ? 'green' : 'red' $}"
+                                 data-ng-show="{$ testrun.build.pipeline.solution.superseded == null $}">|</font>
                             </a>
                         </span>
                     </td>

@@ -55,9 +55,11 @@
             <tr class="table-listing__row" ng-repeat="testRun in data.testRuns.objects | orderBy:data.tabs.testRuns.predicate:data.tabs.testRuns.reverse">
                 <td class="table-listing__cell">
                     <a data-ng-href="#/results/testRun/{$ testRun.uuid $}" title="{$ testRun.uuid $}">
-                        {$ data.getExtraDataForTestRun(testRun); data.abbreviateUUID(testRun.uuid) $}
-                        <span data-ng-show="testRun.solution.solutiontag.name != null"> ({$ testRun.solution.solutiontag.name $})
-                        </span>
+                    {$ data.getExtraDataForTestRun(testRun); data.abbreviateUUID(testRun.uuid) $}
+                    <span data-ng-show="testRun.solution.solutiontag.name != null">
+                    <span data-ng-show="testRun.solution.superseded == null">({$ testRun.solution.solutiontag.name $})</span>
+                    <span data-ng-show="testRun.solution.superseded != null"><del>({$ testRun.solution.solutiontag.name $})</del></span>
+                    </span>
                     </a>
                 </td>
                 <td class="table-listing__cell">{$ data.humaniseDate(testRun.completed_at) $}</td>

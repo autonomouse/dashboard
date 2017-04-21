@@ -49,7 +49,7 @@ app.controller('qaOverviewController', [
                             DataService.refresh('testcaseinstance', $scope.data.user, $scope.data.apikey).query({
                                 'build__pipeline__solution__solutiontag__name': tag,
                                 'testcase__testcaseclass__testframework__name': 'pipeline_deploy',
-                                'limit':10,
+                                'limit': 10,
                                 'order_by': '-build__pipeline__completed_at'}).$promise
                         ]).then(function([latest_pipeline_tcis]) {
                             if (latest_pipeline_tcis.length) {

@@ -6,7 +6,17 @@
         </a>
         <p class="testrun_header">
             <h2>Test Run {$ data.testRunId $}</h2>
-        </p>
+            <p data-ng-show="data.individual_testRun.solution.solutiontag.name">
+                <div data-ng-show="data.individual_testRun.solution">
+                This test run <span data-ng-show="!data.individual_testRun.solution.superseded">is tagged as the latest</span>
+                <span data-ng-show="data.individual_testRun.solution.superseded">was previously tagged as the</span>
+                <a href="#/results/testRuns?solutiontag={$ data.individual_testRun.solution.solutiontag.name $}&start_date=Dawn%20of%20Time&finish_date=Now"
+                 title="{$ data.individual_testRun.solution.solutiontag.name $}">
+                 {$ data.individual_testRun.solution.solutiontag.name $}
+                </a>
+                solution<span data-ng-show="data.individual_testRun.solution.superseded">, but has since been <a data-ng-href="#/results/testRun/{$ data.individual_testRun.solution.superseded $}">superseded</a></span>.
+                </div>
+            </p>
     </div>
 
     <div id="content" class="nine-col last-col">

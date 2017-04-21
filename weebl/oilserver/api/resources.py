@@ -395,14 +395,35 @@ class SolutionTagResource(CommonResource):
 class SolutionResource(CommonResource):
     """API Resource for 'Solution' model. """
 
-    solutiontag = ForeignKey(
-        SolutionTagResource, 'solutiontag', full=True)
+    solutiontag = ForeignKey(SolutionTagResource, 'solutiontag', full_list=True)
+    superseded = fields.CharField('superseded', readonly=True, null=True)
 
     class Meta(CommonMeta):
         queryset = models.Solution.objects.all()
         filtering = {'cdo_checksum': ('exact'),
                      'solutiontag': ALL_WITH_RELATIONS, }
         detail_uri_name = 'cdo_checksum'
+
+    def dehydrate(self, bundle):
+        bundle = super(SolutionResource, self).dehydrate(bundle)
+        tag = bundle.data['solutiontag'].data['name']
+        # Find the most recent pipeline with this tag and if the cdo_checksum
+        # of this solution matches that of the solution of that one, then this
+        # is classed as the latest solution to carry that tag name. Using
+        # created_at, rather than completed at, to reflect the chronology (a
+        # pipeline may not be necessarily be finished, but it can still be the
+        # latest version) of tag naming. Also, pipelines do not get a
+        # completed_at until they are finished:
+        latest = models.Pipeline.objects.filter(
+            solution__solutiontag__name=tag).order_by('created_at').first()
+        if not latest:
+            cs = None
+        else:
+            checksum = latest.solution.cdo_checksum
+            uuid = latest.uuid
+            cs = None if checksum == bundle.data['cdo_checksum'] else uuid
+        bundle.data['superseded'] = cs
+        return bundle
 
 
 class PipelineResource(CommonResource):
