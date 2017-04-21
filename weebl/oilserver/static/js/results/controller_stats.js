@@ -106,8 +106,7 @@ app.controller('successRateController', [
             '24 Hours Ago',
             '7 Days Ago',
             '30 Days Ago',
-            'One Year Ago',
-            'Dawn of Time'
+            'One Year Ago'
         ];
 
         $scope.data.finish_dates = [
