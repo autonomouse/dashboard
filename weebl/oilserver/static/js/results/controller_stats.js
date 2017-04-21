@@ -36,7 +36,6 @@ app.controller('successRateController', [
                 $scope.data.testRuns = testRuns;
                 if (end > testRuns.meta.total_count)
                     end = testRuns.meta.total_count;
-                $scope.data.plot_data_loading = false;
                 $scope.batch_start = start;
                 $scope.batch_end = end;
             });
@@ -341,6 +340,7 @@ app.controller('successRateController', [
         };
 
         $scope.data.getDeployStatusForTestRun = function(pipeline) {
+            $scope.data.plot_data_loading = true;
             if (angular.isDefined($scope.data.testRunsWithData[pipeline].deploystatus)) return;
             $scope.data.testRunsWithData[pipeline].deploystatus = ''
             $q.all([
@@ -357,6 +357,7 @@ app.controller('successRateController', [
                         if (bugoccurrence.objects.length > 0) {
                             $scope.data.testRunsWithData[pipeline].blockers = bugoccurrence.objects;
                         };
+                        $scope.data.plot_data_loading = false;
                     });
                 };
             });
@@ -386,6 +387,7 @@ app.controller('successRateController', [
                     $scope.data.testRunsWithData[testrun.uuid].ubuntuversion = "Unknown";
                 };
             };
+            $scope.data.plot_data_loading = false;
         };
 
 
