@@ -363,7 +363,6 @@ def make_jenkins():
 
     models.Jenkins(environment=models.Environment.objects.first(),
                    servicestatus=models.ServiceStatus.objects.get(name='up'),
-                   internal_access_url='https://192.34.56.78/',
                    external_access_url='https://oil-jenkins.canonical.com/'
                   ).save()
 

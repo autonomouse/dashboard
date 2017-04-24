@@ -15,7 +15,6 @@ from django.db.models.aggregates import Count as AggCount
 from oilserver import models, utils
 from django.contrib.sites.models import Site
 from oilserver.api.authorization import WorldReadableDjangoAuthorization
-from oilserver.api.authentication import WorldReadableApiKeyAuthentication
 
 # default to not populating reverse relations ('use_in') for speed and 'maximum
 # recursion depth' exceeded wormhole
@@ -41,7 +40,7 @@ class CommonMeta(object):
     list_allowed_methods = ['get', 'post', 'delete']  # all items
     detail_allowed_methods = ['get', 'post', 'put', 'delete']  # individual
     include_resource_uri = False
-    authentication = WorldReadableApiKeyAuthentication()
+    authentication = ApiKeyAuthentication()
     authorization = WorldReadableDjangoAuthorization()
     always_return_data = True
     detail_uri_name = 'uuid'
