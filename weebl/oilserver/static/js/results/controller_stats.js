@@ -13,8 +13,6 @@ app.controller('successRateController', [
         binding.apikey = $scope.data.apikey;
 
         $scope = Common.initialise($scope);
-        $scope.batch_size = 20;
-        $scope.batch_start = 0;
 
         $scope.data = getMetadata($scope);
 
@@ -26,78 +24,6 @@ app.controller('successRateController', [
 
         $scope.data.default_tab = 'successRate';
         $scope.data.default_section = 'results';
-
-        function getNewTestRuns(start, end) {
-            if (start < 0) start = 0;
-            $scope.data.plot_data_loading = true;
-            $q.all([
-                update('pipeline', $scope.batch_size, start).$promise]
-            ).then(function([testRuns]) {
-                $scope.data.testRuns = testRuns;
-                if (end > testRuns.meta.total_count)
-                    end = testRuns.meta.total_count;
-                $scope.batch_start = start;
-                $scope.batch_end = end;
-            });
-        };
-
-        $scope.data.first_batch = function() {
-            start = 0;
-            assumed_end = $scope.batch_start + $scope.batch_size - 1;
-            if ((angular.isUndefined($scope.data.testRuns)) ||
-                (angular.isUndefined($scope.data.testRuns.meta)) ||
-                (angular.isUndefined($scope.batch_end))) {
-                end = assumed_end;
-            } else {
-                var max = $scope.data.testRuns.meta.limit
-                end = max < $scope.batch_end ? max : assumed_end;
-            };
-            getNewTestRuns(start, end);
-        };
-
-        $scope.data.prev_batch = function() {
-            if ((angular.isUndefined($scope.data.testRuns)) ||
-                (angular.isUndefined($scope.data.testRuns.meta)) ||
-                (angular.isUndefined($scope.batch_end))) {
-                // Do nothing if data is not ready (first time loading)
-                return
-            };
-            var end = $scope.batch_start - 1;
-            var start = end - $scope.batch_size + 1;
-            if (start < 0) {
-                return $scope.data.first_batch();
-            } else {
-                getNewTestRuns(start, end);
-            };
-        };
-
-        $scope.data.next_batch = function() {
-            if ((angular.isUndefined($scope.data.testRuns)) ||
-                (angular.isUndefined($scope.data.testRuns.meta)) ||
-                (angular.isUndefined($scope.batch_end))) {
-                // Do nothing if data is not ready (first time loading)
-                return
-            };
-            var start = $scope.batch_start + $scope.batch_size;
-            var end = start + $scope.batch_size - 1;
-            if (end > $scope.data.testRuns.meta.total_count) {
-                $scope.data.last_batch();
-            } else {
-                getNewTestRuns(start, end);
-            };
-        };
-
-        $scope.data.last_batch = function() {
-            if ((angular.isUndefined($scope.data.testRuns)) ||
-                (angular.isUndefined($scope.data.testRuns.meta)) ||
-                (angular.isUndefined($scope.batch_end))) {
-                // Do nothing if data is not ready (first time loading)
-                return
-            };
-            var end = $scope.data.testRuns.meta.total_count;
-            var start = Math.floor(end/$scope.batch_size) * $scope.batch_size;
-            getNewTestRuns(start, end);
-        };
 
         if (angular.isUndefined($scope.data.search))
             $scope.data.search = new SearchFactory.Search();
@@ -238,10 +164,6 @@ app.controller('successRateController', [
             return DataService.refresh(model, $scope.data.user, $scope.data.apikey).get(active_filters)
         };
 
-        function dateToString(date) {
-            return date.getUTCFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getUTCDate();
-        };
-
         $scope.data.calcPercentage = function(value, number_of_test_runs) {
             return graphFactory.calcPercentage(value, number_of_test_runs);
         };
@@ -258,9 +180,6 @@ app.controller('successRateController', [
             };
         };
 
-        $scope.data.humaniseDate = Common.humaniseDate;
-        $scope.data.abbreviateUUID = Common.abbreviateUUID;
-
         function updateStartDate(start_date) {
             $scope.data.start_date = FilterFactory.updateStartDate(start_date);
         };
@@ -270,10 +189,7 @@ app.controller('successRateController', [
         };
 
         function updateFromServer() {
-            $scope.data.bugs = update('bug');
-            $scope.data.first_batch();
             updateGraphValues();
-            $scope.data.first_batch();
         }
 
         function updateSearch() {
@@ -292,105 +208,10 @@ app.controller('successRateController', [
             Common.highlightSection($scope, section);
         };
 
-        // Sorts the table by predicate.
-        $scope.data.sortTable = function(predicate, tab) {
-            if (predicate === $scope.data.tabs[tab].predicate) {
-                $scope.data.tabs[tab].reverse = !$scope.data.tabs[tab].reverse;
-            } else {
-                $scope.data.tabs[tab].reverse = true;
-            }
-            $scope.data.tabs[tab].predicate = predicate;
-        };
-
         $q.all([$scope.data.job_details.$promise]).then(function([job_details]) {
             $scope.data.jobtypeLookup = Common.makeJobDetailsDict(job_details);
         });
 
-        $scope.data.getLogoURL = function(svg) {
-            return Common.getLogoURL(svg)
-        };
-
-        $scope.data.getMaasVersionForTestRun = function(pipeline) {
-            if (angular.isDefined($scope.data.testRunsWithData[pipeline].maasversion)) return;
-            $scope.data.testRunsWithData[pipeline].maasversion = ''
-            $q.all([
-                DataService.refresh('productundertest', $scope.data.user, $scope.data.apikey).get({
-                    'machineconfigurations__units__jujuservicedeployment__pipeline__uuid': pipeline,
-                    'producttype__name': 'maas'}).$promise
-            ]).then(function([maas_productundertest]) {
-                if ((maas_productundertest.objects.length > 0) && (angular.isDefined(maas_productundertest.objects[0].name))) {
-                    $scope.data.testRunsWithData[pipeline].maasversion = maas_productundertest.objects[0].name;
-                };
-            });
-        };
-
-        $scope.data.getJujuVersionForTestRun = function(pipeline) {
-            if (angular.isDefined($scope.data.testRunsWithData[pipeline].jujuversion)) return;
-            $scope.data.testRunsWithData[pipeline].jujuversion = ''
-            $q.all([
-                DataService.refresh('productundertest', $scope.data.user, $scope.data.apikey).get({
-                    'machineconfigurations__units__jujuservicedeployment__pipeline__uuid': pipeline,
-                    'producttype__name': 'juju'}).$promise
-            ]).then(function([juju_productundertest]) {
-                if ((juju_productundertest.objects.length > 0) && (angular.isDefined(juju_productundertest.objects[0].name))) {
-                    $scope.data.testRunsWithData[pipeline].jujuversion = juju_productundertest.objects[0].name;
-                };
-            });
-        };
-
-        $scope.data.getDeployStatusForTestRun = function(pipeline) {
-            $scope.data.plot_data_loading = true;
-            if (angular.isDefined($scope.data.testRunsWithData[pipeline].deploystatus)) return;
-            $scope.data.testRunsWithData[pipeline].deploystatus = ''
-            $q.all([
-                DataService.refresh('testcaseinstance', $scope.data.user, $scope.data.apikey).get({
-                    'build__pipeline__uuid': pipeline,
-                    'build__jobtype__name': 'pipeline_deploy'}).$promise
-            ]).then(function([testcaseinstance]) {
-                if ((testcaseinstance.objects.length > 0) && (angular.isDefined(testcaseinstance.objects[0].testcaseinstancestatus.name))) {
-                    $scope.data.testRunsWithData[pipeline].deploystatus = testcaseinstance.objects[0].testcaseinstancestatus.name;
-                     $q.all([
-                        DataService.refresh('bugoccurrence', $scope.data.user, $scope.data.apikey).get({
-                            'testcaseinstance__uuid': testcaseinstance.objects[0].uuid}).$promise
-                    ]).then(function([bugoccurrence]) {
-                        if (bugoccurrence.objects.length > 0) {
-                            $scope.data.testRunsWithData[pipeline].blockers = bugoccurrence.objects;
-                        };
-                        $scope.data.plot_data_loading = false;
-                    });
-                };
-            });
-        };
-
-        $scope.data.getExtraDataForTestRun = function(testrun) {
-            if (angular.isUndefined($scope.data.testRunsWithData))
-                $scope.data.testRunsWithData = {};
-            if (angular.isUndefined($scope.data.testRunsWithData[testrun.uuid]))
-                $scope.data.testRunsWithData[testrun.uuid] = {};
-            $scope.data.getMaasVersionForTestRun(testrun.uuid);
-            $scope.data.getJujuVersionForTestRun(testrun.uuid);
-            $scope.data.getDeployStatusForTestRun(testrun.uuid);
-
-            if ((angular.isDefined(testrun.versionconfiguration)) && (testrun.versionconfiguration === null)) {
-                $scope.data.testRunsWithData[testrun.uuid].openstackversion = "Unknown";
-                $scope.data.testRunsWithData[testrun.uuid].ubuntuversion = "Unknown";
-            } else {
-                if ((angular.isDefined(testrun.versionconfiguration.openstackversion)) && (testrun.versionconfiguration.openstackversion != null)) {
-                    $scope.data.testRunsWithData[testrun.uuid].openstackversion = testrun.versionconfiguration.openstackversion.name;
-                } else {
-                    $scope.data.testRunsWithData[testrun.uuid].openstackversion = "Unknown";
-                };
-                if ((angular.isDefined(testrun.versionconfiguration.ubuntuversion)) && (testrun.versionconfiguration.ubuntuversion != null)) {
-                    $scope.data.testRunsWithData[testrun.uuid].ubuntuversion = testrun.versionconfiguration.ubuntuversion.name;
-                } else {
-                    $scope.data.testRunsWithData[testrun.uuid].ubuntuversion = "Unknown";
-                };
-            };
-            $scope.data.plot_data_loading = false;
-        };
-
-
-        $scope.data.first_batch();
         updateGraphValues();
         jobDetails = Common.makeJobDetailsDict($scope.data.job_details);
 
