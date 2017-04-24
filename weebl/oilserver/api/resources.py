@@ -327,7 +327,7 @@ class ProductUnderTestResource(CommonResource):
         InternalContactResource, 'internalcontact')
     producttype = ForeignKey(
         ProductTypeResource, 'producttype', full_list=True)
-    reports = ToManyField(ReportResource, 'reports')
+    reports = ToManyField(ReportResource, 'reports', use_in='detail')
     machineconfigurations = ReverseManyField(
         'oilserver.api.resources.MachineConfigurationResource',
         'machineconfigurations')
