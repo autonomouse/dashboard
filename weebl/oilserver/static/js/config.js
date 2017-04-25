@@ -28,8 +28,8 @@ app.config(function ($routeProvider) {
         .when('/results/testRuns', {
             reloadOnSearch: false,
             templateUrl: '/static/partials/testRuns.html',
-            controller: 'successRateController',
-            controllerAs:'successRate'
+            controller: 'testRunsController',
+            controllerAs:'testRuns'
         })
         .when('/results/testRun/:testRunId', {
             reloadOnSearch: false,

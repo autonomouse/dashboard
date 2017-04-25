@@ -175,7 +175,8 @@ class JenkinsResource(CommonResource):
     servicestatus = ForeignKey(ServiceStatusResource, 'servicestatus')
 
     class Meta(CommonMeta):
-        queryset = models.Jenkins.objects.all()
+        queryset = models.Jenkins.objects.select_related(
+            'environment', 'servicestatus').all()
         filtering = {
             'environment': ALL_WITH_RELATIONS,
             'uuid': ('exact',),
@@ -195,7 +196,8 @@ class BuildExecutorResource(CommonResource):
     jenkins = ForeignKey(JenkinsResource, 'jenkins')
 
     class Meta(CommonMeta):
-        queryset = models.BuildExecutor.objects.all()
+        queryset = models.BuildExecutor.objects.select_related(
+            'jenkins').all()
         fields = ['name', 'uuid', 'jenkins']
         filtering = {'jenkins': ALL_WITH_RELATIONS,
                      'name': ALL,
@@ -324,7 +326,7 @@ class ProductUnderTestResource(CommonResource):
         InternalContactResource, 'internalcontact')
     producttype = ForeignKey(
         ProductTypeResource, 'producttype', full_list=True)
-    reports = ToManyField(ReportResource, 'reports')
+    reports = ToManyField(ReportResource, 'reports', use_in='detail')
     machineconfigurations = ReverseManyField(
         'oilserver.api.resources.MachineConfigurationResource',
         'machineconfigurations')
@@ -334,7 +336,7 @@ class ProductUnderTestResource(CommonResource):
 
     class Meta(CommonMeta):
         queryset = models.ProductUnderTest.objects.select_related(
-            'producttype').all()
+            'vendor', 'project', 'internalcontact', 'producttype').all()
         filtering = {
             'project': ('exact',),
             'internalcontact': ('exact',),
@@ -397,7 +399,7 @@ class SolutionResource(CommonResource):
     superseded = fields.CharField('superseded', readonly=True, null=True)
 
     class Meta(CommonMeta):
-        queryset = models.Solution.objects.all()
+        queryset = models.Solution.objects.select_related('solutiontag').all()
         filtering = {'cdo_checksum': ('exact'),
                      'solutiontag': ALL_WITH_RELATIONS, }
         detail_uri_name = 'cdo_checksum'
@@ -448,7 +450,9 @@ class PipelineResource(CommonResource):
         'jujuservicedeployments')
 
     class Meta(CommonMeta):
-        queryset = models.Pipeline.objects.all().order_by('-completed_at')
+        queryset = models.Pipeline.objects.select_related(
+            'buildexecutor', 'solution', 'versionconfiguration',
+            'configurationchoices').all().order_by('-completed_at')
         filtering = {'uuid': ALL,
                      'builds': ALL_WITH_RELATIONS,
                      'completed_at': ALL_WITH_RELATIONS,
@@ -646,7 +650,8 @@ class MachineConfigurationResource(CommonResource):
         'oilserver.api.resources.UnitResource', 'units')
 
     class Meta(CommonMeta):
-        queryset = models.MachineConfiguration.objects.all()
+        queryset = models.MachineConfiguration.objects.select_related(
+            'machine').all()
         filtering = {
             'machine': ALL_WITH_RELATIONS,
             'name': ('exact',),
@@ -704,7 +709,8 @@ class BuildResource(CommonResource):
                                          readonly=True)
 
     class Meta(CommonMeta):
-        queryset = models.Build.objects.all()
+        queryset = models.Build.objects.select_related(
+            'pipeline', 'jobtype').all()
         filtering = {'uuid': ALL,
                      'build_id': ALL,
                      'build_started_at': ALL,
@@ -733,7 +739,8 @@ class JujuServiceDeploymentResource(CommonResource):
         'oilserver.api.resources.UnitResource', 'units')
 
     class Meta(CommonMeta):
-        queryset = models.JujuServiceDeployment.objects.all()
+        queryset = models.JujuServiceDeployment.objects.select_related(
+            'pipeline', 'jujuservice', 'charm', 'productundertest').all()
         filtering = {
             'uuid': ('exact',),
             'success': ALL,
@@ -753,7 +760,8 @@ class UnitResource(CommonResource):
         JujuServiceDeploymentResource, 'jujuservicedeployment')
 
     class Meta(CommonMeta):
-        queryset = models.Unit.objects.all()
+        queryset = models.Unit.objects.select_related(
+            'machineconfiguration', 'jujuservicedeployment').all()
         filtering = {
             'uuid': ('exact',),
             'number': ('exact',),
@@ -800,7 +808,8 @@ class TestCaseClassResource(CommonResource):
         'testcases')
 
     class Meta(CommonMeta):
-        queryset = models.TestCaseClass.objects.all()
+        queryset = models.TestCaseClass.objects.select_related(
+            'testframework', 'reportsection').all()
         filtering = {
             'name': ('exact'),
             'uuid': ('exact'),
@@ -836,7 +845,8 @@ class TestCaseResource(CommonResource):
         'testcaseinstances')
 
     class Meta(CommonMeta):
-        queryset = models.TestCase.objects.all()
+        queryset = models.TestCase.objects.select_related(
+            'testcaseclass').all()
         filtering = {
             'name': ALL,
             'uuid': ('exact'),
@@ -993,7 +1003,8 @@ class BugOccurrenceResource(CommonResource):
     updated_at = fields.DateTimeField('updated_at', readonly=True)
 
     class Meta(CommonMeta):
-        queryset = models.BugOccurrence.objects.all()
+        queryset = models.BugOccurrence.objects.select_related(
+            'knownbugregex', 'testcaseinstance').all()
         excludes = []
         filtering = {'uuid': ALL,
                      'knownbugregex': ALL_WITH_RELATIONS,
@@ -1048,7 +1059,8 @@ class ReportInstanceResource(CommonResource):
     reportperiod = ForeignKey(ReportPeriodResource, 'reportperiod')
 
     class Meta(CommonMeta):
-        queryset = models.ReportInstance.objects.all()
+        queryset = models.ReportInstance.objects.select_related(
+            'report', 'reportperiod').all()
         filtering = {'uuid': ('exact',),
                      'report': ALL_WITH_RELATIONS,
                      'reportperiod': ALL_WITH_RELATIONS, }
